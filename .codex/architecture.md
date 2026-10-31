@@ -645,3 +645,23 @@ rejected. This is a measured selectbox history slice, not general callback,
 fragment, multipage, other bound controls or reload-persistence acceptance.
 No production/example/API/dependency change; pending JSON parser and broader
 queue decisions remain pending. 130 partial and the full goal remain open.
+
+
+### Percent escapes require two ASCII hex digits (2026-10-31)
+
+The private query decoder accepted % + digit through u8::from_str_radix:
+%+1 became U+0001 and % + A became LF. Python parse_qsl preserves those invalid
+percent tokens and converts the ordinary plus to space. A real unit failure
+and the existing values app's 16-request/240-event WS differential reproduce
+wrong names, values and writeback URLs. Require both following bytes to be ASCII
+hex digits before the existing conversion. No new production file, interface,
+dependency, fallback policy or serializer change. Valid escapes and UTF-8 loss
+handling retain the measured semantics.
+
+The native reference covers 128 snapshots/112 URL writes, including malformed,
+short, nonrecursive, control, Unicode, invalid/truncated UTF-8 and repeated/empty
+keys. Raw PB summaries, static initial literals and four coherent mutation
+guards bind its meaning. Browser normalization/display and arbitrary syntax
+remain outside this new evidence; earlier history UI records are unchanged.
+The pending JSON scanner, public API and broader rerun queue choices are not
+resolved by this private decoder correction. Full goal and 130 partial remain.

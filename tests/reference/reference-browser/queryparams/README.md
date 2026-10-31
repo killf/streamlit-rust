@@ -330,3 +330,39 @@ It does not close callback, fragment, multipage, other binding controls, reload
 persistence or general browser-history compatibility. All owned tabs and servers
 were closed; ports were read back free. No production API, queue policy or pending
 JSON parser decision changed.
+
+
+## Query percent decoding and writeback (2026-10-31)
+
+`encoding/trace.json` reuses the existing values app and native-WS collector:
+
+```
+target/pyref-venv/Scripts/python.exe tests/browser/queryparams_values_capture.py --scenario encoding --out <new-directory>
+```
+
+Sixteen requests in one session each execute the existing eight snapshots and
+seven URL mutations: 128 snapshots/112 URL writes, 240 interleaved events.
+Original frames and decoded summaries are retained. The NewSession environment
+records Streamlit 1.66.1/Python 3.14.7.final.0 and is checked on every run.
+
+The old Rust decoder used an integer parser that accepts a leading plus, so
+`tag=%+1&%+f=key` read a control value/key instead of Python's literal `% 1`/`% f`.
+The fix only requires two ASCII hex digits after percent. The ordinary plus to
+space rule still applies to malformed escapes; valid `%2B` remains a literal plus
+and `%2520` decodes only once to `%20`. The first retained URL write is
+`tag=replacement&tag=tail&%25+f=key&keep=ok`.
+
+Other cases cover short/bad percent tokens; hex letter case; space/plus;
+NUL, tab, CR, LF and DEL; Chinese/emoji/raw Unicode; invalid and truncated UTF-8;
+encoded ampersand/equal/hash/question/slash; semicolon and extra equals;
+repeated/empty/Unicode-equivalent keys; and the existing mutation order.
+Static initial-state literals bind the frozen meaning, raw PB is bound to each
+summary, and URL writes are independently checked against standard urlencode.
+Four coherent mutations of a raw value, key, replacement-character count or
+request lexeme must fail. Source fingerprints do not gate behavior evidence.
+
+Rust unit and real-WS regressions failed before the production change; all 240
+events match after it. This is native protocol/API evidence, with no new DOM,
+screenshot, browser-normalization or general input-grammar claim. The existing
+browser history records were reused, not recaptured for this decoder fix.
+The reference socket/server were closed and its port 49353 was read back free.

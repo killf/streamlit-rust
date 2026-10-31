@@ -26,6 +26,28 @@ from queryparams_contract import (  # noqa: E402
 PNG_BYTES = b"\x89PNG\r\n\x1a\n" + b"not-a-real-image-but-magic-and-hash-are-checked"
 
 
+QUERY_ENCODING_CASES = (('tag=%+1&%+f=key&keep=ok', ['% 1'], [['tag', '% 1'], ['% f', 'key'], ['keep', 'ok']]),
+ ('tag=%+0&tag=%+9&tag=%+A&tag=%+F&tag=%+a&tag=%+f', ['% 0', '% 9', '% A', '% F', '% a', '% f'], [['tag', '% f']]),
+ ('tag=%1&tag=%&tag=%%&tag=%GG&tag=%1G&tag=%G1&tag=%-1&tag=%+G',
+  ['%1', '%', '%%', '%GG', '%1G', '%G1', '%-1', '% G'],
+  [['tag', '% G']]),
+ ('tag=%20&tag=+&tag=%2B&tag=%2520&tag=a%26b%3Dc', [' ', ' ', '+', '%20', 'a&b=c'], [['tag', 'a&b=c']]),
+ ('tag=%00&tag=%0A&tag=%0D&tag=%09&tag=%7F', ['\x00', '\n', '\r', '\t', '\x7f'], [['tag', '\x7f']]),
+ ('tag=%E4%B8%AD%E6%96%87&tag=%e4%b8%ad&tag=%F0%9F%A7%8A', ['中文', '中', '🧊'], [['tag', '🧊']]),
+ ('tag=%FF&tag=%C0%AF&tag=%ED%A0%80&tag=%F4%90%80%80', ['�', '��', '���', '����'], [['tag', '����']]),
+ ('tag=%E2%82&tag=%E2%28%A1&tag=%F0%9F%28%8A&tag=%C3%A9%FF', ['�', '�(�', '�(�', 'é�'], [['tag', 'é�']]),
+ ('=empty&bare&blank=&tag=first&tag=last&&', ['first', 'last'], [['', 'empty'], ['bare', ''], ['blank', ''], ['tag', 'last']]),
+ ('tag=a;b&tag=a=b&tag=%23part&tag=%3Fquestion&tag=%2Fpath', ['a;b', 'a=b', '#part', '?question', '/path'], [['tag', '/path']]),
+ ('tag=literal中文+🧊&tag=literal%中文', ['literal中文 🧊', 'literal%中文'], [['tag', 'literal%中文']]),
+ ('tag=%2b&tag=%2B&tag=%2f&tag=%2F&tag=%7e&tag=~', ['+', '+', '/', '/', '~', '~'], [['tag', '~']]),
+ ('tag=%+1&tag=%2B1&%+1=invalid-key&%2B1=valid-key',
+  ['% 1', '+1'],
+  [['tag', '+1'], ['% 1', 'invalid-key'], ['+1', 'valid-key']]),
+ ('%E4%B8%AD=x&中=y&tag=a&%74ag=b&tag=c', ['a', 'b', 'c'], [['中', 'y'], ['tag', 'c']]),
+ ('tag=&tag&=one&=two', ['', ''], [['tag', ''], ['', 'two']]),
+ ('tag=%+A%+f%2B+%25', ['% A% f+ %'], [['tag', '% A% f+ %']]))
+
+
 DISABLED_JSON_INPUTS = ('',
  '{',
  '[',
@@ -110,7 +132,7 @@ def read_query_param_capture(scenario, capture=None):
                     byte_payloads.append(widgets[0].bytes_value)
         elif message.WhichOneof("type") == "new_session":
             sessions.append(message.new_session.initialize.session_id)
-            if scenario == "disabled-json":
+            if scenario in ("disabled-json", "encoding"):
                 environment = message.new_session.initialize.environment_info
                 assert environment.streamlit_version == "1.66.1" and environment.python_version == "3.14.7.final.0"
         elif message.WhichOneof("type") == "script_finished":
@@ -119,7 +141,7 @@ def read_query_param_capture(scenario, capture=None):
             urls.append(message.page_info_changed.query_string)
         elif message.WhichOneof("type") == "delta" and message.delta.WhichOneof("type") == "new_element":
             element = message.delta.new_element
-            if scenario.startswith("disabled-types") or scenario == "disabled-json":
+            if scenario.startswith("disabled-types") or scenario in ("disabled-json", "encoding"):
                 assert list(message.metadata.delta_path) == [0, slot]
                 slot += 1
             if element.WhichOneof("type") == "exception":
@@ -231,6 +253,13 @@ def read_query_param_capture(scenario, capture=None):
         assert histories == [False] * 9 and finishes == [0] * 9
         assert [query.split("phase=")[1].split("&")[0] for query in requests] == [
             "load", "forge", "malformed" if scenario == "disabled" else "invalid-url", "code", "hidden", "remount", "enabled", "interactive", "redisable"]
+    elif scenario == "encoding":
+        assert requests == [case[0] for case in QUERY_ENCODING_CASES]
+        assert histories == [False] * 16 and finishes == [0] * 16
+        assert len(sessions) == 16 and len(set(sessions)) == 1
+        assert len(snapshots) == 128
+        for number, (_, values, pairs) in enumerate(QUERY_ENCODING_CASES):
+            assert snapshots[number * 8] == {"stage": "load", "value": values[-1], "all": values, "pairs": pairs, "empty": None}
     elif scenario == "binding":
         assert capture["query_string"] == requests[0]
         assert requests == ["case=binding&phase=load", "case=binding&phase=active&bound=y&text=hello",
@@ -260,6 +289,76 @@ def test_query_param_values_oracle_is_complete_and_backed_by_wire():
     assert urls[0].startswith("z=last&tag=replacement&tag=tail&a=first&blank=")
     assert urls[1].endswith("&new=%E4%B8%AD%E6%96%87+%2B+text")
     assert urls[-2:] == ["", "tag=again&tag=last"]
+
+
+def test_query_param_encoding_oracle_keeps_exact_values_and_writes():
+    from urllib.parse import parse_qsl, urlencode
+
+    snapshots, urls = read_query_param_capture("encoding")
+    assert len(snapshots) == 128 and len(urls) == 112
+    for number, (query, _, _) in enumerate(QUERY_ENCODING_CASES):
+        states = snapshots[number * 8:(number + 1) * 8]
+        assert [state["stage"] for state in states] == ["load", "replace", "append", "empty-list", "remove-empty", "remove-tag", "clear", "restore"]
+        assert states[1]["all"] == ["replacement", "tail"] and states[1]["value"] == "tail"
+        assert states[3]["empty"] == "" and states[4]["empty"] is None
+        assert states[5]["all"] == [] and states[5]["value"] is None
+        assert states[6]["pairs"] == [] and states[7]["all"] == ["again", "last"]
+
+        # 标准库只构造写回 URL；初始解码内容另由固定字面量约束。
+        parameters = {}
+        for key, value in parse_qsl(query, keep_blank_values=True):
+            parameters.setdefault(key, []).append(value)
+        parameters["tag"] = ["replacement", "tail"]
+        expected = [urlencode(parameters, doseq=True)]
+        parameters["new"] = ["中文 + text"]
+        expected += [urlencode(parameters, doseq=True)] * 3
+        del parameters["tag"]
+        expected += [urlencode(parameters, doseq=True), "", "tag=again&tag=last"]
+        assert urls[number * 7:(number + 1) * 7] == expected
+    assert urls[0] == "tag=replacement&tag=tail&%25+f=key&keep=ok"
+
+
+@pytest.mark.parametrize("mutation", ["percent-value", "percent-key", "utf8-replacement", "input"])
+def test_query_encoding_gate_rejects_coherent_wrong_wire(mutation):
+    import base64
+    from google.protobuf.json_format import MessageToDict
+    from streamlit.proto.BackMsg_pb2 import BackMsg
+    from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
+
+    capture = json.loads((HERE / "reference-browser/queryparams/encoding/trace.json").read_text(encoding="utf-8"))
+    run = -1
+    for frame in capture["frames"]:
+        incoming = frame["direction"] == "client->server"
+        message = BackMsg() if incoming else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if incoming:
+            run += 1
+            if mutation != "input" or run != 0:
+                continue
+            message.rerun_script.query_string = message.rerun_script.query_string.replace("tag=%+1", "tag=%2B1")
+        else:
+            if run != (6 if mutation == "utf8-replacement" else 0) or message.delta.new_element.WhichOneof("type") != "json":
+                continue
+            report = json.loads(message.delta.new_element.json.body)
+            if report["stage"] != "load" or mutation == "input":
+                continue
+            if mutation == "percent-value":
+                report["all"] = ["\x01"]
+                report["value"] = "\x01"
+                report["pairs"][0][1] = "\x01"
+            elif mutation == "percent-key":
+                report["pairs"][1][0] = "\x0f"
+            else:
+                report["all"][2] = "�"
+            message.delta.new_element.json.body = json.dumps(report)
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+        break
+    else:
+        pytest.fail("missing encoding mutation target")
+    with pytest.raises(AssertionError):
+        read_query_param_capture("encoding", capture)
+
 
 def test_query_param_reserved_oracle_is_complete_and_backed_by_wire():
     snapshots, urls = read_query_param_capture("reserved")

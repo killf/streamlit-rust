@@ -864,3 +864,45 @@ All four owned tabs across the two batches and both batches of servers were
 closed; ports 8515/18515 and owned PIDs were read back absent. General history,
 callback, multipage and other bound-widget behavior remain unverified; existing
 queue/API/parser decisions and the 130 partial denominator remain unchanged.
+
+
+### 2026-10-31 query percent encoding correction
+
+The existing private decoder accepted Rust integer-parser leading plus syntax:
+%+1 read as U+0001, including in parameter names. Python 1.66.1 preserves the
+invalid percent sequence and applies ordinary plus-to-space handling (% 1).
+The fix in query_params.rs only requires both escape characters to be ASCII
+hex digits. Public interfaces/dependencies and later UTF-8 handling are unchanged.
+Semantic match-arm spacing and the complete Rust diff were reviewed.
+
+Reused the values reference app/collector, adding only an encoding scenario.
+Sixteen requests on one native WS produce 128 JSON snapshots and 112 URL writes,
+all 240 interleaved Rust events match. Cases include malformed and short escapes,
+valid upper/lower hex, literal/encoded plus and space, nonrecursive decode,
+control/Unicode/invalid UTF-8, separator literals and repeated/empty/equivalent
+keys through all eight mutation stages. Static initial literals and raw-PB to
+summary binding preserve reference meaning; four coherent wrong-wire guards
+reject changed value/key/UTF-8 replacement count/request lexeme. Every raw Python
+NewSession version is checked. Reference: queryparams/encoding/trace.json.
+The producer closed its socket/server and port 49353 was read back free.
+
+Pre-fix unit and full WS differential both failed on real current production
+code (target/query-encoding-unit-before.log and query-encoding-ws-before.log).
+After the minimal fix, code/all-targets Clippy -D warnings and Rustfmt check passed;
+the focused unit passed; queryparams related checks passed 20 (16 real WS and
+four pure units), with the existing queue test excluded. Full workspace passed
+265 (library 258, ledger 1, macros 2, rustdoc 4), explicitly excluding only the
+two pre-existing navigation_pages_switch_and_session_state_match_the_measured_wire
+and rerun_queue_messages_match_frozen_reference differences. This is not full
+workspace green. Logs: query-encoding-clippy.log, query-encoding-unit.log,
+query-encoding-integration.log and query-encoding-workspace.log under target/.
+The existing MSVC linker stdout warning remains; no new warning was introduced.
+114 related Python/query/matrix/docs checks passed with DeprecationWarning as
+error (target/query-encoding-final-gates.log).
+
+No new browser DOM/navigation proof is claimed for this codec correction;
+existing real-history captures were retained rather than recaptured. Arbitrary
+query grammar, other bound controls and full compatibility remain open, as do
+the pending JSON parser/public-interface/broader queue decisions. Matrix evidence
+was expanded without status upgrade; inventory remains 130 partial. Existing
+colconfig_params work remains outside this batch's commit.

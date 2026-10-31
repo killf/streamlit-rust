@@ -38,7 +38,9 @@ fn decode(value: &str) -> String {
                 out.push(b' ');
                 index += 1;
             }
-            b'%' if index + 2 < bytes.len() => {
+
+            // 整数解析允许前导 +，但 URL 转义必须严格包含两位十六进制字符。
+            b'%' if index + 2 < bytes.len() && bytes[index + 1].is_ascii_hexdigit() && bytes[index + 2].is_ascii_hexdigit() => {
                 let hex = std::str::from_utf8(&bytes[index + 1..index + 3]).unwrap_or("");
                 match u8::from_str_radix(hex, 16) {
                     Ok(byte) => {
@@ -51,6 +53,7 @@ fn decode(value: &str) -> String {
                     }
                 }
             }
+
             other => {
                 out.push(other);
                 index += 1;

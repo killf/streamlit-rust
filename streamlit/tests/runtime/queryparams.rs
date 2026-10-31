@@ -522,6 +522,21 @@ async fn query_param_reserved_and_empty_keys_match_frozen_reference() -> TestRes
     assert_queryparams_reference(queryparams_reserved_entry, include_str!("../../../tests/reference/reference-browser/queryparams/reserved/trace.json"), 13).await
 }
 
+#[test]
+fn query_percent_escapes_require_two_hex_digits() {
+    let mut store = crate::query_params::QueryParamStore::default();
+    store.load("tag=%+1&%+A=key&tag=%2B1");
+
+    assert_eq!(store.get_all("tag"), ["% 1", "+1"]);
+    assert_eq!(store.get("% A"), Some("key"));
+    assert_eq!(store.serialize(), "tag=%25+1&tag=%2B1&%25+A=key");
+}
+
+#[actix_web::test]
+async fn query_param_encoding_matches_frozen_reference() -> TestResult {
+    assert_queryparams_reference(queryparams_values_entry, include_str!("../../../tests/reference/reference-browser/queryparams/encoding/trace.json"), 240).await
+}
+
 #[actix_web::test]
 async fn query_param_binding_lifecycle_matches_frozen_reference() -> TestResult {
     assert_queryparams_reference(queryparams_binding_entry, include_str!("../../../tests/reference/reference-browser/queryparams/binding/trace.json"), 23).await

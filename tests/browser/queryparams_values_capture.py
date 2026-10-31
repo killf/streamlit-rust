@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[2]
 QUERY = "z=last&tag=first&tag=second&a=first&blank=&encoded=%E4%B8%AD%E6%96%87+text"
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--out", type=Path, required=True)
-parser.add_argument("--scenario", choices=("values", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "disabled-types", "disabled-json", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
+parser.add_argument("--scenario", choices=("values", "encoding", "reserved", "binding", "seed", "seed-code", "disabled", "disabled-valid", "disabled-types", "disabled-json", "rerun", "navigation-rerun", "rerun-messages", "rerun-queue"), default="values")
 args = parser.parse_args()
 if args.scenario == "reserved":
     QUERY = "case=reserved&embed=true&EMBED_OPTIONS=light_theme&st_embed=ordinary&=empty-key-value"
@@ -88,6 +88,26 @@ try:
     with ExitStack() as sockets, connect(url.replace("http", "ws") + "/_stcore/stream", origin=url, subprotocols=["streamlit"],
                  proxy=None, open_timeout=10, close_timeout=5, max_size=None, legacy=True) as ws:
         queries = [QUERY]
+        if args.scenario == "encoding":
+            queries = [
+                "tag=%+1&%+f=key&keep=ok",
+                "tag=%+0&tag=%+9&tag=%+A&tag=%+F&tag=%+a&tag=%+f",
+                "tag=%1&tag=%&tag=%%&tag=%GG&tag=%1G&tag=%G1&tag=%-1&tag=%+G",
+                "tag=%20&tag=+&tag=%2B&tag=%2520&tag=a%26b%3Dc",
+                "tag=%00&tag=%0A&tag=%0D&tag=%09&tag=%7F",
+                "tag=%E4%B8%AD%E6%96%87&tag=%e4%b8%ad&tag=%F0%9F%A7%8A",
+                "tag=%FF&tag=%C0%AF&tag=%ED%A0%80&tag=%F4%90%80%80",
+                "tag=%E2%82&tag=%E2%28%A1&tag=%F0%9F%28%8A&tag=%C3%A9%FF",
+                "=empty&bare&blank=&tag=first&tag=last&&",
+                "tag=a;b&tag=a=b&tag=%23part&tag=%3Fquestion&tag=%2Fpath",
+                "tag=literal中文+🧊&tag=literal%中文",
+                "tag=%2b&tag=%2B&tag=%2f&tag=%2F&tag=%7e&tag=~",
+                "tag=%+1&tag=%2B1&%+1=invalid-key&%2B1=valid-key",
+                "%E4%B8%AD=x&中=y&tag=a&%74ag=b&tag=c",
+                "tag=&tag&=one&=two",
+                "tag=%+A%+f%2B+%25",
+            ]
+            trace["query_string"] = queries[0]
         if args.scenario == "binding":
             queries = ["case=binding&phase=load", "case=binding&phase=active&bound=y&text=hello",
                        "case=binding&phase=hidden&bound=y&text=hello&BOUND=case-sensitive",
