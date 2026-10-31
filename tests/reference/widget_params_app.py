@@ -1,7 +1,24 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "select-empty":
+if st.query_params.get("probe") == "multi-empty":
+    phase = st.query_params.get("phase", "load")
+    if phase == "assign-partial":
+        st.session_state["choice"] = ["Missing", "Beta", "Missing", "Charlie"]
+        st.session_state["number"] = [99, 2, 99, 3]
+    elif phase == "assign-repeat":
+        st.session_state["choice"] = ["Beta", "Beta"]
+        st.session_state["number"] = [2, 2]
+    labels, numbers = {
+        "subset": (["Beta", "Charlie"], [2, 3]),
+        "reorder": (["Charlie", "Beta", "Alpha"], [3, 2, 1]),
+        "empty": ([], []), "empty-observe": ([], []),
+    }.get(phase, (["Alpha", "Beta", "Charlie"], [1, 2, 3]))
+    plain = st.multiselect("Choice", labels)
+    keyed = st.multiselect("Keyed choice", labels, key="choice")
+    number = st.multiselect("Number", numbers, key="number")
+    st.json({"phase": phase, "values": [plain, keyed, number]})
+elif st.query_params.get("probe") == "select-empty":
     phase = st.query_params.get("phase", "load")
     if phase == "assign-none":
         st.session_state["choice"] = None

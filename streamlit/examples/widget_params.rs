@@ -6,6 +6,32 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
+    if st.query_params().get("probe").as_deref() == Some("multi-empty") {
+        let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
+        if phase == "assign-partial" {
+            st.session_state().set("choice", vec!["Missing", "Beta", "Missing", "Charlie"])?;
+            st.session_state().set("number", vec![99_i64, 2, 99, 3])?;
+        } else if phase == "assign-repeat" {
+            st.session_state().set("choice", vec!["Beta", "Beta"])?;
+            st.session_state().set("number", vec![2_i64, 2])?;
+        }
+
+        let (labels, numbers) = match phase.as_str() {
+            "subset" => (vec!["Beta", "Charlie"], vec![2_i64, 3]),
+
+            "reorder" => (vec!["Charlie", "Beta", "Alpha"], vec![3_i64, 2, 1]),
+
+            "empty" | "empty-observe" => (Vec::new(), Vec::new()),
+
+            _ => (vec!["Alpha", "Beta", "Charlie"], vec![1_i64, 2, 3]),
+        };
+        let plain = st.multiselect(MultiselectOptions::new("Choice", labels.clone()))?;
+        let keyed = st.multiselect(MultiselectOptions::new("Keyed choice", labels).key("choice"))?;
+        let number = st.multiselect(MultiselectOptions::new("Number", numbers).key("number"))?;
+        st.json(serde_json::json!({"phase": phase, "values": [plain, keyed, number]}));
+        return Ok(());
+    }
+
     if st.query_params().get("probe").as_deref() == Some("select-empty") {
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         if phase == "assign-none" {

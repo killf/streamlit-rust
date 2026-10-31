@@ -35,6 +35,7 @@ parser.add_argument('--select-policy', action='store_true', help='keyed selectbo
 parser.add_argument('--select-unkeyed', action='store_true', help='unkeyed variant of --select-policy, including placeholder/filter changes')
 parser.add_argument('--radio-identity', action='store_true', help='keyed/unkeyed radio width, horizontal and raw captions identity')
 parser.add_argument('--radio-empty', action='store_true', help='empty options/None-state variant of --radio-identity')
+parser.add_argument('--multi-empty', action='store_true', help='multiselect empty/subset options and native typed state')
 parser.add_argument('--select-empty', action='store_true', help='string/integer selectbox empty options and native state')
 parser.add_argument('--number-permissive', action='store_true', help='equal bounds and nonpositive finite steps, plus rejected range controls')
 parser.add_argument('--number-float', action='store_true', help='float variant of the keyed number sequence')
@@ -44,7 +45,7 @@ parser.add_argument('--resume-after-stop', action='store_true', help='append nor
 parser.add_argument('--stop-lifecycle', action='store_true', help='button and URL-bound text around early stop and normal cleanup')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
-assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy, args.radio_identity, args.select_empty)) <= 1
+assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy, args.radio_identity, args.select_empty, args.multi_empty)) <= 1
 assert not args.number_float or args.number_sequence
 assert not args.select_unkeyed or args.select_policy
 assert not args.radio_empty or args.radio_identity
@@ -71,7 +72,7 @@ TRACE = {'schema_version': 1, 'runtime': 'rust' if args.url else 'python', 'refe
          'scope': 'Element wire of widget creation-parameter edges over one native WS; no browser/UI claim.',
          'server_command': COMMAND, 'server_cleanup': 'caller-owned' if COMMAND is None else 'collector-owned',
          'url': URL, 'frames': [], 'elements': [], 'finishes': []}
-if args.color or args.color_unkeyed or args.bool_width or args.select_policy or args.radio_identity or args.select_empty:
+if args.color or args.color_unkeyed or args.bool_width or args.select_policy or args.radio_identity or args.select_empty or args.multi_empty:
     TRACE['scope'] = 'Color defaults/widths and fifteen callback/state reruns on one native WS; no browser/UI claim.'
     TRACE['producer_sources_sha256'] = {path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest() for path in (
         'streamlit/examples/widget_params.rs', 'tests/reference/widget_params_app.py', 'tests/browser/widget_params_capture.py')}
@@ -89,6 +90,8 @@ if args.radio_empty:
     TRACE['scope'] = 'Fourteen keyed/unkeyed radio empty options/None/native-state runs on one native WS; no browser/UI claim.'
 if args.select_empty:
     TRACE['scope'] = 'Fourteen string/integer selectbox empty options/None/native-state runs on one native WS; no browser/UI claim.'
+if args.multi_empty:
+    TRACE['scope'] = 'Twelve string/integer multiselect option filtering, empty and native-state runs on one native WS; no browser/UI claim.'
 SERVER = WS = None
 
 
@@ -167,12 +170,21 @@ try:
     if args.select_empty:
         steps = [(phase, phase in ('edit', 'none-edit')) for phase in ('load', 'edit', 'empty', 'empty-observe', 'empty-none',
                  'restore', 'none', 'none-edit', 'none-observe', 'restore-index', 'assign-none', 'observe', 'assign-missing', 'missing-observe')]
+    if args.multi_empty:
+        steps = [(phase, phase == 'edit') for phase in ('load', 'edit', 'subset', 'reorder', 'restore', 'assign-partial', 'observe', 'assign-repeat', 'repeat-observe', 'empty', 'empty-observe', 'restore-final')]
     empty_select_ids = {}
     lifecycle_bound, lifecycle_ids = "url", {}
     number_id = None
     color_id = None
     for step_index, (phase, submitted) in enumerate(steps):
         request = BackMsg()
+        if args.multi_empty:
+            request.rerun_script.query_string = 'probe=multi-empty&phase=' + phase
+            if submitted:
+                for label in ('Choice', 'Keyed choice', 'Number'):
+                    widget = request.rerun_script.widget_states.widgets.add()
+                    widget.id = empty_select_ids[label]
+                    widget.string_array_value.data.extend(['1', '2'] if label == 'Number' else ['Alpha', 'Beta'])
         if args.select_empty:
             request.rerun_script.query_string = 'probe=select-empty&phase=' + phase
             if submitted:
@@ -299,6 +311,8 @@ try:
                         select_ids[element_kind] = view.id
                     if args.radio_identity and element_kind == 'radio':
                         radio_ids[view.label] = view.id
+                    if args.multi_empty and element_kind == 'multiselect':
+                        empty_select_ids[view.label] = view.id
                     if args.select_empty and element_kind == 'selectbox':
                         empty_select_ids[view.label] = view.id
                     if args.stop_lifecycle and element_kind in ('button', 'text_input'):

@@ -535,8 +535,12 @@ impl Codec {
             };
             let mut indices = Vec::with_capacity(items.len());
             for item in items {
-                let index = options.iter().position(|(_, value)| value == item).ok_or_else(|| WidgetError::InvalidValue("session value is absent from multiselect options".into()))?;
-                indices.push(Value::from(index));
+                if let Some(index) = options.iter().position(|(_, value)| value == item) {
+                    indices.push(Value::from(index));
+                } else if item.as_str().is_some_and(|text| options.iter().any(|(label, _)| label == text)) {
+                    // SDK 可返回异类型标签；typed Vec<T> 尚不能表达，保留错误而非静默过滤。
+                    return Err(WidgetError::InvalidValue("session value is absent from multiselect options".into()));
+                }
             }
             return Ok(Value::Array(indices));
         }
@@ -938,7 +942,12 @@ impl SessionState {
                         selection_reset = true;
                         default.clone()
                     } else {
-                        codec.read_session_value(native, if registry.dirty_keys.contains(key) { None } else { registry.records.get(&id) })?
+                        let value = codec.read_session_value(native, if registry.dirty_keys.contains(key) { None } else { registry.records.get(&id) })?;
+                        // 多选逐项移除失效原生值，并将过滤后的标签同步给前端。
+                        if matches!(codec, Codec::MultiSelect(_)) && codec.session_value(&value) != *native {
+                            selection_reset = true;
+                        }
+                        value
                     }
                 } else {
                     registry.records.get(&id).map(|record| record.value.clone()).unwrap_or(default)

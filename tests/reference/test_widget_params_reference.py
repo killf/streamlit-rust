@@ -1382,6 +1382,190 @@ def test_selectbox_empty_gate_rejects_coherent_wrong_wire(mutation):
         check_select_empty(capture)
 
 
+def test_sdk_multiselect_can_temporarily_return_mixed_native_label_types():
+    """SDK-only dynamic return boundary; typed Rust Vec<T> remains unresolved."""
+    import importlib.metadata
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version("streamlit") == "1.66.1"
+    app = AppTest.from_string('''
+import streamlit as st
+if st.session_state.get("assign", False):
+    st.session_state["number"] = ["2", 2, 99]
+value = st.multiselect("Number", [1, 2, 3], key="number")
+st.json([value])
+''').run()
+    app.session_state["assign"] = True
+    app.run()
+    assert not app.exception and json.loads(app.json[0].value) == [["2", 2]]
+    assert app.multiselect[0].proto.set_value and list(app.multiselect[0].proto.raw_values) == ["2", "2"]
+    app.session_state["assign"] = False
+    app.run()
+    assert not app.exception and json.loads(app.json[0].value) == [[2, 2]]
+    assert all(type(n) is int for n in json.loads(app.json[0].value)[0])
+
+
+def test_sdk_multiselect_none_assignment_errors_until_repaired():
+    """SDK-only public error observation, not a Rust error-rendering parity gate."""
+    import importlib.metadata
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version("streamlit") == "1.66.1"
+    app = AppTest.from_string('''
+import streamlit as st
+phase = st.session_state.get("phase", "load")
+if phase == "assign-none":
+    st.session_state["choice"] = None
+elif phase == "repair":
+    st.session_state["choice"] = []
+value = st.multiselect("Choice", ["Alpha", "Beta"], key="choice")
+st.json([value])
+''').run()
+    assert not app.exception and json.loads(app.json[0].value) == [[]]
+    for phase in ("assign-none", "observe"):
+        app.session_state["phase"] = phase
+        app.run()
+        assert len(app.exception) == 1 and app.exception[0].message == "'NoneType' object is not iterable"
+        assert not app.json and not app.multiselect
+    app.session_state["phase"] = "repair"
+    app.run()
+    assert not app.exception and json.loads(app.json[0].value) == [[]]
+
+
+MULTI_EMPTY_PHASES = ("load", "edit", "subset", "reorder", "restore", "assign-partial", "observe", "assign-repeat", "repeat-observe", "empty", "empty-observe", "restore-final")
+MULTI_EMPTY_GROUPS = (0, 0, 1, 2, 0, 0, 0, 0, 0, 3, 3, 0)
+MULTI_EMPTY_NUMBERS = ([], [1, 2], [2], [2], [2], [2, 3], [2, 3], [2, 2], [2, 2], [], [], [])
+
+
+def check_multi_empty(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 12
+    assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 107 and len(capture["elements"]) == 48
+    runs = color_runs(capture, ("multiselect", "json"))
+    history, normalized, sessions, run_ids = [], [], set(), set()
+    names = {1: "Alpha", 2: "Beta", 3: "Charlie"}
+    for index, (phase, run) in enumerate(zip(MULTI_EMPTY_PHASES, runs, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=multi-empty&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id)
+        run_ids.add(session.script_run_id)
+        assert [e[0] for e in run["entries"]] == ["multiselect"] * 3 + ["json"]
+        numbers = {"subset": [2, 3], "reorder": [3, 2, 1], "empty": [], "empty-observe": []}.get(phase, [1, 2, 3])
+        expected = MULTI_EMPTY_NUMBERS[index]
+        ids = []
+        for position, (_, widget, element) in enumerate(run["entries"][:3]):
+            assert widget.label == ("Choice", "Keyed choice", "Number")[position] and widget.id
+            assert list(widget.options) == [str(n) if position == 2 else names[n] for n in numbers]
+            sync = position > 0 and phase in ("subset", "assign-partial", "assign-repeat", "empty")
+            assert widget.set_value == sync and not widget.disabled and not widget.default
+            assert not widget.form_id and not widget.help and not widget.ignore_rerun and not widget.max_selections
+            assert not widget.accept_new_options and widget.filter_mode == 0 and not widget.query_param_key and not widget.placeholder
+            assert widget.select_all == 1000 and not widget.HasField("wrap")
+            assert widget.label_visibility.value == 0 and element.HasField("has_one_shot_effect") == sync and element.has_one_shot_effect == sync
+            assert list(widget.raw_values) == ([str(n) if position == 2 else names[n] for n in expected] if sync else [])
+            assert element.width_config.use_stretch
+            for earlier in range(index):
+                assert (widget.id == history[earlier][position]) == (position > 0 or MULTI_EMPTY_GROUPS[index] == MULTI_EMPTY_GROUPS[earlier]), (phase, position, earlier)
+            ids.append(widget.id)
+        history.append(ids)
+        plain = ["Alpha", "Beta"] if phase == "edit" else []
+        report = json.loads(run["entries"][3][1].body)
+        assert report == {"phase": phase, "values": [plain, [names[n] for n in expected], expected]}
+        assert all(type(n) is int for n in report["values"][2]), "integer selections must retain their native type"
+        assert [capture["elements"][index * 4 + i]["delta_path"] for i in range(4)] == [[0, i] for i in range(4)]
+        incoming = request.widget_states.widgets
+        if phase == "edit":
+            assert len(incoming) == 3 and [w.id for w in incoming] == history[index - 1]
+            assert all(w.WhichOneof("value") == "string_array_value" for w in incoming)
+            assert [list(w.string_array_value.data) for w in incoming] == [["Alpha", "Beta"], ["Alpha", "Beta"], ["1", "2"]]
+        else:
+            assert not incoming
+        normalized_run = []
+        for kind, _, element in run["entries"]:
+            fields = MessageToDict(element, preserving_proto_field_name=True)
+            if kind == "multiselect":
+                fields[kind].pop("id")
+            else:
+                fields[kind]["body"] = json.loads(fields[kind]["body"])
+            normalized_run.append(fields)
+        normalized.append(normalized_run)
+    assert len(sessions) == 1 and len(run_ids) == 12
+    assert [len({ids[i] for ids in history}) for i in range(3)] == [4, 1, 1]
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_multiselect_empty_and_filtered_native_state(root):
+    check_multi_empty(read(root / "multi-empty/trace.json"))
+
+
+def test_multiselect_empty_complete_elements_match_reference():
+    captures = [read(root / "multi-empty/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_multi_empty(captures[0]) == check_multi_empty(captures[1])
+
+
+def test_multiselect_empty_before_errors_and_forces_disabled():
+    capture = read(RUST / "multi-empty/before/trace.json")
+    assert capture["successful"] and capture["finishes"] == [0] * 12 and capture["semantic_match"] is False
+    assert len(capture["frames"]) == 101 and len(capture["elements"]) == 42
+    assert capture["cleanup"] == {"websocket_closed": True, "caller_server_stopped": True}
+    runs = color_runs(capture, ("multiselect", "json", "markdown"))
+    assert [e[0] for e in runs[2]["entries"]] == ["multiselect", "markdown"]
+    assert "session value is absent from multiselect options" in runs[2]["entries"][1][1].body
+    assert runs[9]["entries"][0][1].disabled
+    with pytest.raises(AssertionError):
+        check_multi_empty(capture)
+
+
+@pytest.mark.parametrize("mutation", ("disabled-empty", "sync-flag", "raw-order", "raw-repeat", "returned-repeat", "stale-input", "unkeyed-id", "numeric-type"))
+def test_multiselect_empty_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "multi-empty/trace.json")
+    source = color_runs(capture, ("multiselect", "json"))
+    target = {"disabled-empty": 9, "sync-flag": 2, "raw-order": 5, "raw-repeat": 7, "returned-repeat": 8, "stale-input": 1, "unkeyed-id": 3, "numeric-type": 1}[mutation]
+    run = -1
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:
+            run += 1
+        if run != target:
+            continue
+        message = BackMsg() if client else ForwardMsg()
+        message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "stale-input":
+            message.rerun_script.widget_states.widgets[0].id = "$$ID-stale-None"
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element
+            kind = element.WhichOneof("type")
+            if kind == "multiselect" and mutation == "disabled-empty":
+                element.multiselect.disabled = True
+            elif kind == "multiselect" and element.multiselect.label == "Keyed choice" and mutation == "sync-flag":
+                element.multiselect.set_value = False
+                element.ClearField("has_one_shot_effect")
+            elif kind == "multiselect" and element.multiselect.label == "Keyed choice" and mutation in ("raw-order", "raw-repeat"):
+                element.multiselect.raw_values[:] = ["Charlie", "Beta"] if mutation == "raw-order" else ["Beta"]
+            elif kind == "multiselect" and element.multiselect.label == "Choice" and mutation == "unkeyed-id":
+                element.multiselect.id = source[2]["entries"][0][1].id
+            elif kind == "json" and mutation in ("returned-repeat", "numeric-type"):
+                report = json.loads(element.json.body)
+                report["values"][2] = [2] if mutation == "returned-repeat" else [1.0, 2]
+                element.json.body = json.dumps(report)
+            else:
+                continue
+        else:
+            continue
+        raw = message.SerializeToString()
+        frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError):
+        check_multi_empty(capture)
+
+
 def comparable(capture):
     out = []
     for element in capture["elements"]:

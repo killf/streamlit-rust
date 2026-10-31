@@ -2479,6 +2479,21 @@ impl<C: AppendChild> InputWidgets for C {
         )?;
         let selected: Vec<T> = selected;
         let default_wire: Vec<i32> = options.default.iter().map(|index| *index as i32).collect();
+        let raw_values = if set_value {
+            selected
+                .iter()
+                .map(|value| {
+                    let selected_native = serde_json::to_value(value)?;
+                    native
+                        .iter()
+                        .zip(&options.labels)
+                        .find_map(|(option, label)| (option == &selected_native).then(|| label.clone()))
+                        .ok_or_else(|| WidgetError::InvalidValue("multiselect selection is absent from options".into()))
+                })
+                .collect::<Result<Vec<_>, WidgetError>>()?
+        } else {
+            Vec::new()
+        };
         self.push(Rc::new(RefCell::new(InputElement(proto::Element {
             width_config,
             has_one_shot_effect: set_value.then_some(true),
@@ -2487,9 +2502,11 @@ impl<C: AppendChild> InputWidgets for C {
                 label: c.label,
                 form_id,
                 default: default_wire,
+                raw_values,
+                set_value,
                 options: options.labels.clone(),
                 help: c.help,
-                disabled: c.disabled || options.options.is_empty(),
+                disabled: c.disabled,
                 label_visibility: c.visibility.wire(),
                 accept_new_options: Some(false),
                 select_all: Some(1000),
@@ -4946,6 +4963,106 @@ mod tests {
             assert!(wire.try_recv().is_ok(), "the first valid form is still rendered");
         }
         assert!(wire.try_recv().is_err(), "failed form calls must not append their partial children");
+    }
+
+    #[test]
+    fn multiselect_does_not_silently_drop_dynamic_labels_or_accept_native_null() -> anyhow::Result<()> {
+        for native in [serde_json::json!(["2", 2, 99]), Value::Null] {
+            let state = SessionState::default();
+            state.begin_widgets(Vec::new());
+            state.set("number", native)?;
+            let (st, mut wire) = app(&state);
+            assert!(matches!(st.multiselect(MultiselectOptions::new("Number", vec![1_i64, 2, 3]).key("number")), Err(WidgetError::InvalidValue(_))));
+            assert!(wire.try_recv().is_err());
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn multiselect_filters_missing_native_values_and_syncs_typed_labels() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let mut ids: Vec<Vec<String>> = Vec::new();
+        let phases = ["load", "edit", "subset", "reorder", "restore", "assign-partial", "observe", "assign-repeat", "repeat-observe", "empty", "empty-observe", "restore-final"];
+        let groups = [0, 0, 1, 2, 0, 0, 0, 0, 0, 3, 3, 0];
+        let expected: [&[i64]; 12] = [&[], &[1, 2], &[2], &[2], &[2], &[2, 3], &[2, 3], &[2, 2], &[2, 2], &[], &[], &[]];
+
+        for (index, phase) in phases.iter().enumerate() {
+            // 1. 前端用前轮 ID 提交标签数组，代码赋值保留重复项和原生整数类型。
+            let incoming = if *phase == "edit" {
+                ids[index - 1]
+                    .iter()
+                    .enumerate()
+                    .map(|(position, id)| WidgetState {
+                        id: id.clone(),
+                        value: Some(widget_state::Value::StringArrayValue(proto::StringArray {
+                            data: if position == 2 { vec!["1".into(), "2".into()] } else { vec!["Alpha".into(), "Beta".into()] },
+                        })),
+                    })
+                    .collect()
+            } else {
+                Vec::new()
+            };
+            assert!(state.begin_widgets(incoming).is_empty());
+            if *phase == "assign-partial" {
+                state.set("choice", vec!["Missing", "Beta", "Missing", "Charlie"])?;
+                state.set("number", vec![99_i64, 2, 99, 3])?;
+            } else if *phase == "assign-repeat" {
+                state.set("choice", vec!["Beta", "Beta"])?;
+                state.set("number", vec![2_i64, 2])?;
+            }
+            let (labels, numbers) = match *phase {
+                "subset" => (vec!["Beta", "Charlie"], vec![2_i64, 3]),
+
+                "reorder" => (vec!["Charlie", "Beta", "Alpha"], vec![3_i64, 2, 1]),
+
+                "empty" | "empty-observe" => (Vec::new(), Vec::new()),
+
+                _ => (vec!["Alpha", "Beta", "Charlie"], vec![1_i64, 2, 3]),
+            };
+            let (st, mut wire) = app(&state);
+            let plain = st.multiselect(MultiselectOptions::new("Choice", labels.clone()))?;
+            let keyed = st.multiselect(MultiselectOptions::new("Keyed choice", labels).key("choice"))?;
+            let number = st.multiselect(MultiselectOptions::new("Number", numbers).key("number"))?;
+            let names = |values: &[i64]| values.iter().map(|n| ["Alpha", "Beta", "Charlie"][*n as usize - 1]).collect::<Vec<_>>();
+            assert_eq!(plain, if *phase == "edit" { names(&[1, 2]) } else { Vec::new() }, "{phase}");
+            assert_eq!(keyed, names(expected[index]), "{phase}");
+            assert_eq!(number, expected[index], "{phase}");
+
+            // 2. 失效项逐项过滤并同步，保留顺序和重复项；空列表不强制禁用。
+            let mut current = Vec::new();
+            for (position, label) in ["Choice", "Keyed choice", "Number"].iter().enumerate() {
+                let Some(forward_msg::Type::Delta(proto::Delta {
+                    r#type: Some(delta::Type::NewElement(element)), ..
+                })) = wire.try_recv()?.r#type
+                else {
+                    panic!()
+                };
+                let sync = position > 0 && matches!(*phase, "subset" | "assign-partial" | "assign-repeat" | "empty");
+                assert_eq!(element.has_one_shot_effect, sync.then_some(true), "{phase}");
+                let Some(element::Type::Multiselect(widget)) = element.r#type else { panic!() };
+                assert_eq!(widget.label, *label);
+                assert_eq!(widget.set_value, sync, "{phase}");
+                let raw: Vec<String> = if !sync {
+                    Vec::new()
+                } else if position == 2 {
+                    expected[index].iter().map(ToString::to_string).collect()
+                } else {
+                    names(expected[index]).into_iter().map(str::to_owned).collect()
+                };
+                assert_eq!(widget.raw_values, raw, "{phase}");
+                assert!(!widget.disabled);
+                assert!(widget.default.is_empty());
+                for earlier in 0..index {
+                    assert_eq!(widget.id == ids[earlier][position], position > 0 || groups[index] == groups[earlier], "{phase}: {position}/{earlier}");
+                }
+                current.push(widget.id);
+            }
+            ids.push(current);
+            state.finish_widgets();
+        }
+
+        Ok(())
     }
 
     #[test]

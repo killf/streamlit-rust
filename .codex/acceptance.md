@@ -2300,3 +2300,21 @@ widget_api.rs 区分原始 index 与有效 wire_index；已有原生 None 只影
 新发现的公共类型边界已以 SDK-only AppTest 用例保留：整数选项 key 被代码赋展示标签字符串 "2" 时，SDK 暂时返回字符串 "2" 并同步 raw_value，AppTest 下一次序列化提交后又返回整数 2。该用例用数组报告保留类型，避免 st.json 直接解析数字字符串掩盖真实返回值；最初观测用例已据此修正。现有 Rust Option<T> 在 T=i64 时无法表达临时字符串返回，需要另行公共 API 建模/决策；本批未改变返回类型，也没有该边界的原生 WS、Rust 或浏览器兼容结论。
 
 本批未重采真实浏览器；动态异类型返回、任意原生类型、原生空状态与绑定/回调/表单/跨页/晚到输入组合继续开放。仅 st.selectbox 矩阵和机器清单更新，仍为 130 partial；其他待决方案及用户 colconfig_params 修改保持，未合并、发布或部署。M3/M5/M7 与长期 Goal 未关闭。
+
+## Current multiselect filtered native state validation (2026-11-01)
+
+锁定 SDK 1.66.1 的公开 AppTest 初探及十二轮原生 WS 参考覆盖无 key 字符串、有 key 字符串和有 key 整数 multiselect。删除部分选项时逐项过滤失效值，保留有效选择的顺序与重复项；重排选项不按旧索引取错值，空列表返回空列表且不强制 disabled。代码赋混合有效/失效数组与重复有效项时，返回原生字符串/整数并同步标签，正常结束后不重放同步。
+
+Rust 修前在 subset、assign-partial、empty 轮出现 session value is absent from multiselect options，且空控件被强制禁用；[修前捕获](../tests/browser/rust-widget-params/multi-empty/before/trace.json)为 12 个完成轮次、101 帧/42 Element，包含外层捕获的错误 Markdown，不代表功能成功。新增公开 API 十二轮单元先真实失败，修后通过；另有公共 API 边界测试确认 None 和无法表达的动态标签类型继续报错，不产生部分控件。
+
+生产修改仅涉及 widgets.rs 的 MultiSelect 原生数组读取与过滤同步标志，以及 widget_api.rs 的 multiselect.set_value/raw_values 和 disabled。过滤保留有效项、顺序及重复项，非数组继续原错误；匹配展示标签但与原生选项类型不同的字符串保留原错误，避免静默丢弃。发送同步标签复用本轮已序列化选项，不新增公共接口、依赖、状态层或队列流程。既有优先级、前端输入解析和 max_selections 规则未改。
+
+[Python](../tests/reference/reference-browser/widget-params/multi-empty/trace.json)与[最终 Rust](../tests/browser/rust-widget-params/multi-empty/trace.json)各 12 轮/107 原始帧/48 完整 Element，仅归一化不透明 ID 和 JSON 文本后逐字段一致。前端提交使用前轮实际 ID/string_array_value；严格门验证返回类型、有效项过滤、顺序/重复项、set_value/raw_values、一次性标志、disabled、会话/轮次与四类无 key/单类 keyed 身份。八类同步改写原始帧和汇总的负例必须失败：空列表禁用、缺失同步、同步顺序、同步去重、返回去重、错误输入 ID、错误无 key 身份、整数变成数值相等的浮点。测试模块共 199 项通过。
+
+同一最终二进制另重放旧十四轮 selectbox-empty 与九轮选择策略，125 帧/56 Element、71 帧/27 Element 继续与旧参考逐字段一致，本地结果 target/multi-empty-{select,policy}-recheck/trace.json。原生捕获绑定两端示例、采集器，以及 Rust widget_api/widgets/二进制 SHA256，均核实与当前文件相同。早期未加异类型标签保护的成功捕获保留于 target/multi-empty-pre-label-guard/trace.json，随后重新采集最终代码，未将旧产物冒充最终证据。
+
+SDK-only AppTest 另记录两项公共边界：原生 None 报 non-iterable 错误，下一轮仍错误，显式赋空数组后恢复；整数选项被代码赋 ["2", 2, 99] 时暂时返回 ["2", 2]，同步标签 ["2", "2"]，AppTest 下一次提交后返回 [2, 2]。现有 Rust Vec<T> 在 T=i64 时不能表达异类型字符串；公共返回建模仍须单独决策。本批没有该动态返回或错误界面的原生 WS/Rust/浏览器兼容结论，不通过静默过滤有效标签缩小目标。
+
+编辑 Rust 的 rustfmt、全工作区/all-target Clippy、两项相关公共 API 单元通过；最终工作区 316 项通过（309 库、1 ledger、2 宏、4 rustdoc），仍仅排除原 navigation_pages_switch_and_session_state_match_the_measured_wire 与 rerun_queue_messages_match_frozen_reference，不能称完整工作区全绿。相关 query/widget/temporal/pickers/matrix/docs 门 450 项通过，其中包含 SDK-only 观察，并非全部跨运行时验收。既有 MSVC linker stdout warning 保留；日志 target/multi-empty-{red,green,clippy,build,workspace,reference}.log。
+
+SDK 服务由采集器停止，Rust 服务通过持有的自建进程句柄 terminate/wait 结束；62455/8599 无监听。本批未采真实浏览器；非空默认、动态异类型返回、任意原生类型、上限/错误/回调/绑定/表单/跨页/晚到输入组合继续开放。仅 st.multiselect 矩阵与机器清单更新，仍为 130 partial；用户 colconfig_params 修改独立保留，未合并、发布或部署，M3/M5/M7 与长期 Goal 未关闭。

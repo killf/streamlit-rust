@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 multiselect 原生状态切片：逐项过滤失效值、保留有效顺序和重复项，修正同步标签与空列表 disabled；十二轮/107 帧/48 完整 Element 与 SDK 一致，见[验收](acceptance.md#current-multiselect-filtered-native-state-validation-2026-11-01)。SDK-only None 错误和异类型标签返回单列，公共返回建模、真实浏览器及其余组合仍开放。
+
 2026-11-01 selectbox 空状态切片：普通字符串/整数控件的空选项、原生 None、失效值和同步字段已修正，14 轮/125 帧/56 完整 Element 与 SDK 一致，旧创建策略和 radio 空状态复验通过。见[验收](acceptance.md#current-selectbox-empty-and-typed-native-state-validation-2026-11-01)；SDK-only 动态异类型返回已单列为公共 API 待建模边界，未更改 Rust 返回类型，浏览器及其他组合仍开放。
 
 2026-11-01 radio 空状态切片：修正空选项、keyed None 保留、失效字符串重置与 Radio 同步字段；14 轮/111 帧/42 完整 Element 与锁定 SDK 一致，修前错误保留，旧十二轮展示场景用同一二进制复验。见[验收](acceptance.md#current-radio-empty-and-none-state-validation-2026-11-01)；浏览器清空、其他状态类型及竞争/回调组合继续开放。
