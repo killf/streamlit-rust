@@ -273,3 +273,125 @@ def test_playback_ui_gate_rejects_incomplete_or_damaged_evidence(root, fault):
     elif fault == "wrong-shot-sha": stages["loaded"]["screenshot"]["sha256"] = "0" * 64
     with pytest.raises(AssertionError):
         check_playback_ui(record)
+
+
+SUBTITLE_UI_ROOTS = (HERE / "reference-browser/video/subtitle-ui", HERE.parent / "browser/rust-video/subtitle-ui")
+SUBTITLE_UI_STAGES = ("english-default", "track-menu", "chinese-selected", "off-menu", "captions-off", "default-restored")
+
+
+def check_subtitle_ui(record):
+    import base64
+    import re
+    from io import BytesIO
+    from urllib.parse import urlsplit
+    from PIL import Image
+
+    # 1. 绑定原始画面、DOM 轨道和实际清理；不把不可见的 mode/cues 当验证值。
+    assert record["reference_version"] == "1.66.1" and record["sdk_distribution"]["streamlit"] == "1.66.1"
+    assert record["tab_closed"] and record["server_cleanup"]["stopped"] and record["server_cleanup"]["port_closed_final"]
+    assert tuple(s["name"] for s in record["stages"]) == SUBTITLE_UI_STAGES
+    stages = {s["name"]: s for s in record["stages"]}
+    region_hashes = {}
+    tracks = stages["english-default"]["dom"]["videos"][0]["tracks"]
+    assert [t["label"] for t in tracks] == ["English", "中文"]
+    assert [t["default"] for t in tracks] == [True, False]
+    assert all(t["kind"] == "captions" for t in tracks)
+
+    for name, stage in stages.items():
+        dom = stage["dom"]
+        assert not dom["exceptions"] and len(dom["videos"]) == 1
+        video = dom["videos"][0]
+        assert video["error"] is None and video["readyState"] >= 2 and video["paused"]
+        assert video["currentTime"] == 0 and video["duration"] == 1
+        assert (video["videoWidth"], video["videoHeight"]) == (64, 48)
+        assert urlsplit(video["src"]).path == VIDEO_URL
+        assert video["tracks"] == ([] if name == "default-restored" else tracks)
+        assert video["muted"] == (name != "default-restored")
+        assert (urlsplit(dom["url"]).query == "subtitles=1") == (name != "default-restored")
+        assert "screenshot" in stage
+        shot = stage["screenshot"]
+        expected_base = "tests/reference/reference-browser/video/subtitle-ui" if record["runtime"] == "python" else "tests/browser/rust-video/subtitle-ui"
+        assert shot["path"] == expected_base + "/" + name + ".jpg"
+        body = (HERE.parents[1] / shot["path"]).read_bytes()
+        assert len(body) == shot["bytes"] and hashlib.sha256(body).hexdigest() == shot["sha256"]
+        with Image.open(BytesIO(body)) as image:
+            assert image.format == "JPEG" and image.mode == "RGB"
+            assert image.size == (dom["viewport"]["width"], dom["viewport"]["height"])
+            pixels = image.tobytes()
+            width, height = image.size
+            left, top, right, bottom = stage["caption_region"]["bounds"]
+            assert (left, top, right, bottom) == (650, 510, 805, 556)
+            assert right <= width and bottom <= height
+            region = b"".join(pixels[(y * width + left) * 3:(y * width + right) * 3] for y in range(top, bottom))
+        region_hashes[name] = hashlib.sha256(region).hexdigest()
+        assert region_hashes[name] == stage["caption_region"]["rgb_sha256"]
+
+    # 2. 原生菜单值和三种实际像素状态互相约束；像素比较不冒充 OCR。
+    assert [int(v) for v in re.findall(r"(?m)^\s+\d+ ([01])$", stages["track-menu"]["ax"])] == [0, 1, 0]
+    assert [int(v) for v in re.findall(r"(?m)^\s+\d+ ([01])$", stages["off-menu"]["ax"])] == [0, 0, 1]
+    assert stages["chinese-selected"]["coordinate_source"] == stages["track-menu"]["screenshot"]["path"]
+    assert stages["captions-off"]["coordinate_source"] == stages["off-menu"]["screenshot"]["path"]
+    assert region_hashes["english-default"] == region_hashes["track-menu"]
+    assert region_hashes["chinese-selected"] == region_hashes["off-menu"]
+    assert region_hashes["captions-off"] == region_hashes["default-restored"]
+    assert len({region_hashes[n] for n in ("english-default", "chinese-selected", "captions-off")}) == 3
+
+    # 3. 按真实 DOM 地址核对下载原文、内容摘要和 SDK AppTest 公开地址。
+    expected_bodies = [b"WEBVTT\n\n1\n00:00:00.000 --> 00:00:01.000\nHello SRT", "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\n中文字幕".encode()]
+    assert len(record["track_http"]) == 2
+    for track, response, expected, sdk in zip(tracks, record["track_http"], expected_bodies, record["sdk_apptest"]["subtitles"]["subtitles"]):
+        body = base64.b64decode(response["body_base64"], validate=True)
+        assert body == bytes(response["body_bytes"]) == expected
+        assert hashlib.sha256(body).hexdigest() == response["body_sha256"]
+        filename = hashlib.blake2b(track["label"].encode(), digest_size=16).hexdigest() + ".vtt"
+        path = "/media/" + hashlib.blake2b(str(len(body)).encode() + b":" + body + b"text/vtt" + filename.encode(), digest_size=16).hexdigest() + ".vtt"
+        assert response["url"] == track["src"] and response["label"] == track["label"] == sdk["label"]
+        assert urlsplit(response["url"]).path == path and sdk["url"] == "/mock" + path
+        assert response["status"] == 200 and response["headers"]["content-type"] == "text/vtt; charset=utf-8"
+        assert response["headers"]["content-length"] == str(len(body)) and "content-disposition" not in response["headers"]
+    return region_hashes
+
+
+@pytest.mark.parametrize("root", SUBTITLE_UI_ROOTS, ids=("python", "rust"))
+def test_real_subtitle_display_switch_off_and_default_restore(root):
+    check_subtitle_ui(read_playback_ui(root))
+
+
+def test_sdk_and_native_caption_regions_are_identical_without_editing_images():
+    sdk, native = [read_playback_ui(root) for root in SUBTITLE_UI_ROOTS]
+    assert check_subtitle_ui(sdk) == check_subtitle_ui(native)
+    assert sdk["source_sha256"] == native["source_sha256"]
+
+
+@pytest.mark.parametrize("mode", ("default", "subtitles"))
+def test_video_fixture_query_variant_preserves_default(mode):
+    from google.protobuf.json_format import MessageToDict
+    from streamlit.testing.v1 import AppTest
+
+    app = AppTest.from_file(str(HERE / "video_app.py"))
+    if mode == "subtitles":
+        app.query_params["subtitles"] = "1"
+    app.run()
+    reference = read_playback_ui(SUBTITLE_UI_ROOTS[0])["sdk_apptest"][mode]
+    assert not app.exception and len(app.get("video")) == 1
+    assert MessageToDict(app.get("video")[0].proto, preserving_proto_field_name=True) == reference
+
+
+@pytest.mark.parametrize("root", SUBTITLE_UI_ROOTS, ids=("python", "rust"))
+@pytest.mark.parametrize("fault", ("missing-track", "wrong-default", "menu-selection", "source", "body", "status", "mime", "default-leak", "region-hash", "missing-shot", "cleanup"))
+def test_subtitle_ui_gate_rejects_damaged_evidence(root, fault):
+    record = copy.deepcopy(read_playback_ui(root))
+    first = record["stages"][0]
+    if fault == "missing-track": first["dom"]["videos"][0]["tracks"].pop()
+    elif fault == "wrong-default": first["dom"]["videos"][0]["tracks"][0]["default"] = False
+    elif fault == "menu-selection": record["stages"][1]["ax"] = record["stages"][3]["ax"]
+    elif fault == "source": first["dom"]["videos"][0]["tracks"][0]["src"] += "wrong"
+    elif fault == "body": record["track_http"][0]["body_bytes"][0] ^= 1
+    elif fault == "status": record["track_http"][0]["status"] = 404
+    elif fault == "mime": record["track_http"][0]["headers"]["content-type"] = "text/plain"
+    elif fault == "default-leak": record["stages"][-1]["dom"]["videos"][0]["tracks"] = first["dom"]["videos"][0]["tracks"]
+    elif fault == "region-hash": first["caption_region"]["rgb_sha256"] = "0" * 64
+    elif fault == "missing-shot": del first["screenshot"]
+    elif fault == "cleanup": record["server_cleanup"]["port_closed_final"] = False
+    with pytest.raises(AssertionError):
+        check_subtitle_ui(record)

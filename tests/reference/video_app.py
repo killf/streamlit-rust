@@ -12,4 +12,16 @@ import streamlit as st
 # The same committed bytes feed the Rust mirror, so the media address and
 # the served body are byte-identical across runtimes.
 SAMPLE = pathlib.Path(__file__).with_name("video_sample.mp4")
-st.video(SAMPLE.read_bytes(), format="video/mp4")
+if st.query_params.get("subtitles") == "1":
+    st.video(
+        SAMPLE.read_bytes(),
+        format="video/mp4",
+        muted=True,
+        loop=True,
+        subtitles={
+            "English": "1\n00:00:00,000 --> 00:00:01,000\nHello SRT",
+            "中文": "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\n中文字幕",
+        },
+    )
+else:
+    st.video(SAMPLE.read_bytes(), format="video/mp4")

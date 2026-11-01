@@ -3065,3 +3065,23 @@ SDK 播放 0.0298、暂停 0.0527、约 38.768 秒后保持同值、恢复 0.077
 最终视频/文档/配置/矩阵四模块 103 项通过（48 视频、55 文档，target/video-playback-final-gates.log）；最终回放逻辑不以临时 browser id 作为兼容门，视频模块复验 48 项通过。生产未变，未无故重跑全 Cargo；当前 example 实际离线构建与浏览器交互已完成。矩阵仅追加 st.video 证据/边界，inventory 仍 130 partial，完整目标未关闭。
 
 提交前逐文件 diff/git diff --check 通过；九个受保护用户文件、全部捕获源码/fixture/sample/exe SHA 与启动快照一致，生产和 fixture 无 diff。仅暂存六个既有测试/计划/矩阵文件及十个本批原始证据文件（两 trace、八 JPEG），不纳入用户 Cargo、colconfig 或指南/README 修改；未创建 PR、合并、发布或部署。
+
+## Current real subtitle UI validation (2026-11-01)
+
+只在既有 streamlit/examples/video.rs 与 tests/reference/video_app.py 增加 ?subtitles=1 测试分支：同一真实一秒/64x48 MP4、English SRT（Hello SRT）和中文 VTT（中文字幕），请求 muted/loop；无开关仍保留原默认调用。库、公共 API、依赖和用户 colconfig/Cargo/指南/README 均未改。先离线锁定构建 example 成功，再 SDK AppTest 核对默认/双轨完整 Video，最后实际 Chrome 原生菜单交互；日志 target/video-subtitle-build.log、video-subtitle-sdk-apptest.log。
+
+SDK/Rust 各六阶段：english-default、track-menu、chinese-selected、off-menu、captions-off、default-restored；各六张原始 JPEG 与独立 trace 保存至 tests/reference/reference-browser/video/subtitle-ui 和 tests/browser/rust-video/subtitle-ui。全部原图均实际检查，首轨显示 Hello SRT，原生字幕菜单 English 有勾；点击中文后显示 中文字幕，菜单中文有勾；点击已关闭后不显示字幕；移除 query 后无 track 且 muted=false。全程暂停于 t=0，readyState=4/error=null，不能据此声称运动中的 cue 定时/切换已验证。
+
+使用现有 computer-use/cua_repl，只读 DOM 和实际原生菜单指针动作；未改 DOM/TextTrack 或进入“字幕设置”系统页面。mode/activeCues 不在只读代理中暴露，保留 null 并明确其仅表示观测限制，不等同关闭字幕。原生菜单 AX 的三个选项值分别为 0/1/0（English）与 0/0/1（中文），配合原截图确认选择。原图 RGB 字节区域 [650,510,805,556]（相同常规 viewport 1463x780/DPR1.75）在两端六阶段逐字节一致，且英文/中文/关闭三个区域摘要不同；区域只读分析，不生成/编辑裁图，不做 OCR。英文/中文含义由人工查看原图确认，自动回放只检验原图/区域和状态证据，不能冒充通用字幕文字识别。
+
+从每端真实 DOM track.src 在字幕分支仍存活时实际 GET 两个字幕，共四次；均为 200，Content-Type=text/vtt; charset=utf-8、正确长度且非附件，英文完整 49 字节、中文完整 50 字节和内容地址一致。地址由 SDK 标签摘要文件名及实际正文重算，JSON 保留下载原文/Base64/SHA/头及公开 AppTest mock 地址；不归一化内容摘要。默认场景也在两端浏览器实际导航恢复，不只靠分支源码推断。两标签关闭后自有服务 terminate/wait，SDK 首次端口检查仍连接成功、第二次 10061，Rust 首次 10061；全部关闭过程原样保存，62102 父任务退出 0。
+
+既有 test_video_contract.py 增加 27 项，视频模块合计 75 项通过（target/video-subtitle-gates.log）：两端回放、原图区域跨端对照、两个 SDK fixture 模式实际重放、十一种损坏各两端（缺轨、默认轨错、菜单状态错、源错、正文错、404、MIME、默认残留轨、区域 SHA、缺图、未清理）。检查原 JPEG 解码/尺寸/字节 SHA、轨道顺序/default/kind、实际字幕地址/HTTP 原文、菜单值、区域变化及恢复默认；不是只检查 HTTP 200。
+
+example Clippy -D warnings 通过（target/video-subtitle-clippy.log），保留既有 MSVC linker_messages 告警。实际源码/fixture/exe SHA 与启动快照保持；source_commit=9ee1a21 为启动基线，producer_worktree_changes 明确两份新增分支文件，另存 Git LF SHA，避免将未提交 fixture 当成原 HEAD 内容。库未改，无故重跑全 Cargo 无收益；旧默认播放证据不重写，新增默认恢复/AppTest 证明当前分支仍适用。
+
+请求 loop=true 但两端 DOM loop 属性均 false，本批没有实际播放循环验证，不从属性推断实现原因或兼容结论。运动 cue、更多格式/输入/样式/动态更新、全屏、其他浏览器/设备、完整资源生命周期和待决 Unicode/repr 等继续开放；st.video、M3/M5/M7 和完整 Goal 不关闭。
+
+最终视频/文档/配置/矩阵四模块 130 项通过（75 视频、55 文档，target/video-subtitle-final-gates.log），inventory 仍 130 partial。逐文件 diff 与 git diff --check 通过，九个用户保护文件及捕获 source/exe SHA 与启动快照一致；production library 无 diff。当前两份测试示例已实际编译/SDK AppTest 与浏览器验证，未无故扩大重跑全 Cargo。
+
+仅暂存本批八个既有示例/测试/计划/矩阵文件及十四个新原始证据文件（十二 JPEG、两 trace），不纳入用户 Cargo、colconfig、指南/README 改动。两标签和自有服务已清理，无 PR、合并、部署或发布，完整 Goal 保持开放。
