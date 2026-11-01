@@ -792,3 +792,91 @@ async fn subtitle_label_errors_match_frozen_sdk_over_websocket() -> TestResult {
 
     Ok(())
 }
+
+fn video_url_subtitles_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/media-more/subtitle-text/cases.json")).expect("frozen subtitle reference");
+
+        for case in reference["url_cases"].as_array().expect("URL subtitle cases") {
+            let mut options = crate::VideoOptions::from_url(case["url"].as_str().expect("direct video URL"))
+                .start_time(case["start_time"].as_f64().expect("start time"))
+                .end_time(case["end_time"].as_f64().expect("end time"))
+                .loop_(case["loop"].as_bool().expect("loop"))
+                .muted(case["muted"].as_bool().expect("muted"));
+
+            for track in case["subtitles"].as_array().expect("subtitle inputs") {
+                options = options.subtitle(track[0].as_str().expect("label"), track[1].as_str().expect("text"));
+            }
+
+            st.video(options);
+        }
+    })
+}
+
+#[actix_web::test]
+async fn video_url_subtitles_match_frozen_sdk_and_local_http() -> TestResult {
+    let (address, handle, task, mut socket) = start_media_server(video_url_subtitles_entry).await?;
+    let captured = tokio::time::timeout(Duration::from_secs(15), async {
+        // 1. 只从真实 video 帧读取字幕 URL，不获取远程视频。
+        let wires = run_once(&mut socket, &mut String::new()).await?;
+        let mut responses = Vec::new();
+
+        for element in &wires.elements {
+            if let Some(element::Type::Video(video)) = element.r#type.as_ref() {
+                for track in &video.subtitles {
+                    if !track.url.starts_with("/media/") {
+                        return Err("subtitle must use the local media route".into());
+                    }
+                    responses.push((track.label.clone(), track.url.clone(), http_request(address, &track.url, "GET", &[]).await?));
+                }
+            }
+        }
+
+        Ok::<_, Box<dyn std::error::Error>>((wires, responses))
+    })
+    .await;
+    // 2. 失败也先关闭连接并等待服务退出，再验证完整载荷和资源。
+    drop(socket);
+    handle.stop(false).await;
+    task.await??;
+    let (wires, responses) = captured??;
+    let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/media-more/subtitle-text/cases.json"))?;
+    let cases = reference["url_cases"].as_array().ok_or("missing URL cases")?;
+    assert_eq!(cases.len(), 8);
+    assert_eq!(wires.elements.len(), cases.len());
+    let mut expected_tracks = Vec::new();
+
+    for (element, case) in wires.elements.iter().zip(cases) {
+        if case["accepted"] == true {
+            let Some(element::Type::Video(video)) = element.r#type.as_ref() else {
+                return Err("valid URL subtitles must render a video".into());
+            };
+            let bytes = serde_json::from_value::<Vec<u8>>(case["video_bytes"].clone())?;
+            assert_eq!(*video, crate::proto::Video::decode(bytes.as_slice())?, "{}: complete Video protobuf", case["name"]);
+            expected_tracks.extend(case["tracks"].as_array().ok_or("missing expected tracks")?);
+        } else {
+            let Some(element::Type::Exception(exception)) = element.r#type.as_ref() else {
+                return Err(format!("{}: invalid URL subtitles must render an exception", case["name"]).into());
+            };
+            assert_eq!(exception.r#type, case["error_type"].as_str().ok_or("missing error type")?);
+            assert_eq!(exception.message, case["error"].as_str().ok_or("missing error message")?);
+            assert_eq!(Some(exception.message_is_markdown), case["message_is_markdown"].as_bool());
+            assert_eq!(Some(exception.is_streamlit_exception), case["is_streamlit_exception"].as_bool());
+        }
+    }
+
+    // 3. 从实际字幕地址请求正文，含空首轨和多轨顺序。
+    assert_eq!(responses.len(), expected_tracks.len());
+    for ((label, url, (status, headers, body)), expected) in responses.into_iter().zip(expected_tracks) {
+        assert_eq!(label, expected["label"]);
+        assert_eq!(url, expected["url"]);
+        assert_eq!(status, 200);
+        let headers: std::collections::BTreeMap<_, _> = headers.into_iter().collect();
+        assert_eq!(headers.get("content-type").map(String::as_str), Some("text/vtt; charset=utf-8"));
+        assert_eq!(headers.get("content-length"), Some(&body.len().to_string()));
+        assert!(!headers.contains_key("content-disposition"));
+        assert_eq!(body, serde_json::from_value::<Vec<u8>>(expected["content_bytes"].clone())?);
+    }
+
+    Ok(())
+}

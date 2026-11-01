@@ -80,6 +80,7 @@ def test_historical_rust_edges_retain_the_unmeasured_srt_content_gap():
 SUBTITLE_CASES = read(PYTHON/'subtitle-text/cases.json')['cases']
 UNICODE_SUBTITLE_CASES = read(PYTHON/'subtitle-text/cases.json')['unicode_cases']
 LABEL_SUBTITLE_CASES = read(PYTHON/'subtitle-text/cases.json')['label_cases']
+URL_SUBTITLE_CASES = read(PYTHON/'subtitle-text/cases.json')['url_cases']
 
 
 @pytest.mark.parametrize('case',SUBTITLE_CASES+UNICODE_SUBTITLE_CASES+LABEL_SUBTITLE_CASES,ids=lambda case:case['name'])
@@ -103,6 +104,44 @@ def test_subtitle_oracle_replays_sdk_helper_and_public_video(case):
         assert type(error.value).__name__==case['helper_error_type']
         assert [(e.proto.type,e.message) for e in app.exception]==[(case['error_type'],case['error'])]
         assert all(e.proto.message_is_markdown and e.proto.is_streamlit_exception for e in app.exception)
+
+
+@pytest.mark.parametrize('case',URL_SUBTITLE_CASES,ids=lambda case:case['name'])
+def test_url_subtitles_replay_full_sdk_video_and_errors(case):
+    from streamlit.elements.lib.subtitle_utils import _handle_string_or_path_data
+    from streamlit.proto.Video_pb2 import Video
+    from streamlit.testing.v1 import AppTest
+
+    assert len(URL_SUBTITLE_CASES)==8
+    source='import streamlit as st\nst.video('+repr(case['url'])+',subtitles='+repr(dict(case['subtitles']))
+    source+=',start_time='+repr(case['start_time'])+',end_time='+repr(case['end_time'])
+    source+=',loop='+repr(case['loop'])+',muted='+repr(case['muted'])+')'
+    app=AppTest.from_string(source).run()
+    if case['accepted']:
+        assert not app.exception and len(app.get('video'))==1
+        video=app.get('video')[0].proto
+        assert video.SerializeToString()==base64.b64decode(case['apptest_video_base64'],validate=True)
+        assert MessageToDict(video,preserving_proto_field_name=True)==case['apptest_video']
+        assert len(video.subtitles)==len(case['tracks'])==len(case['subtitles'])
+        for track,expected,(label,text) in zip(video.subtitles,case['tracks'],case['subtitles']):
+            body=_handle_string_or_path_data(text)
+            assert body==bytes(expected['content_bytes'])
+            assert hashlib.sha256(body).hexdigest()==expected['content_sha256']
+            filename=hashlib.blake2b(label.encode(),digest_size=16).hexdigest()+'.vtt'
+            url='/media/'+hashlib.blake2b(str(len(body)).encode()+b':'+body+b'text/vtt'+filename.encode(),digest_size=16).hexdigest()+'.vtt'
+            assert track.label==label==expected['label'] and track.url=='/mock'+url and url==expected['url']
+            track.url=url
+        canonical=Video()
+        canonical_bytes=base64.b64decode(case['video_base64'],validate=True)
+        assert canonical_bytes==bytes(case['video_bytes'])
+        canonical.ParseFromString(canonical_bytes)
+        assert video==canonical and video.url==case['url']
+    else:
+        assert not app.get('video') and len(app.exception)==1
+        error=app.exception[0].proto
+        assert (error.type,error.message)==(case['error_type'],case['error'])
+        assert error.message_is_markdown==case['message_is_markdown']
+        assert error.is_streamlit_exception==case['is_streamlit_exception']
 
 
 def check_subtitle_http(capture, *, before=False):

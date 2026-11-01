@@ -460,3 +460,7 @@ stop 后下一轮按钮回到 false，未运行到的文本仍保留；普通隐
 ### Subtitle label error quoting (2026-11-01)
 
 Invalid raw subtitle text now renders the SDK label repr for measured ASCII quote/escape boundaries and printable Chinese/emoji. Twelve frozen public st.video AppTest errors match native public WebSocket Exception type/message and Markdown flags after a red/green regression. The existing status-width ASCII quoting helper is shared through private utils without changing its behavior. Full Unicode printability, exception stack/browser display and script-abort equivalence remain open; twelve Unicode numeric reference cases still need the selected data-source implementation. Direct-URL videos currently bypass subtitle processing in Rust and remain a separate known gap.
+
+### Native URL subtitle attachment (2026-11-01)
+
+The preceding native-URL subtitle bypass is now repaired: existing video options validate and attach local subtitle tracks while preserving the original video URL and avoiding video-byte registration. Eight pinned public SDK AppTest cases match native complete Video messages or exact exception type/message/flags; seven actual local track GETs match helper-derived bytes, content addresses and ordinary VTT response semantics, including an empty first track. This establishes protocol/resource behavior for the measured inputs, not browser playback/visibility, SDK HTTP for the new combination, YouTube processing, autoplay identity or script-abort/stack/UI parity. Unicode numeric and repr printability gaps remain open.

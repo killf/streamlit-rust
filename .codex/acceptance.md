@@ -3015,3 +3015,19 @@ Rust 按语义单元留空并逐段 diff 复查，格式、全工作区/all-targ
 最终工作区回归 351 项通过（344 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference；日志 target/subtitle-label-workspace.log，不称完整全绿。文档/配置/矩阵三模块 55 项及媒体契约 25 项共 80 项通过（target/subtitle-label-docs.log），inventory 再生成后仍 130 partial。Python 参考重放额外核对 SDK Exception 的 Markdown/Streamlit 标记。
 
 提交前逐文件 diff 与 git diff --check 通过；移动后的 helper 函数体与 HEAD 原函数体仅名称改变，原始 oracle 的全部既有字段保持，九个受保护用户文件与本批 SHA 快照一致。本批没有新文件、真实浏览器操作或远程视频获取，真实 WS 自有服务器已停止；未创建 PR、合并、发布或部署。
+
+## Current native URL subtitle attachment validation (2026-11-01)
+
+修复 be49d6c 中实际发现的 native URL 分支提前返回：api.rs 的 video 函数先复用字幕校验/注册，再选择原 URL 或字节媒体地址，最后统一附加 tracks/播放参数。原 URL（含 query/fragment）原样传递，URL 视频不上传字节；无新文件、接口、依赖或远程获取。生产只改该函数，语义单元编号/空行逐段复查。YouTube 类型/重写/字幕拒绝未在本批实现，不声称所有 URL 来源兼容。
+
+既有字幕 cases.json 追加 url_cases 八案，锁定 SDK 1.66.1 公开 st.video AppTest 实际生成五个完整 Video 和三个错误：无字幕、VTT、SRT、空首轨加多轨、引号/中文标签，以及首轨/后续轨/引号标签的非法字幕。输入使用 https://example.invalid/clip.mp4?take=2#chapter、start=1.5/end=4.8/loop/muted；只发射 URL，从不获取远程视频。保留原 AppTest 完整 protobuf/Base64/字段，与显式转换 mock 前缀后的 canonical protobuf/字节数组；字幕存储原标签、SDK helper 正文/SHA/完整内容地址，不归一化摘要。此前 22 文本、12 Unicode 数字、12 标签错误案全部既有字段保持。生成日志 target/subtitle-url-sdk.log。
+
+真实公共 API WS 回归先 red：url-vtt 缺少参考的 en 字幕轨（target/subtitle-url-red.log）。新增测试最初误用非直接依赖 Base64 和 HTTP helper 返回类型而编译失败，已改用冻结字节数组和现有 header Vec，不将编译错误算产品 red。编辑脚本曾定位到 trait 声明，断言阻止写入；后精确定位实现。未改源码的首次 Clippy 不计修后检查，最终日志已刷新。
+
+修后先字幕单元两项通过（target/subtitle-url-unit.log），再媒体真实网络集成十一项通过（target/subtitle-url-green.log）。新测试逐项比较完整 canonical Video（URL、截断秒数、loop/muted、宽度和轨道顺序）或 Exception type/message/Markdown 标记；从真实 WS track URL 请求七次本机 GET，核对完整正文、200、VTT MIME、长度及无附件头，包含空首轨。十五秒超时；成功/失败均先关闭 socket、停止自有服务并等待退出再比对。SDK 新组合只有 AppTest/helper 参考，没有新 SDK HTTP 或浏览器捕获，不扩大为播放器显示/播放证据。
+
+相关 Python 三模块 108 项通过（68 media-more、15 media-params、25 media-contract，target/subtitle-url-python.log）；八项新增重放完整 SDK protobuf、所有轨道 bytes/SHA/地址和错误标记。workspace/all-targets Clippy -D warnings 通过，保留既有 MSVC linker_messages 告警（target/subtitle-url-clippy.log）。Unicode 分类数据、完整 repr 字符表和 rerun 非 Delta 待决规则未实施；完整目标保持开放。
+
+最终工作区 352 项通过（345 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference；target/subtitle-url-workspace.log 保留，不称完整全绿。文档/配置/矩阵 55 项通过（target/subtitle-url-docs.log）；生成 inventory 仍 130 partial，M3/M5/M7 和完整目标未关闭。
+
+提交前逐文件 diff 与 git diff --check 通过；原 oracle 字段和九个受保护用户文件 SHA 保持。仅暂存本批九个已存在文件，不纳入用户 colconfig、Cargo 或指南/README 修改；未创建 PR、合并、发布、部署或使用浏览器。

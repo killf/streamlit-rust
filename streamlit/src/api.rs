@@ -2428,20 +2428,8 @@ impl<C: AppendChild> StreamlitApi for C {
 
     fn video<T: Into<VideoOptions>>(&self, options: T) {
         let options = options.into();
-        if let Some(url) = options.url.clone() {
-            // Measured: a direct URL bypasses the media store entirely.
-            let element = crate::elements::media::VideoElement::new(url).with_playback(crate::elements::media::Playback {
-                start_time: options.start_time,
-                end_time: options.end_time,
-                loop_: options.loop_,
-                autoplay: options.autoplay,
-                muted: options.muted,
-            });
-            self.push(Rc::new(RefCell::new(element)));
-            return;
-        }
-        // Subtitles resolve first: invalid text renders the reference's API
-        // exception element instead of the player (measured media-params).
+
+        // 1. URL 与字节输入均先校验字幕；无效文本只渲染错误元素。
         let mut tracks = Vec::new();
         for (label, text) in &options.subtitles {
             match crate::elements::media::subtitle_track(label, text) {
@@ -2458,7 +2446,14 @@ impl<C: AppendChild> StreamlitApi for C {
                 }
             }
         }
-        match crate::elements::media::media_url(&options.data, &options.mime) {
+
+        // 2. 远程视频仅保留 URL；字幕仍使用本地媒体地址。
+        let url = match options.url {
+            Some(url) => Ok(url),
+            None => crate::elements::media::media_url(&options.data, &options.mime),
+        };
+
+        match url {
             Ok(url) => {
                 let element = crate::elements::media::VideoElement::new(url)
                     .with_playback(crate::elements::media::Playback {
