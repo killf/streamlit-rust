@@ -1,0 +1,2465 @@
+{
+  "runtime": "python",
+  "reference_version": "1.66.1",
+  "tab_id": "1754832120",
+  "url": "http://127.0.0.1:52875/?probe=date-range&phase=load",
+  "metadata": {
+    "source_commit": "18561a980d6f6c1990e1b83516a4fd842a5e6e60",
+    "sources_sha256": {
+      "streamlit/examples/widget_params.rs": "946138213139add579f74c731af41aed7e2e6663c08a2ccdcf11766f5791fbeb",
+      "tests/reference/widget_params_app.py": "ff5fa89b7cc3ffe049a22737bd0f712d36e550ca735b39cd0bb6eeb35160056e",
+      "tests/browser/widget_params_capture.py": "e5ad9907b3a42ec35b98636aca01c0d42d72f34c7520b284cecd7f0a3bb62fd7",
+      "streamlit/src/widgets.rs": "daf943e552fd0e648356609cbc61dda8b2a450a97bab4da86868610b7c36cce3",
+      "streamlit/src/widget_api.rs": "e82b160fe055b1bfa469c716e09dd2fc2c3c1399bd2aa0a3a6c6d010dcc0e838"
+    },
+    "binary_sha256": "2db0b1d2da8f15c38bbcf89fa5339cd4cb1f1e12cd762252823dfe32db532e33"
+  },
+  "folder": "tests/reference/reference-browser/widget-params/date-range/ui",
+  "stages": [
+    {
+      "name": "01-load",
+      "dom": {
+        "dialogs": [],
+        "exceptions": [],
+        "inputs": [
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-03-15"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-03-15"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-03-20"
+          },
+          {
+            "checked": false,
+            "type": "checkbox",
+            "value": "on"
+          }
+        ],
+        "json": "{\"phase\":\"load\"\"values\":[0:\"2025-03-15\"1:[0:\"2025-03-15\"1:\"2025-03-20\"]2:false]\"native\":[0:\"2025-03-15\"1:[0:\"2025-03-15\"1:\"2025-03-20\"]2:false]\"calls\":[]}",
+        "segments": [
+          {
+            "label": "year, Single",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Single",
+            "text": "03",
+            "value": "3"
+          },
+          {
+            "label": "day, Single",
+            "text": "15",
+            "value": "15"
+          },
+          {
+            "label": "year, Range start date",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Range start date",
+            "text": "03",
+            "value": "3"
+          },
+          {
+            "label": "day, Range start date",
+            "text": "15",
+            "value": "15"
+          },
+          {
+            "label": "year, Range end date",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Range end date",
+            "text": "03",
+            "value": "3"
+          },
+          {
+            "label": "day, Range end date",
+            "text": "20",
+            "value": "20"
+          }
+        ],
+        "url": "http://127.0.0.1:52875/?probe=date-range&phase=load",
+        "viewport": {
+          "dpr": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "events": {
+        "pages": [
+          {
+            "cursor": 500,
+            "events": [
+              {
+                "sequence": 356,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketCreated",
+                "params": {
+                  "initiator": {
+                    "stack": {
+                      "callFrames": [
+                        {
+                          "columnNumber": 2166,
+                          "functionName": "connectToWebSocket",
+                          "lineNumber": 28,
+                          "scriptId": "6",
+                          "url": "http://127.0.0.1:52875/static/js/index.Dlja0TUX.js"
+                        }
+                      ]
+                    },
+                    "type": "script"
+                  },
+                  "requestId": "67372.331",
+                  "url": "ws://127.0.0.1:52875/_stcore/stream"
+                }
+              },
+              {
+                "sequence": 361,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameSent",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": true,
+                    "opcode": 2,
+                    "payloadData": "WmAKG3Byb2JlPWRhdGUtcmFuZ2UmcGhhc2U9bG9hZBIAQj8KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiF2h0dHA6Ly8xMjcuMC4wLjE6NTI4NzUvKAAyBGRhcms="
+                  },
+                  "timestamp": 166758.766248
+                }
+              },
+              {
+                "sequence": 365,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ3ZmNmNDhhNS0wZjFjLTRjNTUtYmY2My02ZGU1NDM1YzAzMWUSJDhjM2M0ODk4LTZjZDItNDI3My05MjdjLTc5NjhhNjA2NjMxYRoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0"
+                  },
+                  "timestamp": 166758.772412
+                }
+              },
+              {
+                "sequence": 369,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "SgIQAQ=="
+                  },
+                  "timestamp": 166758.781449
+                }
+              },
+              {
+                "sequence": 379,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiAzMzFkZmYyY2E3Yjg3ZjFjNzUwMjY0ZWY2ZDQ5NmI1ZBImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqfRp72gFzCjckJElELWY3MjJlYTE3YTU1MTVmNGViZjI0MWQzZWMwOGRiMjJiLWRhdGVfYm91bmRfc2luZ2xlEgZTaW5nbGUaCjIwMjUtMDMtMTUiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzFiAGoKWVlZWS9NTS9ERNIDAggB"
+                  },
+                  "timestamp": 166758.908837
+                }
+              },
+              {
+                "sequence": 400,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiAwODVjZDgxNWNhNjVlODk2OTFhY2JiOTM0NzFiZTliNRImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqigEahwHaAX8KNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZRIFUmFuZ2UaCjIwMjUtMDMtMTUaCjIwMjUtMDMtMjAiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzEwAWIAagpZWVlZL01NL0RE0gMCCAE="
+                  },
+                  "timestamp": 166758.916619
+                }
+              },
+              {
+                "sequence": 401,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiAxOTkzZmU4ZmM4NDAxMTQwNzdlNWIxOTY0MjM4MTAzOBImEgIAAiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqSRpHogE/CjUkJElELWUxZDg0MzY2MGM5NDdkMjE3ZGFhNjMzZDE0NTJjMmYzLWRhdGVfYm91bmRfcGVlchIEUGVlckoA0gMCEAE="
+                  },
+                  "timestamp": 166758.916917
+                }
+              },
+              {
+                "sequence": 402,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiBhYzhkMDRjNjcyYzQzOTAwOGMxMWRkZDBlNzg4OWMwMBImEgIAAyIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqrQEaqgH6AaEBCpwBeyJwaGFzZSI6ICJsb2FkIiwgInZhbHVlcyI6IFsiMjAyNS0wMy0xNSIsIFsiMjAyNS0wMy0xNSIsICIyMDI1LTAzLTIwIl0sIGZhbHNlXSwgIm5hdGl2ZSI6IFsiMjAyNS0wMy0xNSIsIFsiMjAyNS0wMy0xNSIsICIyMDI1LTAzLTIwIl0sIGZhbHNlXSwgImNhbGxzIjogW119EAHSAwIIAQ=="
+                  },
+                  "timestamp": 166758.91704
+                }
+              },
+              {
+                "sequence": 403,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "MAA="
+                  },
+                  "timestamp": 166758.917204
+                }
+              },
+              {
+                "sequence": 404,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "SgA="
+                  },
+                  "timestamp": 166758.917373
+                }
+              }
+            ],
+            "hasMore": false,
+            "truncated": false
+          }
+        ],
+        "events": [
+          {
+            "sequence": 356,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketCreated",
+            "params": {
+              "initiator": {
+                "stack": {
+                  "callFrames": [
+                    {
+                      "columnNumber": 2166,
+                      "functionName": "connectToWebSocket",
+                      "lineNumber": 28,
+                      "scriptId": "6",
+                      "url": "http://127.0.0.1:52875/static/js/index.Dlja0TUX.js"
+                    }
+                  ]
+                },
+                "type": "script"
+              },
+              "requestId": "67372.331",
+              "url": "ws://127.0.0.1:52875/_stcore/stream"
+            }
+          },
+          {
+            "sequence": 361,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameSent",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": true,
+                "opcode": 2,
+                "payloadData": "WmAKG3Byb2JlPWRhdGUtcmFuZ2UmcGhhc2U9bG9hZBIAQj8KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiF2h0dHA6Ly8xMjcuMC4wLjE6NTI4NzUvKAAyBGRhcms="
+              },
+              "timestamp": 166758.766248
+            }
+          },
+          {
+            "sequence": 365,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ3ZmNmNDhhNS0wZjFjLTRjNTUtYmY2My02ZGU1NDM1YzAzMWUSJDhjM2M0ODk4LTZjZDItNDI3My05MjdjLTc5NjhhNjA2NjMxYRoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0"
+              },
+              "timestamp": 166758.772412
+            }
+          },
+          {
+            "sequence": 369,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "SgIQAQ=="
+              },
+              "timestamp": 166758.781449
+            }
+          },
+          {
+            "sequence": 379,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAzMzFkZmYyY2E3Yjg3ZjFjNzUwMjY0ZWY2ZDQ5NmI1ZBImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqfRp72gFzCjckJElELWY3MjJlYTE3YTU1MTVmNGViZjI0MWQzZWMwOGRiMjJiLWRhdGVfYm91bmRfc2luZ2xlEgZTaW5nbGUaCjIwMjUtMDMtMTUiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzFiAGoKWVlZWS9NTS9ERNIDAggB"
+              },
+              "timestamp": 166758.908837
+            }
+          },
+          {
+            "sequence": 400,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAwODVjZDgxNWNhNjVlODk2OTFhY2JiOTM0NzFiZTliNRImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqigEahwHaAX8KNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZRIFUmFuZ2UaCjIwMjUtMDMtMTUaCjIwMjUtMDMtMjAiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzEwAWIAagpZWVlZL01NL0RE0gMCCAE="
+              },
+              "timestamp": 166758.916619
+            }
+          },
+          {
+            "sequence": 401,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAxOTkzZmU4ZmM4NDAxMTQwNzdlNWIxOTY0MjM4MTAzOBImEgIAAiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqSRpHogE/CjUkJElELWUxZDg0MzY2MGM5NDdkMjE3ZGFhNjMzZDE0NTJjMmYzLWRhdGVfYm91bmRfcGVlchIEUGVlckoA0gMCEAE="
+              },
+              "timestamp": 166758.916917
+            }
+          },
+          {
+            "sequence": 402,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhYzhkMDRjNjcyYzQzOTAwOGMxMWRkZDBlNzg4OWMwMBImEgIAAyIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqrQEaqgH6AaEBCpwBeyJwaGFzZSI6ICJsb2FkIiwgInZhbHVlcyI6IFsiMjAyNS0wMy0xNSIsIFsiMjAyNS0wMy0xNSIsICIyMDI1LTAzLTIwIl0sIGZhbHNlXSwgIm5hdGl2ZSI6IFsiMjAyNS0wMy0xNSIsIFsiMjAyNS0wMy0xNSIsICIyMDI1LTAzLTIwIl0sIGZhbHNlXSwgImNhbGxzIjogW119EAHSAwIIAQ=="
+              },
+              "timestamp": 166758.91704
+            }
+          },
+          {
+            "sequence": 403,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "MAA="
+              },
+              "timestamp": 166758.917204
+            }
+          },
+          {
+            "sequence": 404,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "SgA="
+              },
+              "timestamp": 166758.917373
+            }
+          }
+        ]
+      },
+      "screenshot": {
+        "file": "01-load.jpg",
+        "bytes": 26730,
+        "sha256": "c1c76fe32faeb8a29970f5748aceebf64dd9f520fffb237a169f02a5ff7b3414",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 780
+      }
+    },
+    {
+      "name": "02-calendar-open",
+      "dom": {
+        "dialogs": [
+          "Use arrow keys to navigate dates. Enter to select. Escape to close.Choose date range, 2025年3月三月 一月二月三月四月五月六月七月八月九月十月十一月十二月2025年 2025年2025年3月一二三四五六日242526272812345678910111213141516171819202122232425262728293031123456"
+        ],
+        "exceptions": [],
+        "inputs": [
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-03-15"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-03-15"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-03-20"
+          },
+          {
+            "checked": false,
+            "type": "checkbox",
+            "value": "on"
+          }
+        ],
+        "json": "{\"phase\":\"load\"\"values\":[0:\"2025-03-15\"1:[0:\"2025-03-15\"1:\"2025-03-20\"]2:false]\"native\":[0:\"2025-03-15\"1:[0:\"2025-03-15\"1:\"2025-03-20\"]2:false]\"calls\":[]}",
+        "segments": [
+          {
+            "label": "year, Single",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Single",
+            "text": "03",
+            "value": "3"
+          },
+          {
+            "label": "day, Single",
+            "text": "15",
+            "value": "15"
+          },
+          {
+            "label": "year, Range start date",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Range start date",
+            "text": "03",
+            "value": "3"
+          },
+          {
+            "label": "day, Range start date",
+            "text": "15",
+            "value": "15"
+          },
+          {
+            "label": "year, Range end date",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Range end date",
+            "text": "03",
+            "value": "3"
+          },
+          {
+            "label": "day, Range end date",
+            "text": "20",
+            "value": "20"
+          }
+        ],
+        "url": "http://127.0.0.1:52875/?probe=date-range&phase=load",
+        "viewport": {
+          "dpr": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "events": {
+        "pages": [
+          {
+            "cursor": 500,
+            "events": [],
+            "hasMore": false,
+            "truncated": false
+          }
+        ],
+        "events": []
+      },
+      "screenshot": {
+        "file": "02-calendar-open.jpg",
+        "bytes": 32120,
+        "sha256": "6108d52ed80fa769880233f613f3e3c3af6ce65153d805a311f1f9b76fe197af",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 780
+      }
+    },
+    {
+      "name": "03-calendar-next",
+      "dom": {
+        "dialogs": [
+          "Use arrow keys to navigate dates. Enter to select. Escape to close.Choose date range, 2025年4月四月 一月二月三月四月五月六月七月八月九月十月十一月十二月2025年 2025年2025年4月一二三四五六日311234567891011121314151617181920212223242526272829301234"
+        ],
+        "exceptions": [],
+        "inputs": [
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-03-15"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-03-15"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-03-20"
+          },
+          {
+            "checked": false,
+            "type": "checkbox",
+            "value": "on"
+          }
+        ],
+        "json": "{\"phase\":\"load\"\"values\":[0:\"2025-03-15\"1:[0:\"2025-03-15\"1:\"2025-03-20\"]2:false]\"native\":[0:\"2025-03-15\"1:[0:\"2025-03-15\"1:\"2025-03-20\"]2:false]\"calls\":[]}",
+        "segments": [
+          {
+            "label": "year, Single",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Single",
+            "text": "03",
+            "value": "3"
+          },
+          {
+            "label": "day, Single",
+            "text": "15",
+            "value": "15"
+          },
+          {
+            "label": "year, Range start date",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Range start date",
+            "text": "03",
+            "value": "3"
+          },
+          {
+            "label": "day, Range start date",
+            "text": "15",
+            "value": "15"
+          },
+          {
+            "label": "year, Range end date",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Range end date",
+            "text": "03",
+            "value": "3"
+          },
+          {
+            "label": "day, Range end date",
+            "text": "20",
+            "value": "20"
+          }
+        ],
+        "url": "http://127.0.0.1:52875/?probe=date-range&phase=load",
+        "viewport": {
+          "dpr": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "events": {
+        "pages": [
+          {
+            "cursor": 502,
+            "events": [],
+            "hasMore": false,
+            "truncated": false
+          }
+        ],
+        "events": []
+      },
+      "screenshot": {
+        "file": "03-calendar-next.jpg",
+        "bytes": 29128,
+        "sha256": "8922a158fdffb5a0f8efc99176eb1a063052aad87e92f97ebef43642ef918050",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 780
+      }
+    },
+    {
+      "name": "04-start",
+      "dom": {
+        "dialogs": [
+          "Use arrow keys to navigate dates. Enter to select. Escape to close.Choose date range, 2025年4月四月 一月二月三月四月五月六月七月八月九月十月十一月十二月2025年 2025年2025年4月一二三四五六日311234567891011121314151617181920212223242526272829301234"
+        ],
+        "exceptions": [],
+        "inputs": [
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-03-15"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-04-10"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": ""
+          },
+          {
+            "checked": false,
+            "type": "checkbox",
+            "value": "on"
+          }
+        ],
+        "json": "{\"phase\":\"load\"\"values\":[0:\"2025-03-15\"1:[0:\"2025-04-10\"]2:false]\"native\":[0:\"2025-03-15\"1:[0:\"2025-04-10\"]2:false]\"calls\":[0:[0:\"range\"1:\"2025-03-15\"2:[0:\"2025-04-10\"]3:false]]}",
+        "segments": [
+          {
+            "label": "year, Single",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Single",
+            "text": "03",
+            "value": "3"
+          },
+          {
+            "label": "day, Single",
+            "text": "15",
+            "value": "15"
+          },
+          {
+            "label": "year, Range start date",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Range start date",
+            "text": "04",
+            "value": "4"
+          },
+          {
+            "label": "day, Range start date",
+            "text": "10",
+            "value": "10"
+          },
+          {
+            "label": "year, Range end date",
+            "text": "yyyy",
+            "value": null
+          },
+          {
+            "label": "month, Range end date",
+            "text": "mm",
+            "value": null
+          },
+          {
+            "label": "day, Range end date",
+            "text": "dd",
+            "value": null
+          }
+        ],
+        "url": "http://127.0.0.1:52875/?probe=date-range&phase=load",
+        "viewport": {
+          "dpr": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "events": {
+        "pages": [
+          {
+            "cursor": 511,
+            "events": [
+              {
+                "sequence": 503,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameSent",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": true,
+                    "opcode": 2,
+                    "payloadData": "Ws8CChtwcm9iZT1kYXRlLXJhbmdlJnBoYXNlPWxvYWQSzAEKRwo3JCRJRC1mNzIyZWExN2E1NTE1ZjRlYmYyNDFkM2VjMDhkYjIyYi1kYXRlX2JvdW5kX3NpbmdsZUoMCgoyMDI1LTAzLTE1CkYKNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZUoMCgoyMDI1LTA0LTEwCjkKNSQkSUQtZTFkODQzNjYwYzk0N2QyMTdkYWE2MzNkMTQ1MmMyZjMtZGF0ZV9ib3VuZF9wZWVyGAAaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0Qj8KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiF2h0dHA6Ly8xMjcuMC4wLjE6NTI4NzUvKAAyBGRhcms="
+                  },
+                  "timestamp": 166824.693142
+                }
+              },
+              {
+                "sequence": 504,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ3ZmNmNDhhNS0wZjFjLTRjNTUtYmY2My02ZGU1NDM1YzAzMWUSJDZhYWIwNjAzLTc3ODgtNDE0Yy1iZjZmLTUwY2Q3ODljY2ZmMBoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0"
+                  },
+                  "timestamp": 166824.707632
+                }
+              },
+              {
+                "sequence": 505,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "SgIQAQ=="
+                  },
+                  "timestamp": 166824.710409
+                }
+              },
+              {
+                "sequence": 506,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiAzMzFkZmYyY2E3Yjg3ZjFjNzUwMjY0ZWY2ZDQ5NmI1ZBImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqfRp72gFzCjckJElELWY3MjJlYTE3YTU1MTVmNGViZjI0MWQzZWMwOGRiMjJiLWRhdGVfYm91bmRfc2luZ2xlEgZTaW5nbGUaCjIwMjUtMDMtMTUiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzFiAGoKWVlZWS9NTS9ERNIDAggB"
+                  },
+                  "timestamp": 166824.723923
+                }
+              },
+              {
+                "sequence": 507,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiAwODVjZDgxNWNhNjVlODk2OTFhY2JiOTM0NzFiZTliNRImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqigEahwHaAX8KNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZRIFUmFuZ2UaCjIwMjUtMDMtMTUaCjIwMjUtMDMtMjAiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzEwAWIAagpZWVlZL01NL0RE0gMCCAE="
+                  },
+                  "timestamp": 166824.724418
+                }
+              },
+              {
+                "sequence": 508,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiAxOTkzZmU4ZmM4NDAxMTQwNzdlNWIxOTY0MjM4MTAzOBImEgIAAiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqSRpHogE/CjUkJElELWUxZDg0MzY2MGM5NDdkMjE3ZGFhNjMzZDE0NTJjMmYzLWRhdGVfYm91bmRfcGVlchIEUGVlckoA0gMCEAE="
+                  },
+                  "timestamp": 166824.72627
+                }
+              },
+              {
+                "sequence": 509,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiBlZWVkZjliMzc5MmUwODYyY2Y2NWVhZGMzM2JiNGYwYxImEgIAAyIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqvwEavAH6AbMBCq4BeyJwaGFzZSI6ICJsb2FkIiwgInZhbHVlcyI6IFsiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCJdLCBmYWxzZV0sICJuYXRpdmUiOiBbIjIwMjUtMDMtMTUiLCBbIjIwMjUtMDQtMTAiXSwgZmFsc2VdLCAiY2FsbHMiOiBbWyJyYW5nZSIsICIyMDI1LTAzLTE1IiwgWyIyMDI1LTA0LTEwIl0sIGZhbHNlXV19EAHSAwIIAQ=="
+                  },
+                  "timestamp": 166824.726421
+                }
+              },
+              {
+                "sequence": 510,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "MAA="
+                  },
+                  "timestamp": 166824.726504
+                }
+              },
+              {
+                "sequence": 511,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "SgA="
+                  },
+                  "timestamp": 166824.72658
+                }
+              }
+            ],
+            "hasMore": false,
+            "truncated": false
+          }
+        ],
+        "events": [
+          {
+            "sequence": 503,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameSent",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": true,
+                "opcode": 2,
+                "payloadData": "Ws8CChtwcm9iZT1kYXRlLXJhbmdlJnBoYXNlPWxvYWQSzAEKRwo3JCRJRC1mNzIyZWExN2E1NTE1ZjRlYmYyNDFkM2VjMDhkYjIyYi1kYXRlX2JvdW5kX3NpbmdsZUoMCgoyMDI1LTAzLTE1CkYKNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZUoMCgoyMDI1LTA0LTEwCjkKNSQkSUQtZTFkODQzNjYwYzk0N2QyMTdkYWE2MzNkMTQ1MmMyZjMtZGF0ZV9ib3VuZF9wZWVyGAAaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0Qj8KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiF2h0dHA6Ly8xMjcuMC4wLjE6NTI4NzUvKAAyBGRhcms="
+              },
+              "timestamp": 166824.693142
+            }
+          },
+          {
+            "sequence": 504,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ3ZmNmNDhhNS0wZjFjLTRjNTUtYmY2My02ZGU1NDM1YzAzMWUSJDZhYWIwNjAzLTc3ODgtNDE0Yy1iZjZmLTUwY2Q3ODljY2ZmMBoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0"
+              },
+              "timestamp": 166824.707632
+            }
+          },
+          {
+            "sequence": 505,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "SgIQAQ=="
+              },
+              "timestamp": 166824.710409
+            }
+          },
+          {
+            "sequence": 506,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAzMzFkZmYyY2E3Yjg3ZjFjNzUwMjY0ZWY2ZDQ5NmI1ZBImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqfRp72gFzCjckJElELWY3MjJlYTE3YTU1MTVmNGViZjI0MWQzZWMwOGRiMjJiLWRhdGVfYm91bmRfc2luZ2xlEgZTaW5nbGUaCjIwMjUtMDMtMTUiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzFiAGoKWVlZWS9NTS9ERNIDAggB"
+              },
+              "timestamp": 166824.723923
+            }
+          },
+          {
+            "sequence": 507,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAwODVjZDgxNWNhNjVlODk2OTFhY2JiOTM0NzFiZTliNRImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqigEahwHaAX8KNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZRIFUmFuZ2UaCjIwMjUtMDMtMTUaCjIwMjUtMDMtMjAiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzEwAWIAagpZWVlZL01NL0RE0gMCCAE="
+              },
+              "timestamp": 166824.724418
+            }
+          },
+          {
+            "sequence": 508,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAxOTkzZmU4ZmM4NDAxMTQwNzdlNWIxOTY0MjM4MTAzOBImEgIAAiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqSRpHogE/CjUkJElELWUxZDg0MzY2MGM5NDdkMjE3ZGFhNjMzZDE0NTJjMmYzLWRhdGVfYm91bmRfcGVlchIEUGVlckoA0gMCEAE="
+              },
+              "timestamp": 166824.72627
+            }
+          },
+          {
+            "sequence": 509,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBlZWVkZjliMzc5MmUwODYyY2Y2NWVhZGMzM2JiNGYwYxImEgIAAyIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqvwEavAH6AbMBCq4BeyJwaGFzZSI6ICJsb2FkIiwgInZhbHVlcyI6IFsiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCJdLCBmYWxzZV0sICJuYXRpdmUiOiBbIjIwMjUtMDMtMTUiLCBbIjIwMjUtMDQtMTAiXSwgZmFsc2VdLCAiY2FsbHMiOiBbWyJyYW5nZSIsICIyMDI1LTAzLTE1IiwgWyIyMDI1LTA0LTEwIl0sIGZhbHNlXV19EAHSAwIIAQ=="
+              },
+              "timestamp": 166824.726421
+            }
+          },
+          {
+            "sequence": 510,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "MAA="
+              },
+              "timestamp": 166824.726504
+            }
+          },
+          {
+            "sequence": 511,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "SgA="
+              },
+              "timestamp": 166824.72658
+            }
+          }
+        ]
+      },
+      "screenshot": {
+        "file": "04-start.jpg",
+        "bytes": 29019,
+        "sha256": "a19c9932d0343f5d33ae6615b470e00a534d9497829ee110e755637a9284523c",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 780
+      }
+    },
+    {
+      "name": "05-dismiss",
+      "dom": {
+        "dialogs": [],
+        "exceptions": [],
+        "inputs": [
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-03-15"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-04-10"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": ""
+          },
+          {
+            "checked": false,
+            "type": "checkbox",
+            "value": "on"
+          }
+        ],
+        "json": "{\"phase\":\"load\"\"values\":[0:\"2025-03-15\"1:[0:\"2025-04-10\"]2:false]\"native\":[0:\"2025-03-15\"1:[0:\"2025-04-10\"]2:false]\"calls\":[0:[0:\"range\"1:\"2025-03-15\"2:[0:\"2025-04-10\"]3:false]]}",
+        "segments": [
+          {
+            "label": "year, Single",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Single",
+            "text": "03",
+            "value": "3"
+          },
+          {
+            "label": "day, Single",
+            "text": "15",
+            "value": "15"
+          },
+          {
+            "label": "year, Range start date",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Range start date",
+            "text": "04",
+            "value": "4"
+          },
+          {
+            "label": "day, Range start date",
+            "text": "10",
+            "value": "10"
+          },
+          {
+            "label": "year, Range end date",
+            "text": "yyyy",
+            "value": null
+          },
+          {
+            "label": "month, Range end date",
+            "text": "mm",
+            "value": null
+          },
+          {
+            "label": "day, Range end date",
+            "text": "dd",
+            "value": null
+          }
+        ],
+        "url": "http://127.0.0.1:52875/?probe=date-range&phase=load",
+        "viewport": {
+          "dpr": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "events": {
+        "pages": [
+          {
+            "cursor": 511,
+            "events": [],
+            "hasMore": false,
+            "truncated": false
+          }
+        ],
+        "events": []
+      },
+      "screenshot": {
+        "file": "05-dismiss.jpg",
+        "bytes": 28988,
+        "sha256": "3e558bcef0636c574143c5bc5a5be0a1d7ee46d1e486114c1acf3a2e234ec0d9",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 780
+      }
+    },
+    {
+      "name": "06-reopen",
+      "dom": {
+        "dialogs": [
+          "Use arrow keys to navigate dates. Enter to select. Escape to close.Choose date range, 2025年4月四月 一月二月三月四月五月六月七月八月九月十月十一月十二月2025年 2025年2025年4月一二三四五六日311234567891011121314151617181920212223242526272829301234"
+        ],
+        "exceptions": [],
+        "inputs": [
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-03-15"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-04-10"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": ""
+          },
+          {
+            "checked": false,
+            "type": "checkbox",
+            "value": "on"
+          }
+        ],
+        "json": "{\"phase\":\"load\"\"values\":[0:\"2025-03-15\"1:[0:\"2025-04-10\"]2:false]\"native\":[0:\"2025-03-15\"1:[0:\"2025-04-10\"]2:false]\"calls\":[0:[0:\"range\"1:\"2025-03-15\"2:[0:\"2025-04-10\"]3:false]]}",
+        "segments": [
+          {
+            "label": "year, Single",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Single",
+            "text": "03",
+            "value": "3"
+          },
+          {
+            "label": "day, Single",
+            "text": "15",
+            "value": "15"
+          },
+          {
+            "label": "year, Range start date",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Range start date",
+            "text": "04",
+            "value": "4"
+          },
+          {
+            "label": "day, Range start date",
+            "text": "10",
+            "value": "10"
+          },
+          {
+            "label": "year, Range end date",
+            "text": "yyyy",
+            "value": null
+          },
+          {
+            "label": "month, Range end date",
+            "text": "mm",
+            "value": null
+          },
+          {
+            "label": "day, Range end date",
+            "text": "dd",
+            "value": null
+          }
+        ],
+        "url": "http://127.0.0.1:52875/?probe=date-range&phase=load",
+        "viewport": {
+          "dpr": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "events": {
+        "pages": [
+          {
+            "cursor": 511,
+            "events": [],
+            "hasMore": false,
+            "truncated": false
+          }
+        ],
+        "events": []
+      },
+      "screenshot": {
+        "file": "06-reopen.jpg",
+        "bytes": 30423,
+        "sha256": "2442aa5f52b37132d694affb3eaa03a57ad0221410a113f78a6d94cdfdba0f96",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 780
+      }
+    },
+    {
+      "name": "07-complete",
+      "dom": {
+        "dialogs": [],
+        "exceptions": [],
+        "inputs": [
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-03-15"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-04-10"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-04-20"
+          },
+          {
+            "checked": false,
+            "type": "checkbox",
+            "value": "on"
+          }
+        ],
+        "json": "{\"phase\":\"load\"\"values\":[0:\"2025-03-15\"1:[0:\"2025-04-10\"1:\"2025-04-20\"]2:false]\"native\":[0:\"2025-03-15\"1:[0:\"2025-04-10\"1:\"2025-04-20\"]2:false]\"calls\":[0:[0:\"range\"1:\"2025-03-15\"2:[0:\"2025-04-10\"]3:false]1:[0:\"range\"1:\"2025-03-15\"2:[0:\"2025-04-10\"1:\"2025-04-20\"]3:false]]}",
+        "segments": [
+          {
+            "label": "year, Single",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Single",
+            "text": "03",
+            "value": "3"
+          },
+          {
+            "label": "day, Single",
+            "text": "15",
+            "value": "15"
+          },
+          {
+            "label": "year, Range start date",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Range start date",
+            "text": "04",
+            "value": "4"
+          },
+          {
+            "label": "day, Range start date",
+            "text": "10",
+            "value": "10"
+          },
+          {
+            "label": "year, Range end date",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Range end date",
+            "text": "04",
+            "value": "4"
+          },
+          {
+            "label": "day, Range end date",
+            "text": "20",
+            "value": "20"
+          }
+        ],
+        "url": "http://127.0.0.1:52875/?probe=date-range&phase=load",
+        "viewport": {
+          "dpr": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "events": {
+        "pages": [
+          {
+            "cursor": 520,
+            "events": [
+              {
+                "sequence": 512,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameSent",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": true,
+                    "opcode": 2,
+                    "payloadData": "WtsCChtwcm9iZT1kYXRlLXJhbmdlJnBoYXNlPWxvYWQS2AEKRwo3JCRJRC1mNzIyZWExN2E1NTE1ZjRlYmYyNDFkM2VjMDhkYjIyYi1kYXRlX2JvdW5kX3NpbmdsZUoMCgoyMDI1LTAzLTE1ClIKNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZUoYCgoyMDI1LTA0LTEwCgoyMDI1LTA0LTIwCjkKNSQkSUQtZTFkODQzNjYwYzk0N2QyMTdkYWE2MzNkMTQ1MmMyZjMtZGF0ZV9ib3VuZF9wZWVyGAAaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0Qj8KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiF2h0dHA6Ly8xMjcuMC4wLjE6NTI4NzUvKAAyBGRhcms="
+                  },
+                  "timestamp": 166856.643275
+                }
+              },
+              {
+                "sequence": 513,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ3ZmNmNDhhNS0wZjFjLTRjNTUtYmY2My02ZGU1NDM1YzAzMWUSJDRhZTc5YTA2LTM2YTEtNGU1NS05ZDQ1LWNkMWRlZDMwNjE0ZhoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0"
+                  },
+                  "timestamp": 166856.645519
+                }
+              },
+              {
+                "sequence": 514,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "SgIQAQ=="
+                  },
+                  "timestamp": 166856.648179
+                }
+              },
+              {
+                "sequence": 515,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiAzMzFkZmYyY2E3Yjg3ZjFjNzUwMjY0ZWY2ZDQ5NmI1ZBImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqfRp72gFzCjckJElELWY3MjJlYTE3YTU1MTVmNGViZjI0MWQzZWMwOGRiMjJiLWRhdGVfYm91bmRfc2luZ2xlEgZTaW5nbGUaCjIwMjUtMDMtMTUiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzFiAGoKWVlZWS9NTS9ERNIDAggB"
+                  },
+                  "timestamp": 166856.665422
+                }
+              },
+              {
+                "sequence": 516,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiAwODVjZDgxNWNhNjVlODk2OTFhY2JiOTM0NzFiZTliNRImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqigEahwHaAX8KNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZRIFUmFuZ2UaCjIwMjUtMDMtMTUaCjIwMjUtMDMtMjAiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzEwAWIAagpZWVlZL01NL0RE0gMCCAE="
+                  },
+                  "timestamp": 166856.667107
+                }
+              },
+              {
+                "sequence": 517,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiAxOTkzZmU4ZmM4NDAxMTQwNzdlNWIxOTY0MjM4MTAzOBImEgIAAiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqSRpHogE/CjUkJElELWUxZDg0MzY2MGM5NDdkMjE3ZGFhNjMzZDE0NTJjMmYzLWRhdGVfYm91bmRfcGVlchIEUGVlckoA0gMCEAE="
+                  },
+                  "timestamp": 166856.667281
+                }
+              },
+              {
+                "sequence": 518,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiA1ZDY2MGIwN2RmNzgwNjA3OTA2ODc1ZTgxZmI0NjUwNBImEgIAAyIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqmQIalgL6AY0CCogCeyJwaGFzZSI6ICJsb2FkIiwgInZhbHVlcyI6IFsiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCIsICIyMDI1LTA0LTIwIl0sIGZhbHNlXSwgIm5hdGl2ZSI6IFsiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCIsICIyMDI1LTA0LTIwIl0sIGZhbHNlXSwgImNhbGxzIjogW1sicmFuZ2UiLCAiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCJdLCBmYWxzZV0sIFsicmFuZ2UiLCAiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCIsICIyMDI1LTA0LTIwIl0sIGZhbHNlXV19EAHSAwIIAQ=="
+                  },
+                  "timestamp": 166856.667438
+                }
+              },
+              {
+                "sequence": 519,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "MAA="
+                  },
+                  "timestamp": 166856.667567
+                }
+              },
+              {
+                "sequence": 520,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "SgA="
+                  },
+                  "timestamp": 166856.667658
+                }
+              }
+            ],
+            "hasMore": false,
+            "truncated": false
+          }
+        ],
+        "events": [
+          {
+            "sequence": 512,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameSent",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": true,
+                "opcode": 2,
+                "payloadData": "WtsCChtwcm9iZT1kYXRlLXJhbmdlJnBoYXNlPWxvYWQS2AEKRwo3JCRJRC1mNzIyZWExN2E1NTE1ZjRlYmYyNDFkM2VjMDhkYjIyYi1kYXRlX2JvdW5kX3NpbmdsZUoMCgoyMDI1LTAzLTE1ClIKNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZUoYCgoyMDI1LTA0LTEwCgoyMDI1LTA0LTIwCjkKNSQkSUQtZTFkODQzNjYwYzk0N2QyMTdkYWE2MzNkMTQ1MmMyZjMtZGF0ZV9ib3VuZF9wZWVyGAAaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0Qj8KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiF2h0dHA6Ly8xMjcuMC4wLjE6NTI4NzUvKAAyBGRhcms="
+              },
+              "timestamp": 166856.643275
+            }
+          },
+          {
+            "sequence": 513,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ3ZmNmNDhhNS0wZjFjLTRjNTUtYmY2My02ZGU1NDM1YzAzMWUSJDRhZTc5YTA2LTM2YTEtNGU1NS05ZDQ1LWNkMWRlZDMwNjE0ZhoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0"
+              },
+              "timestamp": 166856.645519
+            }
+          },
+          {
+            "sequence": 514,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "SgIQAQ=="
+              },
+              "timestamp": 166856.648179
+            }
+          },
+          {
+            "sequence": 515,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAzMzFkZmYyY2E3Yjg3ZjFjNzUwMjY0ZWY2ZDQ5NmI1ZBImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqfRp72gFzCjckJElELWY3MjJlYTE3YTU1MTVmNGViZjI0MWQzZWMwOGRiMjJiLWRhdGVfYm91bmRfc2luZ2xlEgZTaW5nbGUaCjIwMjUtMDMtMTUiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzFiAGoKWVlZWS9NTS9ERNIDAggB"
+              },
+              "timestamp": 166856.665422
+            }
+          },
+          {
+            "sequence": 516,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAwODVjZDgxNWNhNjVlODk2OTFhY2JiOTM0NzFiZTliNRImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqigEahwHaAX8KNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZRIFUmFuZ2UaCjIwMjUtMDMtMTUaCjIwMjUtMDMtMjAiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzEwAWIAagpZWVlZL01NL0RE0gMCCAE="
+              },
+              "timestamp": 166856.667107
+            }
+          },
+          {
+            "sequence": 517,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAxOTkzZmU4ZmM4NDAxMTQwNzdlNWIxOTY0MjM4MTAzOBImEgIAAiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqSRpHogE/CjUkJElELWUxZDg0MzY2MGM5NDdkMjE3ZGFhNjMzZDE0NTJjMmYzLWRhdGVfYm91bmRfcGVlchIEUGVlckoA0gMCEAE="
+              },
+              "timestamp": 166856.667281
+            }
+          },
+          {
+            "sequence": 518,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiA1ZDY2MGIwN2RmNzgwNjA3OTA2ODc1ZTgxZmI0NjUwNBImEgIAAyIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqmQIalgL6AY0CCogCeyJwaGFzZSI6ICJsb2FkIiwgInZhbHVlcyI6IFsiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCIsICIyMDI1LTA0LTIwIl0sIGZhbHNlXSwgIm5hdGl2ZSI6IFsiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCIsICIyMDI1LTA0LTIwIl0sIGZhbHNlXSwgImNhbGxzIjogW1sicmFuZ2UiLCAiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCJdLCBmYWxzZV0sIFsicmFuZ2UiLCAiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCIsICIyMDI1LTA0LTIwIl0sIGZhbHNlXV19EAHSAwIIAQ=="
+              },
+              "timestamp": 166856.667438
+            }
+          },
+          {
+            "sequence": 519,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "MAA="
+              },
+              "timestamp": 166856.667567
+            }
+          },
+          {
+            "sequence": 520,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "SgA="
+              },
+              "timestamp": 166856.667658
+            }
+          }
+        ]
+      },
+      "screenshot": {
+        "file": "07-complete.jpg",
+        "bytes": 30321,
+        "sha256": "dc8bbff043eb2bd58d737db743c2cbb1dd74b38385871ab72a9e5fda603bd69c",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 780
+      }
+    },
+    {
+      "name": "08-peer",
+      "dom": {
+        "dialogs": [],
+        "exceptions": [],
+        "inputs": [
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-03-15"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-04-10"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-04-20"
+          },
+          {
+            "checked": true,
+            "type": "checkbox",
+            "value": "on"
+          }
+        ],
+        "json": "{\"phase\":\"load\"\"values\":[0:\"2025-03-15\"1:[0:\"2025-04-10\"1:\"2025-04-20\"]2:true]\"native\":[0:\"2025-03-15\"1:[0:\"2025-04-10\"1:\"2025-04-20\"]2:true]\"calls\":[0:[0:\"range\"1:\"2025-03-15\"2:[0:\"2025-04-10\"]3:false]1:[0:\"range\"1:\"2025-03-15\"2:[0:\"2025-04-10\"1:\"2025-04-20\"]3:false]2:[0:\"peer\"1:\"2025-03-15\"2:[0:\"2025-04-10\"1:\"2025-04-20\"]3:true]]}",
+        "segments": [
+          {
+            "label": "year, Single",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Single",
+            "text": "03",
+            "value": "3"
+          },
+          {
+            "label": "day, Single",
+            "text": "15",
+            "value": "15"
+          },
+          {
+            "label": "year, Range start date",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Range start date",
+            "text": "04",
+            "value": "4"
+          },
+          {
+            "label": "day, Range start date",
+            "text": "10",
+            "value": "10"
+          },
+          {
+            "label": "year, Range end date",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Range end date",
+            "text": "04",
+            "value": "4"
+          },
+          {
+            "label": "day, Range end date",
+            "text": "20",
+            "value": "20"
+          }
+        ],
+        "url": "http://127.0.0.1:52875/?probe=date-range&phase=load",
+        "viewport": {
+          "dpr": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "events": {
+        "pages": [
+          {
+            "cursor": 529,
+            "events": [
+              {
+                "sequence": 521,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameSent",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": true,
+                    "opcode": 2,
+                    "payloadData": "WtsCChtwcm9iZT1kYXRlLXJhbmdlJnBoYXNlPWxvYWQS2AEKRwo3JCRJRC1mNzIyZWExN2E1NTE1ZjRlYmYyNDFkM2VjMDhkYjIyYi1kYXRlX2JvdW5kX3NpbmdsZUoMCgoyMDI1LTAzLTE1ClIKNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZUoYCgoyMDI1LTA0LTEwCgoyMDI1LTA0LTIwCjkKNSQkSUQtZTFkODQzNjYwYzk0N2QyMTdkYWE2MzNkMTQ1MmMyZjMtZGF0ZV9ib3VuZF9wZWVyGAEaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0Qj8KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiF2h0dHA6Ly8xMjcuMC4wLjE6NTI4NzUvKAAyBGRhcms="
+                  },
+                  "timestamp": 166866.895665
+                }
+              },
+              {
+                "sequence": 522,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ3ZmNmNDhhNS0wZjFjLTRjNTUtYmY2My02ZGU1NDM1YzAzMWUSJDc4ZTAyYzIxLTA0NjYtNGU3ZC05ZjdkLWU4YzgyMWFlMTAwMRoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0"
+                  },
+                  "timestamp": 166866.917873
+                }
+              },
+              {
+                "sequence": 523,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "SgIQAQ=="
+                  },
+                  "timestamp": 166866.918289
+                }
+              },
+              {
+                "sequence": 524,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiAzMzFkZmYyY2E3Yjg3ZjFjNzUwMjY0ZWY2ZDQ5NmI1ZBImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqfRp72gFzCjckJElELWY3MjJlYTE3YTU1MTVmNGViZjI0MWQzZWMwOGRiMjJiLWRhdGVfYm91bmRfc2luZ2xlEgZTaW5nbGUaCjIwMjUtMDMtMTUiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzFiAGoKWVlZWS9NTS9ERNIDAggB"
+                  },
+                  "timestamp": 166866.919715
+                }
+              },
+              {
+                "sequence": 525,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiAwODVjZDgxNWNhNjVlODk2OTFhY2JiOTM0NzFiZTliNRImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqigEahwHaAX8KNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZRIFUmFuZ2UaCjIwMjUtMDMtMTUaCjIwMjUtMDMtMjAiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzEwAWIAagpZWVlZL01NL0RE0gMCCAE="
+                  },
+                  "timestamp": 166866.919848
+                }
+              },
+              {
+                "sequence": 526,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiAxOTkzZmU4ZmM4NDAxMTQwNzdlNWIxOTY0MjM4MTAzOBImEgIAAiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqSRpHogE/CjUkJElELWUxZDg0MzY2MGM5NDdkMjE3ZGFhNjMzZDE0NTJjMmYzLWRhdGVfYm91bmRfcGVlchIEUGVlckoA0gMCEAE="
+                  },
+                  "timestamp": 166866.919909
+                }
+              },
+              {
+                "sequence": 527,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiAzYzgwNzY1MWFjNzExMjU1YTFiMWNkMGU1ZWI2M2FjZBImEgIAAyIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQq0wIa0AL6AccCCsICeyJwaGFzZSI6ICJsb2FkIiwgInZhbHVlcyI6IFsiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCIsICIyMDI1LTA0LTIwIl0sIHRydWVdLCAibmF0aXZlIjogWyIyMDI1LTAzLTE1IiwgWyIyMDI1LTA0LTEwIiwgIjIwMjUtMDQtMjAiXSwgdHJ1ZV0sICJjYWxscyI6IFtbInJhbmdlIiwgIjIwMjUtMDMtMTUiLCBbIjIwMjUtMDQtMTAiXSwgZmFsc2VdLCBbInJhbmdlIiwgIjIwMjUtMDMtMTUiLCBbIjIwMjUtMDQtMTAiLCAiMjAyNS0wNC0yMCJdLCBmYWxzZV0sIFsicGVlciIsICIyMDI1LTAzLTE1IiwgWyIyMDI1LTA0LTEwIiwgIjIwMjUtMDQtMjAiXSwgdHJ1ZV1dfRAB0gMCCAE="
+                  },
+                  "timestamp": 166866.919972
+                }
+              },
+              {
+                "sequence": 528,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "MAA="
+                  },
+                  "timestamp": 166866.920097
+                }
+              },
+              {
+                "sequence": 529,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "SgA="
+                  },
+                  "timestamp": 166866.920165
+                }
+              }
+            ],
+            "hasMore": false,
+            "truncated": false
+          }
+        ],
+        "events": [
+          {
+            "sequence": 521,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameSent",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": true,
+                "opcode": 2,
+                "payloadData": "WtsCChtwcm9iZT1kYXRlLXJhbmdlJnBoYXNlPWxvYWQS2AEKRwo3JCRJRC1mNzIyZWExN2E1NTE1ZjRlYmYyNDFkM2VjMDhkYjIyYi1kYXRlX2JvdW5kX3NpbmdsZUoMCgoyMDI1LTAzLTE1ClIKNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZUoYCgoyMDI1LTA0LTEwCgoyMDI1LTA0LTIwCjkKNSQkSUQtZTFkODQzNjYwYzk0N2QyMTdkYWE2MzNkMTQ1MmMyZjMtZGF0ZV9ib3VuZF9wZWVyGAEaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0Qj8KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiF2h0dHA6Ly8xMjcuMC4wLjE6NTI4NzUvKAAyBGRhcms="
+              },
+              "timestamp": 166866.895665
+            }
+          },
+          {
+            "sequence": 522,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ3ZmNmNDhhNS0wZjFjLTRjNTUtYmY2My02ZGU1NDM1YzAzMWUSJDc4ZTAyYzIxLTA0NjYtNGU3ZC05ZjdkLWU4YzgyMWFlMTAwMRoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0"
+              },
+              "timestamp": 166866.917873
+            }
+          },
+          {
+            "sequence": 523,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "SgIQAQ=="
+              },
+              "timestamp": 166866.918289
+            }
+          },
+          {
+            "sequence": 524,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAzMzFkZmYyY2E3Yjg3ZjFjNzUwMjY0ZWY2ZDQ5NmI1ZBImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqfRp72gFzCjckJElELWY3MjJlYTE3YTU1MTVmNGViZjI0MWQzZWMwOGRiMjJiLWRhdGVfYm91bmRfc2luZ2xlEgZTaW5nbGUaCjIwMjUtMDMtMTUiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzFiAGoKWVlZWS9NTS9ERNIDAggB"
+              },
+              "timestamp": 166866.919715
+            }
+          },
+          {
+            "sequence": 525,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAwODVjZDgxNWNhNjVlODk2OTFhY2JiOTM0NzFiZTliNRImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqigEahwHaAX8KNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZRIFUmFuZ2UaCjIwMjUtMDMtMTUaCjIwMjUtMDMtMjAiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzEwAWIAagpZWVlZL01NL0RE0gMCCAE="
+              },
+              "timestamp": 166866.919848
+            }
+          },
+          {
+            "sequence": 526,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAxOTkzZmU4ZmM4NDAxMTQwNzdlNWIxOTY0MjM4MTAzOBImEgIAAiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqSRpHogE/CjUkJElELWUxZDg0MzY2MGM5NDdkMjE3ZGFhNjMzZDE0NTJjMmYzLWRhdGVfYm91bmRfcGVlchIEUGVlckoA0gMCEAE="
+              },
+              "timestamp": 166866.919909
+            }
+          },
+          {
+            "sequence": 527,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAzYzgwNzY1MWFjNzExMjU1YTFiMWNkMGU1ZWI2M2FjZBImEgIAAyIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQq0wIa0AL6AccCCsICeyJwaGFzZSI6ICJsb2FkIiwgInZhbHVlcyI6IFsiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCIsICIyMDI1LTA0LTIwIl0sIHRydWVdLCAibmF0aXZlIjogWyIyMDI1LTAzLTE1IiwgWyIyMDI1LTA0LTEwIiwgIjIwMjUtMDQtMjAiXSwgdHJ1ZV0sICJjYWxscyI6IFtbInJhbmdlIiwgIjIwMjUtMDMtMTUiLCBbIjIwMjUtMDQtMTAiXSwgZmFsc2VdLCBbInJhbmdlIiwgIjIwMjUtMDMtMTUiLCBbIjIwMjUtMDQtMTAiLCAiMjAyNS0wNC0yMCJdLCBmYWxzZV0sIFsicGVlciIsICIyMDI1LTAzLTE1IiwgWyIyMDI1LTA0LTEwIiwgIjIwMjUtMDQtMjAiXSwgdHJ1ZV1dfRAB0gMCCAE="
+              },
+              "timestamp": 166866.919972
+            }
+          },
+          {
+            "sequence": 528,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "MAA="
+              },
+              "timestamp": 166866.920097
+            }
+          },
+          {
+            "sequence": 529,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "SgA="
+              },
+              "timestamp": 166866.920165
+            }
+          }
+        ]
+      },
+      "screenshot": {
+        "file": "08-peer.jpg",
+        "bytes": 27714,
+        "sha256": "c257159d3e00822d92170c40739d6da06eb60ae2cbf20369c31d93f40715a9b6",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 780
+      }
+    },
+    {
+      "name": "09-peer-restore",
+      "dom": {
+        "dialogs": [],
+        "exceptions": [],
+        "inputs": [
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-03-15"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-04-10"
+          },
+          {
+            "checked": false,
+            "type": "date",
+            "value": "2025-04-20"
+          },
+          {
+            "checked": false,
+            "type": "checkbox",
+            "value": "on"
+          }
+        ],
+        "json": "{\"phase\":\"load\"\"values\":[0:\"2025-03-15\"1:[0:\"2025-04-10\"1:\"2025-04-20\"]2:false]\"native\":[0:\"2025-03-15\"1:[0:\"2025-04-10\"1:\"2025-04-20\"]2:false]\"calls\":[0:[0:\"range\"1:\"2025-03-15\"2:[0:\"2025-04-10\"]3:false]1:[0:\"range\"1:\"2025-03-15\"2:[0:\"2025-04-10\"1:\"2025-04-20\"]3:false]2:[0:\"peer\"1:\"2025-03-15\"2:[0:\"2025-04-10\"1:\"2025-04-20\"]3:true]3:[0:\"peer\"1:\"2025-03-15\"2:[0:\"2025-04-10\"1:\"2025-04-20\"]3:false]]}",
+        "segments": [
+          {
+            "label": "year, Single",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Single",
+            "text": "03",
+            "value": "3"
+          },
+          {
+            "label": "day, Single",
+            "text": "15",
+            "value": "15"
+          },
+          {
+            "label": "year, Range start date",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Range start date",
+            "text": "04",
+            "value": "4"
+          },
+          {
+            "label": "day, Range start date",
+            "text": "10",
+            "value": "10"
+          },
+          {
+            "label": "year, Range end date",
+            "text": "2025",
+            "value": "2025"
+          },
+          {
+            "label": "month, Range end date",
+            "text": "04",
+            "value": "4"
+          },
+          {
+            "label": "day, Range end date",
+            "text": "20",
+            "value": "20"
+          }
+        ],
+        "url": "http://127.0.0.1:52875/?probe=date-range&phase=load",
+        "viewport": {
+          "dpr": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "events": {
+        "pages": [
+          {
+            "cursor": 538,
+            "events": [
+              {
+                "sequence": 530,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameSent",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": true,
+                    "opcode": 2,
+                    "payloadData": "WtsCChtwcm9iZT1kYXRlLXJhbmdlJnBoYXNlPWxvYWQS2AEKRwo3JCRJRC1mNzIyZWExN2E1NTE1ZjRlYmYyNDFkM2VjMDhkYjIyYi1kYXRlX2JvdW5kX3NpbmdsZUoMCgoyMDI1LTAzLTE1ClIKNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZUoYCgoyMDI1LTA0LTEwCgoyMDI1LTA0LTIwCjkKNSQkSUQtZTFkODQzNjYwYzk0N2QyMTdkYWE2MzNkMTQ1MmMyZjMtZGF0ZV9ib3VuZF9wZWVyGAAaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0Qj8KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiF2h0dHA6Ly8xMjcuMC4wLjE6NTI4NzUvKAAyBGRhcms="
+                  },
+                  "timestamp": 166877.202864
+                }
+              },
+              {
+                "sequence": 531,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ3ZmNmNDhhNS0wZjFjLTRjNTUtYmY2My02ZGU1NDM1YzAzMWUSJGVmYTUyNWUzLWJjOWMtNDkwNS04MTVlLWQzM2Q2YTZhMmMzYhoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0"
+                  },
+                  "timestamp": 166877.205075
+                }
+              },
+              {
+                "sequence": 532,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "SgIQAQ=="
+                  },
+                  "timestamp": 166877.207311
+                }
+              },
+              {
+                "sequence": 533,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiAzMzFkZmYyY2E3Yjg3ZjFjNzUwMjY0ZWY2ZDQ5NmI1ZBImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqfRp72gFzCjckJElELWY3MjJlYTE3YTU1MTVmNGViZjI0MWQzZWMwOGRiMjJiLWRhdGVfYm91bmRfc2luZ2xlEgZTaW5nbGUaCjIwMjUtMDMtMTUiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzFiAGoKWVlZWS9NTS9ERNIDAggB"
+                  },
+                  "timestamp": 166877.226964
+                }
+              },
+              {
+                "sequence": 534,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiAwODVjZDgxNWNhNjVlODk2OTFhY2JiOTM0NzFiZTliNRImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqigEahwHaAX8KNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZRIFUmFuZ2UaCjIwMjUtMDMtMTUaCjIwMjUtMDMtMjAiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzEwAWIAagpZWVlZL01NL0RE0gMCCAE="
+                  },
+                  "timestamp": 166877.22731
+                }
+              },
+              {
+                "sequence": 535,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiAxOTkzZmU4ZmM4NDAxMTQwNzdlNWIxOTY0MjM4MTAzOBImEgIAAiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqSRpHogE/CjUkJElELWUxZDg0MzY2MGM5NDdkMjE3ZGFhNjMzZDE0NTJjMmYzLWRhdGVfYm91bmRfcGVlchIEUGVlckoA0gMCEAE="
+                  },
+                  "timestamp": 166877.228874
+                }
+              },
+              {
+                "sequence": 536,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "CiBhMjgxOGNiZmVjZTk4NmIyNTEyNGFmYzgyZDBhNjU2YRImEgIAAyIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqkgMajwP6AYYDCoEDeyJwaGFzZSI6ICJsb2FkIiwgInZhbHVlcyI6IFsiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCIsICIyMDI1LTA0LTIwIl0sIGZhbHNlXSwgIm5hdGl2ZSI6IFsiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCIsICIyMDI1LTA0LTIwIl0sIGZhbHNlXSwgImNhbGxzIjogW1sicmFuZ2UiLCAiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCJdLCBmYWxzZV0sIFsicmFuZ2UiLCAiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCIsICIyMDI1LTA0LTIwIl0sIGZhbHNlXSwgWyJwZWVyIiwgIjIwMjUtMDMtMTUiLCBbIjIwMjUtMDQtMTAiLCAiMjAyNS0wNC0yMCJdLCB0cnVlXSwgWyJwZWVyIiwgIjIwMjUtMDMtMTUiLCBbIjIwMjUtMDQtMTAiLCAiMjAyNS0wNC0yMCJdLCBmYWxzZV1dfRAB0gMCCAE="
+                  },
+                  "timestamp": 166877.229012
+                }
+              },
+              {
+                "sequence": 537,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "MAA="
+                  },
+                  "timestamp": 166877.229134
+                }
+              },
+              {
+                "sequence": 538,
+                "source": {
+                  "tabId": 1754832120
+                },
+                "method": "Network.webSocketFrameReceived",
+                "params": {
+                  "requestId": "67372.331",
+                  "response": {
+                    "mask": false,
+                    "opcode": 2,
+                    "payloadData": "SgA="
+                  },
+                  "timestamp": 166877.229211
+                }
+              }
+            ],
+            "hasMore": false,
+            "truncated": false
+          }
+        ],
+        "events": [
+          {
+            "sequence": 530,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameSent",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": true,
+                "opcode": 2,
+                "payloadData": "WtsCChtwcm9iZT1kYXRlLXJhbmdlJnBoYXNlPWxvYWQS2AEKRwo3JCRJRC1mNzIyZWExN2E1NTE1ZjRlYmYyNDFkM2VjMDhkYjIyYi1kYXRlX2JvdW5kX3NpbmdsZUoMCgoyMDI1LTAzLTE1ClIKNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZUoYCgoyMDI1LTA0LTEwCgoyMDI1LTA0LTIwCjkKNSQkSUQtZTFkODQzNjYwYzk0N2QyMTdkYWE2MzNkMTQ1MmMyZjMtZGF0ZV9ib3VuZF9wZWVyGAAaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0Qj8KDUFzaWEvU2hhbmdoYWkQoPz/////////ARoCemgiF2h0dHA6Ly8xMjcuMC4wLjE6NTI4NzUvKAAyBGRhcms="
+              },
+              "timestamp": 166877.202864
+            }
+          },
+          {
+            "sequence": 531,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "IqQDCq0BCl4KJDc5MDk1MDBjLWU1OWEtNTJlNy05ZjUzLWQzZGUwYzZhN2RmNCokNzkwOTUwMGMtZTU5YS01MmU3LTlmNTMtZDNkZTBjNmE3ZGY0MhBuby1tYWNoaW5lLWlkLXY0GiEKBjEuNjYuMRIOMy4xNC43LmZpbmFsLjAaB3dpbmRvd3MiAhABMiQ3ZmNmNDhhNS0wZjFjLTRjNTUtYmY2My02ZGU1NDM1YzAzMWUSJGVmYTUyNWUzLWJjOWMtNDkwNS04MTVlLWQzM2Q2YTZhMmMzYhoRd2lkZ2V0X3BhcmFtc19hcHAiSUM6XFVzZXJzXGtpbGxmXGdpdGh1YlxzdHJlYW1saXQtcnVzdFx0ZXN0c1xyZWZlcmVuY2Vcd2lkZ2V0X3BhcmFtc19hcHAucHkyBhgCKAFIAUIiCiBmODIxZTRjY2E4ZTBiNDM4MTNiN2RkYWQ5ODJlZThiNEogZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjRaIGY4MjFlNGNjYThlMGI0MzgxM2I3ZGRhZDk4MmVlOGI0"
+              },
+              "timestamp": 166877.205075
+            }
+          },
+          {
+            "sequence": 532,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "SgIQAQ=="
+              },
+              "timestamp": 166877.207311
+            }
+          },
+          {
+            "sequence": 533,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAzMzFkZmYyY2E3Yjg3ZjFjNzUwMjY0ZWY2ZDQ5NmI1ZBImEgIAACIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqfRp72gFzCjckJElELWY3MjJlYTE3YTU1MTVmNGViZjI0MWQzZWMwOGRiMjJiLWRhdGVfYm91bmRfc2luZ2xlEgZTaW5nbGUaCjIwMjUtMDMtMTUiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzFiAGoKWVlZWS9NTS9ERNIDAggB"
+              },
+              "timestamp": 166877.226964
+            }
+          },
+          {
+            "sequence": 534,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAwODVjZDgxNWNhNjVlODk2OTFhY2JiOTM0NzFiZTliNRImEgIAASIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqigEahwHaAX8KNiQkSUQtNTBiNzg5NjU0ZjAwZDRjYWQwZTcxN2NhZjg0OWYzODEtZGF0ZV9ib3VuZF9yYW5nZRIFUmFuZ2UaCjIwMjUtMDMtMTUaCjIwMjUtMDMtMjAiCjIwMjUtMDEtMDEqCjIwMjUtMTItMzEwAWIAagpZWVlZL01NL0RE0gMCCAE="
+              },
+              "timestamp": 166877.22731
+            }
+          },
+          {
+            "sequence": 535,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiAxOTkzZmU4ZmM4NDAxMTQwNzdlNWIxOTY0MjM4MTAzOBImEgIAAiIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqSRpHogE/CjUkJElELWUxZDg0MzY2MGM5NDdkMjE3ZGFhNjMzZDE0NTJjMmYzLWRhdGVfYm91bmRfcGVlchIEUGVlckoA0gMCEAE="
+              },
+              "timestamp": 166877.228874
+            }
+          },
+          {
+            "sequence": 536,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "CiBhMjgxOGNiZmVjZTk4NmIyNTEyNGFmYzgyZDBhNjU2YRImEgIAAyIgZjgyMWU0Y2NhOGUwYjQzODEzYjdkZGFkOTgyZWU4YjQqkgMajwP6AYYDCoEDeyJwaGFzZSI6ICJsb2FkIiwgInZhbHVlcyI6IFsiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCIsICIyMDI1LTA0LTIwIl0sIGZhbHNlXSwgIm5hdGl2ZSI6IFsiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCIsICIyMDI1LTA0LTIwIl0sIGZhbHNlXSwgImNhbGxzIjogW1sicmFuZ2UiLCAiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCJdLCBmYWxzZV0sIFsicmFuZ2UiLCAiMjAyNS0wMy0xNSIsIFsiMjAyNS0wNC0xMCIsICIyMDI1LTA0LTIwIl0sIGZhbHNlXSwgWyJwZWVyIiwgIjIwMjUtMDMtMTUiLCBbIjIwMjUtMDQtMTAiLCAiMjAyNS0wNC0yMCJdLCB0cnVlXSwgWyJwZWVyIiwgIjIwMjUtMDMtMTUiLCBbIjIwMjUtMDQtMTAiLCAiMjAyNS0wNC0yMCJdLCBmYWxzZV1dfRAB0gMCCAE="
+              },
+              "timestamp": 166877.229012
+            }
+          },
+          {
+            "sequence": 537,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "MAA="
+              },
+              "timestamp": 166877.229134
+            }
+          },
+          {
+            "sequence": 538,
+            "source": {
+              "tabId": 1754832120
+            },
+            "method": "Network.webSocketFrameReceived",
+            "params": {
+              "requestId": "67372.331",
+              "response": {
+                "mask": false,
+                "opcode": 2,
+                "payloadData": "SgA="
+              },
+              "timestamp": 166877.229211
+            }
+          }
+        ]
+      },
+      "screenshot": {
+        "file": "09-peer-restore.jpg",
+        "bytes": 27609,
+        "sha256": "50a9a53629d236ed18287b53c70ed5022efb32f74401ab17e7584cbe46f7efd5",
+        "format": "JPEG",
+        "width": 1463,
+        "height": 780
+      }
+    }
+  ],
+  "successful": true,
+  "collection_complete": true,
+  "cursor": 538,
+  "cleanup": {
+    "owned_tab_closed": true,
+    "owned_servers_stopped": true,
+    "ports_without_listeners": [
+      52875,
+      8599
+    ]
+  },
+  "visual_review": {
+    "all_stage_images_inspected": true,
+    "phase_alignment": true,
+    "viewport_override": false,
+    "note": "SDK viewport 1463x780 and Rust 1463x724, DPR 1.75. Rust 05-dismiss original screenshot is 1462x724; all other widths are 1463. No screen pixel or animation equivalence claim."
+  },
+  "scope": "Actual Chrome range calendar start/partial/dismiss/reopen/end and peer recovery; Rust partial state/callback incompatibility retained.",
+  "semantic_match": true
+}

@@ -2777,3 +2777,24 @@ widgets.rs 删除单值/范围重复解析，共用现有单日期 ISO/legacy �
 
 矩阵只补 st.date_input 本批证据和 limitation，生成 inventory 仍 130 partial；指南仅替换上一批尚未完成的隐式跨模式说明，其他原始字节保持。None/空/部分/多端点公开模型、任意原生类型、错 oneof、禁用/ignore、query binding、表单/跨页和更广组合继续开放，本批没有新浏览器采集。用户 colconfig 及其他已有修改保持，无 PR、合并、发布或部署；M3/M5/M7 与完整 Goal 保持开放。
 本批相同八模块共 1577 项通过（widget 参数 476、temporal 参数 111），新增十一项原生策略门和五项 SDK 验证；文档/配置/矩阵三模块 55 项通过。
+
+## Current date range actual Chrome failure evidence (2026-11-01)
+
+正常范围日历操作暴露当前公共返回模型的直接影响：点击新的起点便提交单日期数组，SDK 立即返回并保存部分范围并执行 on_change，Rust codec 因范围只支持两项而使本轮输入未应用，后端继续保留旧完整范围且漏掉该次 callback。输入框由官方前端更新成新起点/空终点，造成可见字段和后端状态不一致。选择终点后 Rust 恢复完整范围提交和后续 Peer 回调，但历史中缺失的起点 callback 不会补回。本批只记录实证，不将已知差异标为修复。
+
+使用 computer-use 技能及已绑定 Chrome 3，直接操作现有 widget_params 的 probe=date-range&phase=load 页面；没有改两端示例、采集器、生产源码或公共接口。两端各九阶段：load/calendar-open/calendar-next/start/dismiss/reopen/complete/peer/peer-restore。先展开三月并翻四月，点击 4/10，仅选择起点；Escape 关闭再重新打开日历，补选 4/20，然后 Peer true/false。所有浏览器输入经语义控件，不注入前端状态、协议包或脚本事件。
+
+[SDK](../tests/reference/reference-browser/widget-params/date-range/ui/trace.json) 与 [Rust](../tests/browser/rust-widget-params/date-range/ui/trace.json) 各五次真实运行、45 个二进制 WS 帧、20 完整 Element，均由当前真实 tab 的 CDP 原始 events/pages 重解析。两端实际提交的 Single 是 3/15，Range 首次只含 4/10，Peer false；SDK 返回/native 为 [4/10] 且新增一条 range callback，Rust 返回/native 仍为 [3/15,3/20] 且没有 callback。部分范围在关闭/重开日历期间保留在前端，四个日历开关/翻月动作无 WS 请求。补齐终点后两端返回/native 都为 [4/10,4/20]，随后 Peer 正常切换；SDK 历史共四条 callback，Rust 只有完整范围和两个 Peer 的三条。
+
+全部控件 Element 仅规范化 opaque ID 后逐字段一致，初始完整 JSON 也一致；从起点轮开始的真实报告差异完整保留，没有通过删除 callback 或只比较最终值制造全量匹配。SDK 严格参考行为门通过才设 successful/semantic_match=true；Rust 保留 collection_complete=true、successful=false、semantic_match=false 和明确 known_failure。相同参考行为门对 Rust 的实际 DOM/返回值失败，另按已知失败形状核查其完整原始证据；不只因 false 标记而失败，也不把测试能准确识别失败当成产品兼容通过。
+
+十八张原始 JPEG 随每阶段直接保存并逐张查看，未重编码、裁切、拼接或生成。SDK DOM/截图为 1463x780，Rust DOM 为 1463x724；Rust 05-dismiss 原始截图实际宽 1462，其余 Rust 图片宽 1463，DPR 均 1.75，无 viewport override。截图宽度差异原样保留，不宣称完整屏幕像素或动画一致。截图 05-dismiss 清楚显示起点 4/10、终点占位，而 Rust JSON 仍为 3/15..3/20；SDK 同阶段 JSON 已为单端点。图片逐一校验原始 bytes/SHA/JPEG/真实尺寸，范围字段区域另拒绝把初始完整值图片重算哈希后当作部分范围。
+
+严格门同时检查九阶段与五次运行分组、DOM 年月日分段/hidden date/checkbox/可见 JSON/日历月份/无异常，原始 CDP events/pages 投影和 cursor/sequence、实际 tab/requestId/单连接、protobuf 完整消息和 running 状态次序、三个稳定 ID 和实际 oneof/原始数组、query/history、zh/Asia-Shanghai/-480/dark/当前 origin context、同一 session 的五个 run 成功结束、全部路径和 widget default/min/max/is_range/format/width/策略/no-sync、返回/native/有序 callback。新增十一项至 widget 参数模块 487 项，其中八类 negative 保留 raw/events/pages 双份一致，拒绝错误部分 DOM、把单端点请求改成完整值、丢 callback、错误模式、额外同步、过期输入 ID、损坏截图 hash、重算 hash 的初始图复用。
+
+源码、fixture、采集器三个 producer 和 widgets/widget_api 两份实际文件 SHA 均与 metadata 和当前 HEAD=18561a9 的 blob 匹配，实际 widget_params 二进制 SHA 也相同。Network 在关闭 owned tab 前禁用，不宣称捕获 close 帧；标签 1754832120/1754832123 均关闭。唯一 stop marker target/date-range-ui-stop-20261101 通知 coordinator 后，SDK/Rust 两个自持 Popen 在 finally terminate/wait，exec session 85135 正常退出，PID 72104/36484 已由句柄确认结束，52875/8599 无监听。日志 target/date-range-ui-{sdk,rust}-server.log 和 server-meta.json 保留。
+
+本批没有 Rust 源码变更，不重复 Clippy、构建或完整 Cargo 测试；上批 342 项与导航/rerun 两项排除属于上批证据。定向完整 UI 门十一项通过；最初 -k date_range_ui 只选中九项，最终以 date_range_ui or date_range_actual_calendar 实测十一项，不以 deselected 当通过。日志 target/date-range-ui-{gate,gate-final,python,docs}.log。
+
+仅 st.date_input 矩阵补真实 UI 参考与明确失败项，生成 inventory 仍 130 partial；指南追加当前正常交互局限并保留旧字节前缀。已结合实证再次请用户选择日期公共返回模型：1 推荐统一 Single(Option<NaiveDate>)/Range(Vec<NaiveDate>) 并迁移调用方；2 保留旧变体另增空/可变范围变体；3 保留旧 API 另增可空/可变范围 API。依用户 AGENTS.md 第 2 条，破坏性公开接口待明确选择后实施，不把推荐或等待当同意。用户已有修改保持，无 PR、合并、发布或部署；空/部分/多端点、其他日期 UI 和更广组合仍未完成，M3/M5/M7 与完整 Goal 保持开放。
+本批相同八模块共 1588 项通过（widget 参数 487、temporal 参数 111），文档/配置/矩阵三模块 55 项通过；产品部分范围不兼容仍作为明确失败保留。

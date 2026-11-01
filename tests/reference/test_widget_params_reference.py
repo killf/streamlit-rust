@@ -4093,6 +4093,175 @@ def test_date_range_gate_rejects_coherent_wrong_wire(mutation):
     with pytest.raises(AssertionError): check_date_range(capture)
 
 
+DATE_RANGE_UI_STAGES = ("01-load","02-calendar-open","03-calendar-next","04-start","05-dismiss","06-reopen","07-complete","08-peer","09-peer-restore")
+DATE_RANGE_UI_RUN = (0,0,0,1,1,1,2,3,4)
+DATE_RANGE_UI_CALLS = [["range","2025-03-15",["2025-04-10"],False], ["range","2025-03-15",["2025-04-10","2025-04-20"],False],
+    ["peer","2025-03-15",["2025-04-10","2025-04-20"],True], ["peer","2025-03-15",["2025-04-10","2025-04-20"],False]]
+
+
+def range_ui_json_text(value):
+    if isinstance(value,dict): return '{'+''.join(json.dumps(key)+':'+range_ui_json_text(item) for key,item in value.items())+'}'
+    if isinstance(value,list): return '['+''.join(str(index)+':'+range_ui_json_text(item) for index,item in enumerate(value))+']'
+    return json.dumps(value)
+
+
+def check_date_range_ui(capture, folder, *, reference_behavior=True):
+    import hashlib
+    from PIL import Image
+
+    assert capture["collection_complete"] and capture["reference_version"] == "1.66.1" and capture["runtime"] in ("python","rust")
+    assert capture["visual_review"]["all_stage_images_inspected"] and capture["visual_review"]["phase_alignment"] and not capture["visual_review"]["viewport_override"]
+    assert capture["cleanup"]["owned_tab_closed"] and capture["cleanup"]["owned_servers_stopped"] and capture["cleanup"]["ports_without_listeners"] == [52875,8599]
+    assert [stage["name"] for stage in capture["stages"]] == list(DATE_RANGE_UI_STAGES)
+    origin = capture["url"].split('/?')[0]
+    assert origin.startswith('http://127.0.0.1:') and capture["url"] == origin+'/?probe=date-range&phase=load'
+    cursor, sequence, connection, ids = 0, -1, None, None
+    sessions, run_ids, normalized, regions, frames_seen = set(), set(), [], [], 0
+    for index, stage in enumerate(capture["stages"]):
+        run = DATE_RANGE_UI_RUN[index];peer = run == 3
+        selected = DATE_RANGE_DEFAULT if run == 0 else ["2025-04-10"] if run == 1 else ["2025-04-10","2025-04-20"]
+        backend = DATE_RANGE_DEFAULT if run == 1 and not reference_behavior else selected
+        calls = DATE_RANGE_UI_CALLS[:run] if reference_behavior else DATE_RANGE_UI_CALLS[1:run]
+        values = ["2025-03-15",backend,peer]
+        report = {"phase":"load","values":values,"native":values,"calls":calls}
+        dom = stage["dom"]
+        assert dom["url"] == capture["url"] and not dom["exceptions"] and dom["json"] == range_ui_json_text(report)
+        assert dom["viewport"] == {"width":1463,"height":780 if capture["runtime"] == "python" else 724,"dpr":1.75}
+        expected_segments = []
+        for label, day in (("Single","2025-03-15"),("Range start date",selected[0]),("Range end date",selected[1] if len(selected) == 2 else None)):
+            parts = day.split('-') if day else ("yyyy","mm","dd")
+            for field, text in zip(("year","month","day"),parts,strict=True):
+                expected_segments.append({"label":field+", "+label,"value":str(int(text)) if day else None,"text":text})
+        assert dom["segments"] == expected_segments
+        assert dom["inputs"] == [{"type":"date","value":day,"checked":False} for day in ("2025-03-15",selected[0],selected[1] if len(selected) == 2 else '')]+[{"type":"checkbox","value":"on","checked":peer}]
+        assert len(dom["dialogs"]) == (1 if index in (1,2,3,5) else 0)
+        if dom["dialogs"]: assert ('2025年3月' if index == 1 else '2025年4月') in dom["dialogs"][0]
+        picture = stage["screenshot"];path = folder/picture["file"];raw = path.read_bytes()
+        assert len(raw) == picture["bytes"] and hashlib.sha256(raw).hexdigest() == picture["sha256"]
+        with Image.open(path) as image:
+            assert image.format == picture["format"] == "JPEG"
+            width = 1462 if capture["runtime"] == "rust" and index == 4 else 1463
+            assert image.size == (picture["width"],picture["height"]) == (width,dom["viewport"]["height"])
+            regions.append(image.crop((374,207,1077,249)).tobytes())
+
+        pages = stage["events"]["pages"]
+        assert pages and all(not page["truncated"] and not page["hasMore"] for page in pages)
+        assert [event for page in pages for event in page["events"]] == stage["events"]["events"]
+        messages = []
+        for event in stage["events"]["events"]:
+            assert event["sequence"] > sequence and event["sequence"] > cursor and event["source"]["tabId"] == int(capture["tab_id"])
+            sequence = event["sequence"]
+            if event["method"] == "Network.webSocketCreated":
+                assert index == 0 and connection is None and event["params"]["url"] == origin.replace('http:','ws:')+'/_stcore/stream'
+                connection = event["params"]["requestId"];continue
+            assert event["method"] in ("Network.webSocketFrameSent","Network.webSocketFrameReceived") and event["params"]["requestId"] == connection
+            assert event["params"]["response"]["opcode"] == 2
+            message = BackMsg() if event["method"].endswith('Sent') else ForwardMsg()
+            message.ParseFromString(base64.b64decode(event["params"]["response"]["payloadData"],validate=True));messages.append(message);frames_seen += 1
+        assert pages[-1]["cursor"] >= max(cursor,sequence);cursor = pages[-1]["cursor"]
+        if index not in (0,3,6,7,8):
+            assert not messages;continue
+        assert [message.WhichOneof("type") for message in messages] == ["rerun_script","new_session","session_status_changed"]+["delta"]*4+["script_finished","session_status_changed"]
+        request, session = messages[0].rerun_script, messages[1].new_session
+        assert request.query_string == "probe=date-range&phase=load" and not request.is_history_navigation
+        context = request.context_info
+        assert (context.timezone,context.timezone_offset,context.locale,context.color_scheme,context.url,context.is_embedded) == ("Asia/Shanghai",-480,"zh","dark",origin+'/',False)
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id);run_ids.add(session.script_run_id)
+        assert messages[2].session_status_changed.script_is_running and messages[7].script_finished == 0 and not messages[8].session_status_changed.script_is_running
+        assert [list(message.metadata.delta_path) for message in messages[3:7]] == [[0,i] for i in range(4)]
+        assert all(message.delta.WhichOneof("type") == "new_element" for message in messages[3:7])
+        elements = [message.delta.new_element for message in messages[3:7]]
+        assert [element.WhichOneof("type") for element in elements] == ["date_input","date_input","checkbox","json"]
+        current = []
+        for position, element in enumerate(elements[:3]):
+            widget = element.checkbox if position == 2 else element.date_input
+            assert widget.label == ("Single","Range","Peer")[position] and widget.id.endswith('-date_bound_'+('single','range','peer')[position])
+            assert not widget.disabled and not widget.ignore_rerun and not widget.form_id and not widget.help and not widget.set_value
+            assert not widget.value and widget.label_visibility.value == 0 and not element.HasField("has_one_shot_effect")
+            if position == 2: assert not widget.default and element.width_config.use_content
+            else:
+                assert list(widget.default) == (["2025-03-15"] if position == 0 else DATE_RANGE_DEFAULT)
+                assert (widget.min,widget.max,widget.format,widget.is_range,widget.query_param_key) == ("2025-01-01","2025-12-31","YYYY/MM/DD",position == 1,'')
+                assert element.width_config.use_stretch
+            current.append(widget.id)
+        assert len(set(current)) == 3
+        if ids is None:ids = current
+        else:assert current == ids
+        incoming = request.widget_states.widgets
+        if run == 0:assert not incoming
+        else:
+            assert [widget.id for widget in incoming] == ids and [widget.WhichOneof("value") for widget in incoming] == ["string_array_value","string_array_value","bool_value"]
+            assert list(incoming[0].string_array_value.data) == ["2025-03-15"] and list(incoming[1].string_array_value.data) == selected and incoming[2].bool_value is peer
+        assert json.loads(elements[-1].json.body) == report
+        fields = []
+        for element in elements:
+            kind = element.WhichOneof("type");view = MessageToDict(element,preserving_proto_field_name=True)
+            if kind == "json":view[kind]["body"] = json.loads(view[kind]["body"])
+            else:view[kind].pop('id')
+            fields.append(view)
+        normalized.append(fields)
+    assert len(sessions) == 1 and len(run_ids) == 5 and frames_seen == 45 and capture["cursor"] == cursor
+    assert regions[0] != regions[4], "partial date field must not reuse the original complete-range picture"
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON,RUST), ids=("python","rust-known-failure"))
+def test_date_range_actual_calendar_reference_and_native_partial_failure(root):
+    folder = root/"date-range/ui";capture = read(folder/"trace.json")
+    reference = root == PYTHON
+    assert capture["successful"] is reference and capture["semantic_match"] is reference
+    check_date_range_ui(capture,folder,reference_behavior=reference)
+    if not reference:
+        with pytest.raises(AssertionError):check_date_range_ui(capture,folder)
+
+
+def test_date_range_ui_keeps_widget_parity_and_full_report_difference():
+    captures = [read(root/"date-range/ui/trace.json") for root in (PYTHON,RUST)]
+    assert captures[0]["metadata"] == captures[1]["metadata"]
+    reference = check_date_range_ui(captures[0],PYTHON/"date-range/ui")
+    native = check_date_range_ui(captures[1],RUST/"date-range/ui",reference_behavior=False)
+    assert reference[0] == native[0] and reference != native
+    assert [run[:3] for run in reference] == [run[:3] for run in native]
+    assert len(reference[-1][-1]["json"]["body"]["calls"]) == 4 and len(native[-1][-1]["json"]["body"]["calls"]) == 3
+
+
+@pytest.mark.parametrize("mutation", ("partial-dom","partial-request","callback-drop","wrong-mode","extra-sync","stale-id","screenshot","old-image"))
+def test_date_range_ui_gate_rejects_wrong_wire_dom_or_image(mutation,tmp_path):
+    import hashlib
+    import shutil
+
+    folder = tmp_path/"ui";shutil.copytree(PYTHON/"date-range/ui",folder);capture = read(folder/"trace.json")
+    if mutation == "partial-dom":capture["stages"][4]["dom"]["segments"][8].update(value="20",text="20")
+    elif mutation == "screenshot":capture["stages"][4]["screenshot"]["sha256"] = "wrong"
+    elif mutation == "old-image":
+        raw = (folder/capture["stages"][0]["screenshot"]["file"]).read_bytes();picture = capture["stages"][4]["screenshot"]
+        (folder/picture["file"]).write_bytes(raw);picture.update(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+    else:
+        stage = capture["stages"][3];changed = 0
+        for event in stage["events"]["events"]:
+            method = event["method"]
+            if method not in ("Network.webSocketFrameSent","Network.webSocketFrameReceived"):continue
+            client = method.endswith('Sent');message = BackMsg() if client else ForwardMsg();message.ParseFromString(base64.b64decode(event["params"]["response"]["payloadData"]))
+            if client and mutation == "partial-request":message.rerun_script.widget_states.widgets[1].string_array_value.data.append("2025-04-20")
+            elif client and mutation == "stale-id":message.rerun_script.widget_states.widgets[1].id = '$$ID-stale-date_bound_range'
+            elif not client and message.WhichOneof('type') == 'delta':
+                element = message.delta.new_element;kind = element.WhichOneof('type')
+                if kind == 'date_input' and element.date_input.label == 'Range' and mutation in ('wrong-mode','extra-sync'):
+                    if mutation == 'wrong-mode':element.date_input.is_range=False
+                    else:element.date_input.set_value=True;element.date_input.value[:]=['2025-04-10'];element.has_one_shot_effect=True
+                elif kind == 'json' and mutation == 'callback-drop':
+                    report=json.loads(element.json.body);report['calls']=[];element.json.body=json.dumps(report);stage['dom']['json']=range_ui_json_text(report)
+                else:continue
+            else:continue
+            changed += 1;payload=base64.b64encode(message.SerializeToString()).decode();event['params']['response']['payloadData']=payload
+            for page in stage['events']['pages']:
+                for mirrored in page['events']:
+                    if mirrored['sequence'] == event['sequence']:mirrored['params']['response']['payloadData']=payload
+        assert changed == 1
+    with pytest.raises(AssertionError):check_date_range_ui(capture,folder)
+
+
 def date_single_ui_text(day, peer, calls):
     flag = str(peer).lower()
     rows = ''.join(f'{i}:[0:"{source}"1:"{value}"2:{str(checked).lower()}]' for i, (source, value, checked) in enumerate(calls))

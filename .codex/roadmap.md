@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 日期范围真实 Chrome 失败证据：两端各九阶段、五轮、45 帧、20 Element；首个起点点击发送同样的单端点值，SDK 已更新并 callback，Rust 输入框变化但后端保留旧完整范围且漏 callback。补齐终点后恢复完整提交，累计 callback 为 SDK 四条/Rust 三条。18 张原始 JPEG、DOM 和原始网络事件保留，严格参考门拒绝 Rust。见[验收](acceptance.md#current-date-range-actual-chrome-failure-evidence-2026-11-01)。日期返回模型三个选项再次随实证提交用户决定，未选前不实施破坏性公共接口变更；完整目标保持开放。
+
 2026-11-01 日期隐式边界模式保留：省略 min/max 时沿用旧单值或完整范围的实际类型，由现有 DateSelection 返回，ID 不变、不额外同步或 callback；显式模式重置仍保留。四组边界策略十二阶段及两端原生十二轮、95 帧、36 Element、10 条 callback 匹配；2050 年代码赋值四组合和旧四组协议复验通过。见[验收](acceptance.md#current-date-implicit-bound-mode-retention-validation-2026-11-01)。无公共 API 改动，None/部分/多端点模型和浏览器等继续开放。
 
 2026-11-01 日期显式边界模式重置：单值/范围切换保留 key 身份，旧类型回本轮默认并同步一次，无额外 callback；双边/单边界十二阶段与原生十二轮、95 帧、36 完整 Element、10 条 callback 匹配。布尔/整数/空 tuple 原生值补 SDK 与 Rust 验证，旧三组日期协议复验通过。见[验收](acceptance.md#current-date-explicit-bound-mode-reset-validation-2026-11-01)。无公共 API 改动，隐式边界跨模式和 None/部分范围模型及浏览器等继续开放。
