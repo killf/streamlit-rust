@@ -5,6 +5,7 @@
 //! sign, and the coalescing progress bar.
 
 use crate::elements::common::{Element, ElementHeight, ElementWidth, RenderContext};
+use crate::elements::exception::AppException;
 use crate::error::StreamlitError;
 use crate::media;
 use crate::proto::{Delta, delta, delta_base_with_path, element, forward_msg, metric};
@@ -187,6 +188,48 @@ pub(crate) struct Playback {
 }
 
 impl Playback {
+    pub(crate) fn time_error(start_time: Option<f64>, end_time: Option<f64>, video: bool) -> Option<AppException> {
+        let error = |kind: &str, message: String| AppException::new(kind.into(), message, Vec::new());
+        let start = start_time.unwrap_or(0.0);
+
+        // 1. Python 先解析 start，再解析 end；非有限数不进入区间/协议校验。
+        if start.is_nan() {
+            let message = concat!(
+                "Failed to convert 'start_time' to a timedelta. Please use a string in a format supported by ",
+                "[Pandas Timedelta constructor](https://pandas.pydata.org/docs/reference/api/pandas.Timedelta.html), ",
+                "e.g. `\"10s\"`, `\"15 seconds\"`, or `\"1h23s\"`. Got: nan"
+            );
+            return Some(error("streamlit.errors.StreamlitAPIException", message.into()).streamlit_markdown());
+        }
+        if start.is_infinite() {
+            return Some(error("OverflowError", "cannot convert float infinity to integer".into()));
+        }
+        if let Some(end) = end_time {
+            if end.is_nan() {
+                return Some(error("ValueError", "cannot convert float NaN to integer".into()));
+            }
+            if end.is_infinite() {
+                return Some(error("OverflowError", "cannot convert float infinity to integer".into()));
+            }
+        }
+
+        // 2. 截断后仅视频拒绝负开始值/倒置区间；音频允许这些输入。
+        let start = start.trunc();
+        let end = end_time.map(f64::trunc);
+        if video && (start < 0.0 || end.is_some_and(|end| end <= start)) {
+            return Some(error("streamlit.errors.StreamlitAPIException", "Invalid start_time and end_time combination.".into()).streamlit_markdown());
+        }
+
+        // 3. 最后按 protobuf 字段顺序验证范围，不能让 Rust 的 as 饱和截断。
+        for value in std::iter::once(start).chain(end) {
+            if !(i32::MIN as f64..=i32::MAX as f64).contains(&value) {
+                return Some(error("ValueError", format!("Value out of range: {value:.0}")));
+            }
+        }
+
+        None
+    }
+
     /// Python coerces the times to whole seconds (`int(...)` truncation).
     fn seconds(value: Option<f64>) -> Option<i32> {
         value.map(|time| time.trunc() as i32)

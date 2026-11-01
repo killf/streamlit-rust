@@ -2411,6 +2411,14 @@ impl<C: AppendChild> StreamlitApi for C {
 
     fn audio<T: Into<AudioOptions>>(&self, options: T) {
         let options = options.into();
+
+        // 1. 数值转换错误先于资源注册和字幕处理。
+        if let Some(error) = crate::elements::media::Playback::time_error(options.start_time, options.end_time, false) {
+            self.push(Rc::new(RefCell::new(error)));
+            return;
+        }
+
+        // 2. 时间有效后注册媒体并保留播放参数。
         match crate::elements::media::media_url(&options.data, &options.mime) {
             Ok(url) => {
                 let element = crate::elements::media::AudioElement::new(url).with_playback(crate::elements::media::Playback {
@@ -2429,7 +2437,13 @@ impl<C: AppendChild> StreamlitApi for C {
     fn video<T: Into<VideoOptions>>(&self, options: T) {
         let options = options.into();
 
-        // 1. URL 与字节输入均先校验字幕；无效文本只渲染错误元素。
+        // 1. 数值转换错误先于资源注册和字幕处理。
+        if let Some(error) = crate::elements::media::Playback::time_error(options.start_time, options.end_time, true) {
+            self.push(Rc::new(RefCell::new(error)));
+            return;
+        }
+
+        // 2. URL 与字节输入均先校验字幕；无效文本只渲染错误元素。
         let mut tracks = Vec::new();
         for (label, text) in &options.subtitles {
             match crate::elements::media::subtitle_track(label, text) {
@@ -2447,7 +2461,7 @@ impl<C: AppendChild> StreamlitApi for C {
             }
         }
 
-        // 2. 远程视频仅保留 URL；字幕仍使用本地媒体地址。
+        // 3. 远程视频仅保留 URL；字幕仍使用本地媒体地址。
         let url = match options.url {
             Some(url) => Ok(url),
             None => crate::elements::media::media_url(&options.data, &options.mime),

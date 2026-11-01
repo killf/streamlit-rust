@@ -20,6 +20,44 @@ def read(path):
     return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
+MEDIA_TIME_CASES = read(PYTHON / 'trace.json')['playback_time_cases']
+
+
+@pytest.mark.parametrize('case', MEDIA_TIME_CASES, ids=lambda case: case['name'])
+def test_numeric_media_times_replay_sdk_players_and_error_precedence(case):
+    import importlib.metadata
+    from streamlit.proto.Audio_pb2 import Audio
+    from streamlit.proto.Video_pb2 import Video
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version('streamlit') == '1.66.1' and len(MEDIA_TIME_CASES) == 52
+    source = 'import streamlit as st\nst.' + case['kind'] + '(b"ftyp"'
+    for key in ('start_time', 'end_time'):
+        value = case[key]
+        if value is not None:
+            literal = 'float(' + repr(value) + ')' if isinstance(value, str) else repr(value)
+            source += ',' + key + '=' + literal
+    app = AppTest.from_string(source + ')').run()
+    if case['accepted']:
+        assert not app.exception and len(app.get(case['kind'])) == 1
+        proto = app.get(case['kind'])[0].proto
+        assert MessageToDict(proto, preserving_proto_field_name=True) == case['apptest_proto']
+        assert proto.SerializeToString() == base64.b64decode(case['apptest_proto_base64'], validate=True)
+        mime, extension = ('audio/wav', 'wav') if case['kind'] == 'audio' else ('video/mp4', 'mp4')
+        url = '/media/' + hashlib.blake2b(b'4:ftyp' + mime.encode(), digest_size=16).hexdigest() + '.' + extension
+        assert proto.url == '/mock' + url
+        proto.url = url
+        canonical = Audio() if case['kind'] == 'audio' else Video()
+        canonical.ParseFromString(bytes(case['proto_bytes']))
+        assert proto == canonical
+    else:
+        assert not app.get(case['kind']) and len(app.exception) == 1
+        error = app.exception[0].proto
+        assert (error.type, error.message) == (case['error_type'], case['error'])
+        assert error.message_is_markdown == case['message_is_markdown']
+        assert error.is_streamlit_exception == case['is_streamlit_exception']
+
+
 def frames(capture):
     for frame in capture["frames"]:
         data = base64.b64decode(frame["base64"], validate=True)

@@ -880,3 +880,76 @@ async fn video_url_subtitles_match_frozen_sdk_and_local_http() -> TestResult {
 
     Ok(())
 }
+
+fn media_time_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/media-params/trace.json")).expect("frozen media reference");
+        let time = |value: &serde_json::Value| {
+            if value.is_null() {
+                None
+            } else {
+                Some(value.as_f64().unwrap_or_else(|| value.as_str().expect("special time").parse::<f64>().expect("numeric time")))
+            }
+        };
+
+        for case in reference["playback_time_cases"].as_array().expect("playback time cases") {
+            let start = time(&case["start_time"]);
+            let end = time(&case["end_time"]);
+
+            if case["kind"] == "audio" {
+                let mut options = crate::AudioOptions::new(b"ftyp".to_vec(), "audio/wav");
+                if let Some(start) = start {
+                    options = options.start_time(start);
+                }
+                if let Some(end) = end {
+                    options = options.end_time(end);
+                }
+                st.audio(options);
+            } else {
+                let mut options = crate::VideoOptions::new(b"ftyp".to_vec(), "video/mp4");
+                if let Some(start) = start {
+                    options = options.start_time(start);
+                }
+                if let Some(end) = end {
+                    options = options.end_time(end);
+                }
+                st.video(options);
+            }
+        }
+    })
+}
+
+#[actix_web::test]
+async fn media_numeric_times_match_frozen_sdk_values_and_error_precedence() -> TestResult {
+    let (_, handle, task, mut socket) = start_media_server(media_time_entry).await?;
+    let captured = run_once(&mut socket, &mut String::new()).await;
+    drop(socket);
+    handle.stop(false).await;
+    task.await??;
+    let wires = captured?;
+    let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/media-params/trace.json"))?;
+    let cases = reference["playback_time_cases"].as_array().ok_or("missing playback time cases")?;
+    assert_eq!(cases.len(), 52);
+    assert_eq!(wires.elements.len(), cases.len());
+
+    for (element, case) in wires.elements.iter().zip(cases) {
+        if case["accepted"] == true {
+            let bytes = serde_json::from_value::<Vec<u8>>(case["proto_bytes"].clone())?;
+            match element.r#type.as_ref() {
+                Some(element::Type::Audio(audio)) if case["kind"] == "audio" => assert_eq!(*audio, crate::proto::Audio::decode(bytes.as_slice())?, "{}", case["name"]),
+                Some(element::Type::Video(video)) if case["kind"] == "video" => assert_eq!(*video, crate::proto::Video::decode(bytes.as_slice())?, "{}", case["name"]),
+                _ => return Err(format!("{}: expected a valid player", case["name"]).into()),
+            }
+        } else {
+            let Some(element::Type::Exception(exception)) = element.r#type.as_ref() else {
+                return Err(format!("{}: invalid time must render an exception", case["name"]).into());
+            };
+            assert_eq!(exception.r#type, case["error_type"].as_str().ok_or("error type")?, "{}", case["name"]);
+            assert_eq!(exception.message, case["error"].as_str().ok_or("error message")?, "{}", case["name"]);
+            assert_eq!(Some(exception.message_is_markdown), case["message_is_markdown"].as_bool(), "{}", case["name"]);
+            assert_eq!(Some(exception.is_streamlit_exception), case["is_streamlit_exception"].as_bool(), "{}", case["name"]);
+        }
+    }
+
+    Ok(())
+}

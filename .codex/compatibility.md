@@ -464,3 +464,7 @@ Invalid raw subtitle text now renders the SDK label repr for measured ASCII quot
 ### Native URL subtitle attachment (2026-11-01)
 
 The preceding native-URL subtitle bypass is now repaired: existing video options validate and attach local subtitle tracks while preserving the original video URL and avoiding video-byte registration. Eight pinned public SDK AppTest cases match native complete Video messages or exact exception type/message/flags; seven actual local track GETs match helper-derived bytes, content addresses and ordinary VTT response semantics, including an empty first track. This establishes protocol/resource behavior for the measured inputs, not browser playback/visibility, SDK HTTP for the new combination, YouTube processing, autoplay identity or script-abort/stack/UI parity. Unicode numeric and repr printability gaps remain open.
+
+### Numeric audio/video playback times (2026-11-01)
+
+For the measured f64/default time inputs, private Playback validation now follows pinned Python order: start conversion, end conversion, truncation, video-only interval validation, then int32 field bounds. Audio still accepts negative/reversed intervals as the SDK does. Fifty-two public AppTest references match native complete player messages or exact exception type/message/flags, including NaN, infinities, protocol overflow and huge-float integer text. Script-abort/stack/UI, string/timedelta/explicit-null API shapes, browser playback/seek and broader media lifecycle remain open; numeric error messages are not browser playback evidence.

@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 音视频数值时间：52 个 SDK AppTest 参考覆盖负数/区间、NaN/无穷、int32 范围和错误优先级；Rust 修复静默饱和与无校验，保留音频允许倒置区间的参考行为。真实 WS 先红后绿、媒体十二项集成通过，无新增文件/API/依赖；脚本异常中止与浏览器仍开放。见[验收](acceptance.md#current-numeric-media-time-validation-2026-11-01)。
+
 2026-11-01 native URL 字幕附加修复：统一现有 video 字幕处理，修复 URL 提前返回遗漏字幕/校验。八个 SDK AppTest 完整载荷/错误参考与 Rust 真实 WS 先红后绿，七次本地字幕 GET 匹配正文/地址；媒体十一项集成通过。无新文件/API/依赖或远程视频请求，YouTube、浏览器和待决 Unicode 仍开放。见[验收](acceptance.md#current-native-url-subtitle-attachment-validation-2026-11-01)。
 
 2026-11-01 字幕标签错误：十二个公开 SDK AppTest 冻结案覆盖引号、ASCII 控制字符和可打印中文/emoji，Rust 私有单元与真实 WS 两项先红后绿；复用既有状态错误引号逻辑，无新文件/依赖/API。Unicode printability 与数字表仍待决，native URL 忽略字幕为另一个已知缺口。见[验收](acceptance.md#current-subtitle-label-error-quoting-validation-2026-11-01)。

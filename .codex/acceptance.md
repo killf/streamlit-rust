@@ -3031,3 +3031,19 @@ Rust 按语义单元留空并逐段 diff 复查，格式、全工作区/all-targ
 最终工作区 352 项通过（345 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference；target/subtitle-url-workspace.log 保留，不称完整全绿。文档/配置/矩阵 55 项通过（target/subtitle-url-docs.log）；生成 inventory 仍 130 partial，M3/M5/M7 和完整目标未关闭。
 
 提交前逐文件 diff 与 git diff --check 通过；原 oracle 字段和九个受保护用户文件 SHA 保持。仅暂存本批九个已存在文件，不纳入用户 colconfig、Cargo 或指南/README 修改；未创建 PR、合并、发布、部署或使用浏览器。
+
+## Current numeric media time validation (2026-11-01)
+
+SDK 源码及公开 AppTest 实测显示音频允许负开始时间和倒置区间，视频才拒绝；两者先把时间截断到整数。Rust 原先对 NaN/无穷/超界静默使用 as 饱和转换，没有 SDK 错误。现有 media.rs Playback 增加私有 time_error，api.rs audio/video 在媒体注册/字幕处理前调用：start 非有限转换→end 非有限转换→向零截断→视频区间→start/end int32 范围，保留音频的真实参考行为。NaN start 为 StreamlitAPIException，NaN end 为 ValueError，无穷为 OverflowError，字段超界为 ValueError；对应 Markdown/Streamlit 标记也匹配，不把所有错误改为单一 API 类型。
+
+既有 media-params/trace.json 只追加独立 playback_time_cases/scope，原 WS capture 全部既有字段/raw PB 保持。锁定 SDK 1.66.1 公开 AppTest 共 52 案，14 接受、38 报错；覆盖默认、负数/负小数、普通小数、同秒/倒置/end=0、int32 上下界/超界、NaN/正负无穷、1e100/最大 f64 和混合错误优先级。非有限输入用字符串 token 标识，重放时转换为 float，不声称支持字符串时间 API。保留完整原 AppTest mock protobuf、canonical 原字节地址 protobuf、或实际错误类型/完整文字/标记；普通构建和运行不需要 Python。生成日志 target/media-time-sdk.log。原 trace 使用 CRLF 且 Git 不归一化，新增 oracle 块以 LF 保存，修复 diff check 的 CR 空白告警；旧帧/字段未改。
+
+新增公共 WS 回归先 red，在 audio-overflow-start 收到播放器而非错误（target/media-time-red.log）；修后三个媒体单元先通过（target/media-time-unit.log），再十二项真实媒体集成通过（target/media-time-green.log）。新测试用公开 AudioOptions/VideoOptions 发出 52 个调用，逐项比较全部 Audio/Video protobuf（地址只显式移除 SDK mock 前缀，不归一化内容摘要），或 Exception type/message/Markdown/Streamlit 标记。测试结束/失败均先关闭 socket、自有服务并等待退出，再断言。最大 f64 的完整十进制整数错误文字也匹配，未用 i32 饱和值伪造。
+
+SDK 参考重放 media-params 模块 67 项通过（target/media-time-python.log），新增 52 项每次实际调用公开 AppTest，不只验证冻结 JSON。workspace/all-targets Clippy -D warnings 通过，保留原有 MSVC linker_messages 告警（target/media-time-clippy.log）。生产只改 api.rs 和 elements/media.rs，按语义单元留空并逐文件 diff 复查；无新文件、依赖、公共接口、重启或外部写操作。
+
+SDK 每个 AppTest 独立报错，Rust 沿用已有错误元素模式，因此不能据一次 WS 批次称整个脚本的抛错/中止/恢复兼容；SDK/native stack/调用位置、显式 None/字符串/timedelta API、浏览器播放/定位和媒体生命周期继续开放。未实施待决 Unicode/repr 数据或 rerun 扩展规则，M3/M5/M7 和完整目标保持开放。
+
+最终工作区 353 项通过（346 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference；日志 target/media-time-workspace.log，不称完整全绿。六个相关 Python/文档模块共 215 项通过（target/media-time-gates.log），包含 67 media-params、68 media-more、25 media-contract、55 文档/配置/矩阵。生成 inventory 仍 130 partial。
+
+最终逐文件 diff、git diff --check 通过，九个受保护用户文件 SHA 与本批快照一致，旧参考对象所有字段/raw PB 保持；仅暂存本批十个已存在文件，不纳入用户 Cargo、colconfig、指南/README 修改。无浏览器、PR、合并、发布或部署。
