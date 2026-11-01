@@ -2819,3 +2819,24 @@ widgets.rs 的 begin_widgets 在既有禁用分支前，仅对已登记且原先
 
 三个 producer 与 widgets/widget_api 源文件实际 SHA 和二进制 SHA 已与新捕获核对；source_commit=06e4ed3 为启动基线，具体工作区文件由 SHA 标识。SDK 采集服务与自持 Rust Popen 均 finally terminate/wait；50595/51312/8599 无监听。指南追加已测禁用回调时序并保留原字节前缀，矩阵只补 st.date_input 的本批证据与 limitation，生成 inventory 仍 130 partial。用户 colconfig 及其他已有修改保持，无 PR、合并、发布或部署；错误 oneof、空/部分/多端点、unkeyed/ignore、query binding、表单/跨页与更广组合仍开放，M3/M5/M7 和完整 Goal 保持开放。
 文档/配置/矩阵三模块 55 项通过。提交前另核对原始捕获来源 SHA 与暂存 blob 一致，原指南字节前缀和全部受保护用户文件 SHA 保持。
+
+## Current disabled date early type-error validation (2026-11-01)
+
+按用户已选方案 1 继续禁用日期的错误路径：本批覆盖 bool/trigger（true/false）、int、double、非空 int_array/double_array 和非空 bytes='x'。SDK 1.66.1 会在变化判断期反序列化失败，尚未分派任何 callback，随后同一会话即使收到正确日期与 Peer=false，也会因原错误在状态压缩期再次失败。正常 Peer=true 的值已接收，但其 callback 不能提前执行。JSON、字符串和空容器有不同规则，仍单列未完成，不通过整批忽略或改变恢复策略接受差异。
+
+生产仅 widgets.rs 既有禁用分支增加 DateInput 类型错误分类：非迭代标量报对应 bool/int/float not iterable，非空数字数组和 bytes 的首项报 strptime() argument 1 must be str, not int/float；写入已有 input_error，沿用 callback 清空、handler 提前呈现 TypeError、保留未见记录与后续输入被阻止的机制。没有新增字段、生产文件、依赖、公开 API 或消息队列策略。已有正常类型的 callback 可见值/登记恢复分支先运行，正常日期不受本分类影响。
+
+Rust registry 单元九种 payload × 单值/范围 × 两种输入顺序共 36 组合，先真实红于 bool 输入仍收集 Peer callback（target/date-errors-red.log），修后通过。单元核对零 callback、具体错误文字、Peer=true 已接收；下一轮正确日期/Peer=false 仍零 callback、原错误不变、Peer 仍 true；新 SessionState 没有污染。对应 36 个锁定 SDK AppTest 实测相同结果，callback 自身只记入口标记，不读日期，避免把 callback 内部访问错误误当成未分派；使用内部 _run/原始 WidgetStates，不称普通浏览器输入。
+
+[SDK](../tests/reference/reference-browser/widget-params/date-errors/trace.json) 与 [Rust](../tests/browser/rust-widget-params/date-errors/trace.json) 首次原生捕获各 36 独立 WS 会话、108 轮、720 原始帧、216 Element，其中 72 个预期 TypeError。复用现有日期示例的 disabled-load，采集器增加 opt-in date-errors：每例 load→malformed→recovery，先关闭上一 WS 再建立新连接，避免持续错误污染后面的类型。每个初始运行正常展示两个禁用日期、Peer 和空 callback 报告；错误轮和恢复轮只发异常，无应用控件/报告，框架仍发送 FINISHED_SUCCESSFULLY。两种顺序都验证，即使 Peer 包在错误包之前也不能分派 callback。
+
+严格门从 raw base64 重解析 protobuf/bytes/message/元素投影，校验完整三轮消息和 running 状态顺序、每例同一 session/不同例 session 隔离、108 个 run、原 query/case/attempt/history、三个初始 ID/默认/范围/disabled/format/bounds/布局/no-sync、准确目标/oneof/顺序/payload（包括显式 false 和 bytes base64）、所有异常 TypeError/文字/位置/标志、恢复包正确但仍失败。SDK 原始栈全部非空、恢复栈包含 _compact_state；Rust 沿用框架空栈。初始控件/报告和异常除 stack_trace 外的完整字段均一致；Python 的实际栈未删，Rust 未伪造 Python 路径，比较时仅单列 stack_trace。Rust 标记 error_semantics_match=true、semantic_match=false，不宣称完整异常 Element/字节或错误 UI 全兼容。
+
+新增十一项原生门至 widget 参数模块 509 项，其中八种 coherent 负例同步改写 raw/message/元素投影并确认一帧实际变更，拒绝错误文字、错误地恢复成功、错误轮呈现 callback 标记、异常位置错误、过期日期 ID、把错误 oneof 换成合法日期、跨例复用 session、将 false payload 改为 true。SDK 模块新增三十六项至 temporal 147；Rust metadata/输入次序与回调持续状态均有公开状态读值证明，不只比较异常数量。
+
+同一当前二进制另重放原禁用日期正常输入十二轮，target/date-errors-old-disabled/trace.json 的 107 帧/48 完整 Element 仍逐字段匹配冻结 SDK；已知部分范围日历失败和既有参考/截图不改。本批无浏览器操作。所有新捕获的三个 producer、widgets/widget_api 源文件 SHA 与当前工作区一致，二进制 SHA 已核对；source_commit=ab4a4c9 是启动基线。采集器和自持 Popen 均 terminate/wait，52701/8599 无监听。
+
+Rust 编辑文件逐段 diff、格式检查、全工作区/all-target Clippy 通过，既有 MSVC linker stdout warning 保留。widgets 单元 19 项、真实 pickers 两项通过；最终工作区 344 项通过（337 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称全绿。新错误门与旧正确禁用门共 22 项通过，相同八个 Python 模块共 1646 项通过。日志 target/date-errors-{red,green,sdk,widgets,pickers,clippy,build,sdk-ws,rust-ws,server,gate,workspace,python,old-disabled,old-disabled-server,docs}.log。
+
+矩阵只补 st.date_input 的本批错误证据与 limitation，生成 inventory 仍 130 partial；指南追加已测错误类型与持续状态，并明确尚无完整 Rust 异常栈。JSON/字符串/空容器及其他 message 类型、多个坏控件混合、启用控件错误、None/空/部分/多端点公开模型、真实错误 UI、绑定/表单/跨页与其他组合继续开放。用户现有 colconfig 等修改保留，无 PR、合并、发布或部署；M3/M5/M7 与完整 Goal 保持开放。
+文档/配置/矩阵三模块 55 项通过；提交前确认原指南字节前缀、受保护用户文件 SHA 和新捕获来源/index blob 口径一致。

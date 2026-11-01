@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 禁用日期提前类型错误：bool/trigger、数字、非空数字数组/bytes 复用 input_error，callback 分派前报错且持续阻止恢复。36 个 SDK/注册组合先红后绿；两端原生 36 独立会话、108 轮、720 帧、72 TypeError 的类型/文字/位置/流程匹配，栈信息差异原样保留（error_semantics_match=true、semantic_match=false）。旧正常禁用日期复验通过。见[验收](acceptance.md#current-disabled-date-early-type-error-validation-2026-11-01)。JSON/字符串/空容器、部分范围模型及真实错误 UI 等继续开放，完整目标不变。
+
 2026-11-01 禁用日期 callback 时序：单日期/完整范围的归一化提交先供同伴 callback 读取，日期自身按上轮禁用策略抑制，登记再恢复旧值；代码赋值优先。公开 API 十二阶段先红后绿，两端原生十二轮、107 帧、48 Element、14 条 callback 匹配，禁用/启用同轮切换及旧五组日期协议复验通过。见[验收](acceptance.md#current-disabled-date-callback-exposure-validation-2026-11-01)。无公共 API 改动，错误 oneof、部分范围返回模型及真实范围日历失败仍开放，完整目标不变。
 
 2026-11-01 日期范围真实 Chrome 失败证据：两端各九阶段、五轮、45 帧、20 Element；首个起点点击发送同样的单端点值，SDK 已更新并 callback，Rust 输入框变化但后端保留旧完整范围且漏 callback。补齐终点后恢复完整提交，累计 callback 为 SDK 四条/Rust 三条。18 张原始 JPEG、DOM 和原始网络事件保留，严格参考门拒绝 Rust。见[验收](acceptance.md#current-date-range-actual-chrome-failure-evidence-2026-11-01)。日期返回模型三个选项再次随实证提交用户决定，未选前不实施破坏性公共接口变更；完整目标保持开放。

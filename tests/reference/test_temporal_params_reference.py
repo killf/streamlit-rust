@@ -13,6 +13,41 @@ PYTHON = Path(__file__).parent / "reference-browser/temporal-params"
 RUST = Path(__file__).parents[1] / "browser/rust-temporal-params"
 
 
+@pytest.mark.parametrize("kind,value,error", (("bool_value",True,"'bool' object is not iterable"), ("bool_value",False,"'bool' object is not iterable"),
+    ("trigger_value",True,"'bool' object is not iterable"), ("trigger_value",False,"'bool' object is not iterable"), ("int_value",7,"'int' object is not iterable"),
+    ("double_value",1.5,"'float' object is not iterable"), ("int_array_value",[7],"strptime() argument 1 must be str, not int"),
+    ("double_array_value",[1.5],"strptime() argument 1 must be str, not float"), ("bytes_value",b'x',"strptime() argument 1 must be str, not int")))
+@pytest.mark.parametrize("range_mode", (False,True))
+@pytest.mark.parametrize("peer_first", (False,True))
+def test_sdk_disabled_date_type_errors_precede_callbacks_and_block_recovery(kind,value,error,range_mode,peer_first):
+    from streamlit.testing.v1 import AppTest
+    from streamlit.proto.WidgetStates_pb2 import WidgetStates
+
+    app = AppTest.from_string('''
+import streamlit as st
+from datetime import date
+if 'calls' not in st.session_state:st.session_state.calls=[]
+def changed(source):st.session_state.calls.append(source)
+st.date_input('Day',value='''+('(date(2025,3,15),date(2025,3,20))' if range_mode else 'date(2025,3,15)')+''',key='day',disabled=True,on_change=changed,args=('day',))
+st.checkbox('Peer',key='peer',on_change=changed,args=('peer',))
+''').run()
+    assert not app.exception
+    identity, peer_id = app.date_input[0].id, app.checkbox[0].id
+    incoming = WidgetStates()
+    for label in (('peer','day') if peer_first else ('day','peer')):
+        widget = incoming.widgets.add(id=peer_id if label=='peer' else identity)
+        if label=='peer':widget.bool_value=True
+        elif kind.endswith('array_value'):getattr(widget,kind).data[:]=value
+        else:setattr(widget,kind,value)
+    app._run(incoming)
+    assert [exception.message for exception in app.exception] == [error]
+    assert app.session_state['calls'] == [] and app.session_state['peer'] is True
+    recovery = WidgetStates();recovery.widgets.add(id=identity).string_array_value.data[:] = ['2025-04-10','2025-04-20'] if range_mode else ['2025-04-10']
+    recovery.widgets.add(id=peer_id).bool_value=False;app._run(recovery)
+    assert [exception.message for exception in app.exception] == [error]
+    assert app.session_state['calls'] == [] and app.session_state['peer'] is True
+
+
 @pytest.mark.parametrize("bounds", ("both", "minimum", "maximum", "implicit"))
 def test_sdk_date_mode_changes_follow_bound_policy(bounds):
     from streamlit.testing.v1 import AppTest

@@ -816,6 +816,21 @@ impl SessionState {
             }
 
             if registry.records.get(&widget.id).is_none_or(|record| record.disabled) {
+                if registry.records.get(&widget.id).is_some_and(|record| record.disabled && matches!(record.codec, Codec::DateInput { .. })) {
+                    let error = match widget.value.as_ref() {
+                        Some(widget_state::Value::BoolValue(_) | widget_state::Value::TriggerValue(_)) => Some("'bool' object is not iterable"),
+                        Some(widget_state::Value::IntValue(_)) => Some("'int' object is not iterable"),
+                        Some(widget_state::Value::DoubleValue(_)) => Some("'float' object is not iterable"),
+                        Some(widget_state::Value::IntArrayValue(array)) if !array.data.is_empty() => Some("strptime() argument 1 must be str, not int"),
+                        Some(widget_state::Value::DoubleArrayValue(array)) if !array.data.is_empty() => Some("strptime() argument 1 must be str, not float"),
+                        Some(widget_state::Value::BytesValue(bytes)) if !bytes.is_empty() => Some("strptime() argument 1 must be str, not int"),
+                        _ => None,
+                    };
+                    if let Some(error) = error {
+                        registry.input_error.get_or_insert_with(|| error.to_owned());
+                    }
+                }
+
                 if registry.records.get(&widget.id).is_some_and(|record| record.disabled && matches!(record.codec, Codec::Select(_))) {
                     let unhashable_type = match widget.value.as_ref() {
                         Some(widget_state::Value::StringArrayValue(_) | widget_state::Value::IntArrayValue(_) | widget_state::Value::DoubleArrayValue(_)) => Some("google._upb._message.RepeatedScalarContainer"),
@@ -855,7 +870,7 @@ impl SessionState {
         }
 
         if registry.input_error.is_some() {
-            // 4. 数组值使 Python 的变化判断失败，本轮 callback 尚未分派。
+            // 4. 解码失败使变化判断中止，本轮 callback 尚未分派。
             callbacks.clear();
         }
 
@@ -1226,6 +1241,95 @@ impl SessionState {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn disabled_date_type_errors_suppress_callbacks_and_block_recovery() -> anyhow::Result<()> {
+        let min = NaiveDate::from_ymd_opt(2025, 1, 1).expect("fixture date");
+        let max = NaiveDate::from_ymd_opt(2025, 12, 31).expect("fixture date");
+        for (wire, expected_error) in [
+            (widget_state::Value::BoolValue(true), "'bool' object is not iterable"),
+            (widget_state::Value::BoolValue(false), "'bool' object is not iterable"),
+            (widget_state::Value::TriggerValue(true), "'bool' object is not iterable"),
+            (widget_state::Value::TriggerValue(false), "'bool' object is not iterable"),
+            (widget_state::Value::IntValue(7), "'int' object is not iterable"),
+            (widget_state::Value::DoubleValue(1.5), "'float' object is not iterable"),
+            (widget_state::Value::IntArrayValue(crate::proto::SInt64Array { data: vec![7] }), "strptime() argument 1 must be str, not int"),
+            (widget_state::Value::DoubleArrayValue(crate::proto::DoubleArray { data: vec![1.5] }), "strptime() argument 1 must be str, not float"),
+            (widget_state::Value::BytesValue(vec![b'x']), "strptime() argument 1 must be str, not int"),
+        ] {
+            for range in [false, true] {
+                for peer_first in [false, true] {
+                    let state = SessionState::default();
+                    let default = if range { serde_json::json!(["2025-03-15", "2025-03-20"]) } else { serde_json::json!("2025-03-15") };
+                    let (date_id, _, _) = state.register_widget(
+                        WidgetSpec {
+                            kind: "date_input",
+                            key: Some("day"),
+                            disabled: true,
+                            query: None,
+                            identity: "stable",
+                            default: default.clone(),
+                            codec: Codec::DateInput { range, min, max, reset_native: true, default },
+                            callback: Some(Arc::new(|_| {})),
+                        },
+                        |value| Ok(value.clone()),
+                    )?;
+                    let (peer_id, _, _) = state.register_widget(
+                        WidgetSpec {
+                            kind: "checkbox",
+                            key: Some("peer"),
+                            disabled: false,
+                            query: None,
+                            identity: "stable",
+                            default: Value::Bool(false),
+                            codec: Codec::Bool,
+                            callback: Some(Arc::new(|_| {})),
+                        },
+                        |value| Ok(value.clone()),
+                    )?;
+                    state.finish_widgets();
+                    let mut incoming = vec![
+                        WidgetState { id: date_id.clone(), value: Some(wire.clone()) },
+                        WidgetState {
+                            id: peer_id.clone(),
+                            value: Some(widget_state::Value::BoolValue(true)),
+                        },
+                    ];
+                    if peer_first {
+                        incoming.reverse();
+                    }
+
+                    // 1. 全部变化判断结束前不分派 callback，正常同伴值已接收。
+                    assert!(state.begin_widgets(incoming).is_empty());
+                    assert_eq!(state.widget_input_error().as_deref(), Some(expected_error));
+                    assert_eq!(state.get::<bool>("peer")?, Some(true));
+                    state.finish_widgets();
+
+                    // 2. 原错误持续，正确日期和新的同伴输入也不能恢复该会话。
+                    let dates = if range { vec!["2025-04-10".into(), "2025-04-20".into()] } else { vec!["2025-04-10".into()] };
+                    assert!(
+                        state
+                            .begin_widgets(vec![
+                                WidgetState {
+                                    id: date_id,
+                                    value: Some(widget_state::Value::StringArrayValue(crate::proto::StringArray { data: dates }))
+                                },
+                                WidgetState {
+                                    id: peer_id,
+                                    value: Some(widget_state::Value::BoolValue(false))
+                                }
+                            ])
+                            .is_empty()
+                    );
+                    assert_eq!(state.widget_input_error().as_deref(), Some(expected_error));
+                    assert_eq!(state.get::<bool>("peer")?, Some(true));
+                    state.finish_widgets();
+                }
+            }
+        }
+        assert!(SessionState::default().widget_input_error().is_none());
+        Ok(())
+    }
 
     #[test]
     fn array_input_failure_suppresses_callbacks_and_blocks_later_input() -> anyhow::Result<()> {

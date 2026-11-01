@@ -3743,6 +3743,134 @@ DATE_DISABLED_CALLS = [[source,single,dates,peer] for index,(single,dates,peer) 
     for source in (("single","range","peer") if index in (4,5,11) else ("peer",))]
 
 
+DATE_ERROR_INPUTS = (("bool_value",True),("bool_value",False),("trigger_value",True),("trigger_value",False),("int_value",7),("double_value",1.5),
+    ("int_array_value",[7]),("double_array_value",[1.5]),("bytes_value","eA=="))
+DATE_ERROR_MESSAGES = {"bool_value":"'bool' object is not iterable","trigger_value":"'bool' object is not iterable","int_value":"'int' object is not iterable",
+    "double_value":"'float' object is not iterable","int_array_value":"strptime() argument 1 must be str, not int",
+    "double_array_value":"strptime() argument 1 must be str, not float","bytes_value":"strptime() argument 1 must be str, not int"}
+
+
+def check_date_errors(capture):
+    cases = [{'target':target,'kind':kind,'value':value,'peer_first':peer_first} for target in ('Single','Range') for kind,value in DATE_ERROR_INPUTS for peer_first in (False,True)]
+    assert capture['successful'] and 'producer_error' not in capture and capture['reference_version']=='1.66.1'
+    assert capture['runtime'] in ('python','rust') and capture['cases']==cases and capture['finishes']==[0]*108
+    assert capture['cleanup']['websocket_closed'] and capture['cleanup']['server_stopped' if capture['runtime']=='python' else 'caller_server_stopped']
+    assert len(capture['frames'])==720 and len(capture['elements'])==216
+    kinds=[(message.WhichOneof('type'),message.session_status_changed.script_is_running) if message.WhichOneof('type')=='session_status_changed' else message.WhichOneof('type') for message in frames(capture)]
+    expected=[]
+    for case in cases:
+        for attempt in range(3):
+            expected+=['rerun_script']+([('session_status_changed',False)] if attempt else [])
+            expected+=['new_session',('session_status_changed',True)]+['delta']*(1 if attempt else 4)+['script_finished']
+    assert kinds==expected
+    runs=color_runs(capture,('date_input','checkbox','json','exception'))
+    assert len(runs)==108
+    normalized,sessions,run_ids,offset=[],set(),set(),0
+    for case_index,(case,recorded) in enumerate(zip(cases,capture['cases'],strict=True)):
+        assert type(recorded['peer_first']) is bool and type(recorded['value']) is type(case['value'])
+        identity,session_id=None,None
+        for attempt,run in enumerate(runs[case_index*3:case_index*3+3]):
+            request=run['request'];phase=('load','malformed','recovery')[attempt]
+            assert request.query_string=='probe=date-disabled&phase=disabled-load&case='+str(case_index)+'&attempt='+phase and not request.is_history_navigation
+            assert len(run['sessions'])==1 and run['finishes']==[0]
+            session=run['sessions'][0]
+            assert session.initialize.environment_info.streamlit_version=='1.66.1'
+            if attempt==0:
+                session_id=session.initialize.session_id;assert session_id and session_id not in sessions;sessions.add(session_id)
+            else:assert session.initialize.session_id==session_id
+            assert session.script_run_id and session.script_run_id not in run_ids;run_ids.add(session.script_run_id)
+            entries=run['entries'];incoming=request.widget_states.widgets
+            if attempt==0:
+                assert not incoming and [entry[0] for entry in entries]==['date_input','date_input','checkbox','json']
+                identity={}
+                for position,(kind,widget,element) in enumerate(entries[:3]):
+                    label=('Single','Range','Peer')[position];identity[label]=widget.id
+                    assert widget.label==label and widget.id.endswith('-date_bound_'+('single','range','peer')[position])
+                    assert widget.disabled is (position<2) and not widget.ignore_rerun and not widget.form_id and not widget.help and not widget.set_value and not widget.value
+                    assert widget.label_visibility.value==0 and not element.HasField('has_one_shot_effect')
+                    if position==2:assert not widget.default and element.width_config.use_content
+                    else:
+                        assert widget.is_range is (position==1) and list(widget.default)==(['2025-03-15'] if position==0 else ['2025-03-15','2025-03-20'])
+                        assert (widget.min,widget.max,widget.format,widget.query_param_key)==('2025-01-01','2025-12-31','YYYY/MM/DD','') and element.width_config.use_stretch
+                assert len(set(identity.values()))==3
+                values=['2025-03-15',['2025-03-15','2025-03-20'],False]
+                assert json.loads(entries[-1][1].body)=={'phase':'disabled-load','values':values,'native':values,'calls':[]}
+                paths=[[0,i] for i in range(4)]
+            else:
+                order=('Peer',case['target']) if case['peer_first'] else (case['target'],'Peer')
+                assert len(incoming)==2 and [widget.id for widget in incoming]==[identity[label] for label in order]
+                for label,widget in zip(order,incoming,strict=True):
+                    if label=='Peer':assert widget.WhichOneof('value')=='bool_value' and widget.bool_value is (attempt==1)
+                    elif attempt==2:
+                        assert widget.WhichOneof('value')=='string_array_value' and list(widget.string_array_value.data)==(['2025-04-10'] if label=='Single' else ['2025-04-10','2025-04-20'])
+                    else:
+                        assert widget.WhichOneof('value')==case['kind']
+                        value=getattr(widget,case['kind'])
+                        if case['kind'].endswith('array_value'):assert list(value.data)==case['value']
+                        elif case['kind']=='bytes_value':assert value==base64.b64decode(case['value'],validate=True)
+                        elif case['kind'] in ('bool_value','trigger_value'):assert value is case['value']
+                        else:assert value==case['value']
+                assert [entry[0] for entry in entries]==['exception']
+                exception=entries[0][1]
+                assert exception.type=='TypeError' and exception.message==DATE_ERROR_MESSAGES[case['kind']]
+                assert not exception.message_is_markdown and not exception.is_streamlit_exception and exception.width_config.use_stretch
+                if capture['runtime']=='python':
+                    assert exception.stack_trace and all(type(line) is str and line for line in exception.stack_trace)
+                    if attempt==2:assert any('_compact_state' in line for line in exception.stack_trace)
+                else:assert not exception.stack_trace
+                paths=[[0,0]]
+            assert [item['delta_path'] for item in capture['elements'][offset:offset+len(entries)]]==paths;offset+=len(entries)
+            fields=[]
+            for kind,_,element in entries:
+                view=MessageToDict(element,preserving_proto_field_name=True)
+                if kind=='exception':view[kind].pop('stack_trace',None)
+                elif kind=='json':view[kind]['body']=json.loads(view[kind]['body'])
+                else:view[kind].pop('id')
+                fields.append(view)
+            normalized.append(fields)
+    assert len(sessions)==36 and len(run_ids)==108 and offset==216
+    return normalized
+
+
+@pytest.mark.parametrize('root',(PYTHON,RUST),ids=('python','rust'))
+def test_disabled_date_early_type_errors_and_blocked_recovery(root):
+    check_date_errors(read(root/'date-errors/trace.json'))
+
+
+def test_disabled_date_error_semantics_match_with_runtime_stacks_preserved():
+    captures=[read(root/'date-errors/trace.json') for root in (PYTHON,RUST)]
+    assert captures[0]['producer_sources_sha256']==captures[1]['producer_sources_sha256']
+    assert captures[1]['error_semantics_match'] is True and captures[1]['semantic_match'] is False
+    assert check_date_errors(captures[0])==check_date_errors(captures[1])
+
+
+@pytest.mark.parametrize('mutation',('message','recovery','callback','path','stale-id','oneof','session-leak','false-value'))
+def test_disabled_date_error_gate_rejects_coherent_wrong_wire(mutation):
+    capture=read(PYTHON/'date-errors/trace.json');target=2 if mutation=='recovery' else 3 if mutation=='session-leak' else 7 if mutation=='false-value' else 1
+    first_session=color_runs(capture,('date_input','checkbox','json','exception'))[0]['sessions'][0].initialize.session_id
+    run,changed=-1,0
+    for frame in capture['frames']:
+        client=frame['direction']=='client->server'
+        if client:run+=1
+        if run!=target:continue
+        message=BackMsg() if client else ForwardMsg();message.ParseFromString(base64.b64decode(frame['base64']))
+        if client and mutation=='stale-id':message.rerun_script.widget_states.widgets[0].id='$$ID-stale-date_bound_single'
+        elif client and mutation=='oneof':
+            widget=message.rerun_script.widget_states.widgets[0];widget.ClearField('bool_value');widget.string_array_value.data[:]=['2025-04-10']
+        elif client and mutation=='false-value':message.rerun_script.widget_states.widgets[0].bool_value=True
+        elif not client and message.WhichOneof('type')=='new_session' and mutation=='session-leak':message.new_session.initialize.session_id=first_session
+        elif not client and message.WhichOneof('type')=='delta' and mutation in ('message','recovery','callback','path'):
+            if mutation=='message':message.delta.new_element.exception.message='wrong error'
+            elif mutation=='path':message.metadata.delta_path[:]=[0,1]
+            else:
+                element=message.delta.new_element;element.ClearField('exception');element.json.body=json.dumps({'calls':['peer'] if mutation=='callback' else [],'recovered':mutation=='recovery'})
+        else:continue
+        changed+=1;raw=message.SerializeToString();frame.update(base64=base64.b64encode(raw).decode(),bytes=len(raw),message=MessageToDict(message,preserving_proto_field_name=True))
+    assert changed==1
+    capture['elements']=[{'kind':m.delta.new_element.WhichOneof('type'),'fields':MessageToDict(getattr(m.delta.new_element,m.delta.new_element.WhichOneof('type')),preserving_proto_field_name=True),'delta_path':list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m,ForwardMsg) and m.WhichOneof('type')=='delta']
+    with pytest.raises(AssertionError):check_date_errors(capture)
+
+
 def check_date_bounds(capture, *, disabled=False):
     phases = DATE_DISABLED_PHASES if disabled else DATE_BOUNDS_PHASES
     assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
