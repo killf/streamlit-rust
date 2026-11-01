@@ -8,6 +8,7 @@ import argparse
 import base64
 from datetime import datetime, timezone
 import importlib.metadata
+import hashlib
 import json
 from pathlib import Path
 import socket
@@ -24,6 +25,7 @@ from websockets.sync.client import connect
 ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description='Collect the media-parameter reference once; never overwrite.')
 parser.add_argument('--out', type=Path, required=True)
+parser.add_argument('--http-head', action='store_true', help='capture raw GET/HEAD Range and If-Range responses for emitted audio/video/subtitle assets')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
 OUT = args.out.resolve()
@@ -47,16 +49,34 @@ TRACE = {'schema_version': 1, 'runtime': 'rust' if args.url else 'python', 'refe
          'scope': 'Element wire of six audio/video parameter variants over one native WS; no browser/UI claim.',
          'server_command': COMMAND, 'server_cleanup': 'caller-owned' if COMMAND is None else 'collector-owned',
          'url': URL, 'frames': [], 'elements': [], 'finishes': []}
+if args.http_head:
+    TRACE['scope'] = 'Public audio/video/subtitle URLs linked to raw GET/HEAD, Range and If-Range responses; no browser playback claim.'
+    TRACE['producer_sources_sha256'] = {path:hashlib.sha256((ROOT/path).read_bytes()).hexdigest() for path in ('streamlit/examples/media_params.rs','tests/reference/media_params_app.py','tests/browser/media_params_capture.py')}
 SERVER = WS = None
 
 
 def save():
-    (OUT / 'trace.json').write_text(json.dumps(TRACE, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    (OUT / 'trace.json').write_text(json.dumps(TRACE, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
 
 
 def record(direction, raw, message):
     TRACE['frames'].append({'direction': direction, 'bytes': len(raw), 'base64': base64.b64encode(raw).decode(),
                             'message': MessageToDict(message, preserving_proto_field_name=True)})
+
+
+def http_response(method, path, headers):
+    authority=URL.removeprefix('http://')
+    host,port=authority.rsplit(':',1)
+    raw=(method+' '+path+' HTTP/1.1\r\nHost: '+authority+'\r\nConnection: close\r\n'+''.join(name+': '+value+'\r\n' for name,value in headers.items())+'\r\n').encode('ascii')
+    with socket.create_connection((host,int(port)),timeout=10) as connection:
+        connection.sendall(raw);parts=[]
+        while chunk:=connection.recv(65536):parts.append(chunk)
+    response=b''.join(parts);header,body=response.split(b'\r\n\r\n',1)
+    lines=header.decode('iso-8859-1').split('\r\n')
+    fields={name.lower():value.strip() for name,value in (line.split(':',1) for line in lines[1:])}
+    return {'method':method,'url':path,'request_headers':headers,'request_bytes':len(raw),'request_base64':base64.b64encode(raw).decode(),
+            'status':int(lines[0].split(' ')[1]),'headers':fields,'response_bytes':len(response),'response_base64':base64.b64encode(response).decode(),
+            'body_base64':base64.b64encode(body).decode(),'body_bytes':len(body)}
 
 
 try:
@@ -101,6 +121,17 @@ try:
                 TRACE['elements'].append({'index': index, 'kind': element_kind, 'fields': fields,
                                           'url': view.url, 'delta_path': list(message.metadata.delta_path)})
                 index += 1
+    if args.http_head:
+        elements=TRACE['elements'];assert len(elements)==6
+        TRACE['http_assets']=[{'name':name,'element_index':index,'url':elements[index]['url']} for name,index in (('audio',0),('audio-bare',2),('video',3))]
+        track=elements[5]['fields']['subtitles'][0];assert track['label']=='en'
+        TRACE['http_assets'].append({'name':'subtitle','element_index':5,'label':track['label'],'url':track['url']})
+        TRACE['http_responses']=[]
+        for asset in TRACE['http_assets']:
+            for headers in ({},{'Range':'bytes=0-3'},{'Range':'bytes=-4'},{'Range':'bytes=9999999-'},
+                            {'Range':'bytes=0-3','If-Range':'"mismatch"'},{'Range':'bytes=0-3','If-Range':'Thu, 01 Jan 1970 00:00:00 GMT'}):
+                for method in ('GET','HEAD'):
+                    TRACE['http_responses'].append({'asset':asset['name'],**http_response(method,asset['url'],headers)})
     WS.close()
     TRACE['cleanup'] = {'websocket_closed': True}
     TRACE['successful'] = True

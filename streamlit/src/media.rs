@@ -18,7 +18,7 @@ pub(crate) struct StoredFile {
     // 注册时隔离调用方输入，响应快照和范围共享不可变内容。
     pub bytes: Bytes,
 
-    // 下载响应沿用注册时声明的类型与文件名。
+    // 响应沿用注册时声明的类型；文件名参与内容地址，下载时还用作附件名。
     pub mime: String,
     pub file_name: Option<String>,
     pub download: bool,
@@ -57,6 +57,18 @@ pub fn put(data: &[u8], mime: &str) -> String {
         bytes: Bytes::copy_from_slice(data),
         mime: mime.into(),
         file_name: None,
+        download: false,
+    });
+    id
+}
+
+/// Named media keeps the filename in its address and serves as ordinary media.
+pub(crate) fn put_named_media(data: &[u8], mime: &str, file_name: &str) -> String {
+    let id = file_id(data, mime, Some(file_name));
+    FILES.entry(id.clone()).or_insert_with(|| StoredFile {
+        bytes: Bytes::copy_from_slice(data),
+        mime: mime.into(),
+        file_name: Some(file_name.into()),
         download: false,
     });
     id

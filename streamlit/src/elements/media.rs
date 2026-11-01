@@ -471,7 +471,9 @@ pub(crate) fn subtitle_track(label: &str, text: &str) -> Result<crate::proto::Su
     } else {
         return Err(invalid());
     };
-    let url = media_url(&content, "text/vtt").map_err(|error| format!("Failed to process the provided subtitle '{label}': {error}"))?;
+    let file_name = format!("{}.vtt", crate::utils::hash::blake2b16(label));
+    let id = media::put_named_media(&content, "text/vtt", &file_name);
+    let url = format!("/media/{id}.vtt");
     Ok(crate::proto::SubtitleTrack { label: label.to_owned(), url })
 }
 

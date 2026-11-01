@@ -2,6 +2,10 @@
 import base64
 import hashlib
 import json
+import io
+import wave
+
+import pytest
 from pathlib import Path
 
 from google.protobuf.json_format import MessageToDict
@@ -71,16 +75,17 @@ def test_python_reference_playback_parameters():
     assert raw["finishes"] == [0]
 
 
-def test_rust_capture_matches_field_for_field_and_url_for_url():
+def test_historical_rust_capture_preserves_subtitle_address_gap():
     raw = read(RUST / "trace.json")
     assert raw["runtime"] == "rust" and raw["server_cleanup"] == "caller-owned"
     python = read(PYTHON / "trace.json")
+    assert raw["elements"][5]["fields"]["subtitles"][0]["url"] != python["elements"][5]["fields"]["subtitles"][0]["url"]
     for rust_element, python_element in zip(raw["elements"], python["elements"]):
         assert rust_element["kind"] == python_element["kind"]
         fields = dict(rust_element["fields"])
         reference = dict(python_element["fields"])
-        # The autoplay id hash and the subtitle-coordinate hash are per-runtime
-        # identity (the dialog precedent); everything else must be equal.
+        # Preserve the historical subtitle-address failure here; the new HTTP
+        # capture compares the complete label-derived address and original bytes.
         fields.pop("id", None), reference.pop("id", None)
         if "subtitles" in fields:
             for track in fields["subtitles"]:
@@ -97,3 +102,145 @@ def test_rust_capture_matches_field_for_field_and_url_for_url():
     assert exceptions[0].type == "streamlit.errors.StreamlitAPIException"
     assert exceptions[0].message == exceptions_of(python)[0].message
     assert exceptions[0].message_is_markdown and exceptions[0].is_streamlit_exception
+
+
+HTTP_HEADERS = ({},{'Range':'bytes=0-3'},{'Range':'bytes=-4'},{'Range':'bytes=9999999-'},
+    {'Range':'bytes=0-3','If-Range':'"mismatch"'},{'Range':'bytes=0-3','If-Range':'Thu, 01 Jan 1970 00:00:00 GMT'})
+
+
+def http_inputs():
+    buffer=io.BytesIO()
+    with wave.open(buffer,'wb') as wav:
+        wav.setnchannels(1);wav.setsampwidth(2);wav.setframerate(8000);wav.writeframes(b'\x00\x00'*800)
+    video=b'\x00\x00\x00\x18ftypmp42\x00\x00\x00\x00mp42isom\x00\x00\x00\x08free'
+    return {'audio':(buffer.getvalue(),'audio/wav','wav'),'audio-bare':(buffer.getvalue(),'audio/x-wav',''),
+            'video':(video,'video/mp4','mp4'),'subtitle':(b'WEBVTT\n\n00:00:00.000 --> 00:00:02.000\nHello','text/vtt','vtt')}
+
+
+def http_semantics(headers):
+    return {key:value for key,value in headers.items() if key not in ('date','server','connection')}
+
+
+def check_media_http(capture, *, before=False):
+    assert capture['runtime'] in ('python','rust')
+    assert capture['successful'] and 'producer_error' not in capture and capture['reference_version']=='1.66.1'
+    assert capture['cleanup']['websocket_closed'] and capture['cleanup']['server_stopped' if capture['runtime']=='python' else 'caller_server_stopped']
+    assert capture['finishes']==[0] and len(capture['frames'])==12
+    messages=list(frames(capture));kinds=[m.WhichOneof('type') for m in messages]
+    assert kinds==['rerun_script','new_session','session_status_changed']+['delta']*8+['script_finished']
+    assert not messages[0].rerun_script.query_string and not messages[0].rerun_script.widget_states.widgets
+    assert messages[1].new_session.initialize.environment_info.streamlit_version=='1.66.1'
+    assert messages[1].new_session.initialize.session_id and messages[1].new_session.script_run_id
+    assert messages[2].session_status_changed.script_is_running
+    emitted=[]
+    for message in messages:
+        if message.WhichOneof('type')=='delta' and message.delta.new_element.WhichOneof('type') in ('audio','video'):
+            kind=message.delta.new_element.WhichOneof('type');fields=MessageToDict(getattr(message.delta.new_element,kind),preserving_proto_field_name=True);url=fields.pop('url')
+            emitted.append({'index':len(emitted),'kind':kind,'fields':fields,'url':url,'delta_path':list(message.metadata.delta_path)})
+    assert emitted==capture['elements'] and [e['kind'] for e in emitted]==['audio']*3+['video']*3
+    assert [e['delta_path'] for e in emitted]==[[0,index] for index in range(1,7)]
+    exceptions=exceptions_of(capture);assert len(exceptions)==1 and exceptions[0].type=='streamlit.errors.StreamlitAPIException'
+    assets=[{'name':name,'element_index':index,'url':emitted[index]['url']} for name,index in (('audio',0),('audio-bare',2),('video',3))]
+    track=emitted[5]['fields']['subtitles'][0];assert track['label']=='en'
+    assets.append({'name':'subtitle','element_index':5,'label':track['label'],'url':track['url']})
+    assert assets==capture['http_assets'] and len(capture['http_responses'])==48
+    normalized=[];offset=0;inputs=http_inputs()
+    for asset in assets:
+        name=asset['name'];payload,mime,extension=inputs[name]
+        filename=(hashlib.blake2b(b'en',digest_size=16).hexdigest()+'.vtt').encode() if name=='subtitle' and not before else b''
+        digest=hashlib.blake2b(str(len(payload)).encode()+b':'+payload+mime.encode()+filename,digest_size=16).hexdigest()
+        expected_url='/media/'+digest+('.'+extension if extension else '')
+        assert asset['url']==expected_url
+        for headers in HTTP_HEADERS:
+            for method in ('GET','HEAD'):
+                response=capture['http_responses'][offset];offset+=1
+                assert (response['asset'],response['method'],response['url'],response['request_headers'])==(name,method,asset['url'],headers)
+                request=base64.b64decode(response['request_base64'],validate=True)
+                expected=(method+' '+asset['url']+' HTTP/1.1\r\nHost: '+capture['url'].removeprefix('http://')+'\r\nConnection: close\r\n'+''.join(key+': '+value+'\r\n' for key,value in headers.items())+'\r\n').encode('ascii')
+                assert request==expected and len(request)==response['request_bytes']
+                raw=base64.b64decode(response['response_base64'],validate=True);assert len(raw)==response['response_bytes']
+                head,body=raw.split(b'\r\n\r\n',1);lines=head.decode('iso-8859-1').split('\r\n')
+                assert lines[0].split(' ')[:2]==['HTTP/1.1',str(response['status'])]
+                pairs=[line.split(':',1) for line in lines[1:]];actual={key.lower():value.strip() for key,value in pairs}
+                assert len(actual)==len(pairs) and actual==response['headers']
+                assert body==base64.b64decode(response['body_base64'],validate=True) and len(body)==response['body_bytes']
+                expected_headers={'content-type':mime+('; charset=utf-8' if mime.startswith('text/') else ''),'accept-ranges':'bytes'}
+                range_header=headers.get('Range')
+                if before and (method=='HEAD' or name in ('audio-bare','subtitle')):
+                    status=404;expected_headers={'content-length':'0'};expected_body=b''
+                elif range_header=='bytes=9999999-':
+                    status=416;expected_headers={'content-type':'text/plain; charset=utf-8','content-range':'bytes */'+str(len(payload)),'content-length':'13'};expected_body=b'Invalid range'
+                else:
+                    status=206 if range_header else 200
+                    if range_header:
+                        start,end=(len(payload)-4,len(payload)-1) if range_header=='bytes=-4' else (0,3)
+                        expected_body=payload[start:end+1];expected_headers['content-range']=f'bytes {start}-{end}/{len(payload)}'
+                    else:expected_body=payload
+                    expected_headers['content-length']=str(len(expected_body))
+                if method=='HEAD':expected_body=b''
+                assert response['status']==status and http_semantics(actual)==expected_headers and body==expected_body,(name,method,headers)
+                normalized.append((name,method,asset['url'],headers,status,expected_headers,body))
+    assert offset==48
+    return normalized
+
+
+@pytest.mark.parametrize('root',(PYTHON,RUST),ids=('python','rust'))
+def test_public_media_get_head_range_and_subtitle_bytes(root):
+    check_media_http(read(root/'http/trace.json'))
+
+
+def test_current_media_http_matches_reference_without_url_normalization():
+    captures=[read(root/'http/trace.json') for root in (PYTHON,RUST)]
+    assert captures[0]['producer_sources_sha256']==captures[1]['producer_sources_sha256']
+    assert captures[1]['http_semantics_match'] is True and captures[1]['semantic_match'] is False
+    assert check_media_http(captures[0])==check_media_http(captures[1])
+
+
+def test_media_http_before_retains_actual_head_bare_and_subtitle_failures():
+    capture=read(RUST/'http-before/trace.json');assert capture['semantic_match'] is False
+    check_media_http(capture,before=True)
+    assert sum(r['status']==404 for r in capture['http_responses'])==36
+    with pytest.raises(AssertionError):check_media_http(capture)
+
+
+def test_media_http_rust_inputs_and_cases_are_exact_raw_response_projections():
+    capture=read(PYTHON/'http/trace.json');check_media_http(capture)
+    compact=read(PYTHON/'http/cases.json');assert compact['reference_version']=='1.66.1'
+    expected=[]
+    for asset in capture['http_assets']:
+        payload,mime,_=http_inputs()[asset['name']]
+        expected.append({**asset,'mime':mime,'input_bytes':list(payload)})
+    assert compact['assets']==expected
+    assert compact['cases']==[{key:r[key] for key in ('asset','method','url','request_headers','status')}|{'headers':http_semantics(r['headers']),'body_bytes':list(base64.b64decode(r['body_base64'],validate=True))} for r in capture['http_responses']]
+
+
+@pytest.mark.parametrize('mutation',('status','head-body','head-length','content-type','subtitle-url','body-byte','if-range','method'))
+def test_media_http_gate_rejects_coherent_wrong_raw_responses(mutation):
+    capture=read(PYTHON/'http/trace.json')
+    if mutation=='subtitle-url':
+        old=capture['http_assets'][-1]['url'];new=old.replace(old.rsplit('/',1)[-1].split('.')[0],'0'*32)
+        capture['http_assets'][-1]['url']=new;capture['elements'][5]['fields']['subtitles'][0]['url']=new
+        for frame in capture['frames']:
+            if frame['direction']!='server->client':continue
+            m=ForwardMsg();m.ParseFromString(base64.b64decode(frame['base64']))
+            if m.WhichOneof('type')=='delta' and m.delta.new_element.WhichOneof('type')=='video' and m.delta.new_element.video.subtitles:
+                m.delta.new_element.video.subtitles[0].url=new;raw=m.SerializeToString();frame.update(base64=base64.b64encode(raw).decode(),bytes=len(raw),message=MessageToDict(m,preserving_proto_field_name=True))
+        for response in capture['http_responses']:
+            if response['asset']=='subtitle':
+                response['url']=new;raw=base64.b64decode(response['request_base64']).replace(old.encode(),new.encode());response.update(request_base64=base64.b64encode(raw).decode(),request_bytes=len(raw))
+    else:
+        index=1 if mutation in ('head-body','head-length','method') else 8 if mutation=='if-range' else 0
+        r=capture['http_responses'][index];raw=base64.b64decode(r['response_base64']);head,body=raw.split(b'\r\n\r\n',1)
+        if mutation=='method':
+            r['method']='GET';request=base64.b64decode(r['request_base64']).replace(b'HEAD ',b'GET ',1);r.update(request_base64=base64.b64encode(request).decode(),request_bytes=len(request))
+        elif mutation=='status':head=head.replace(b'200 OK',b'201 Created',1);r['status']=201
+        elif mutation=='head-body':body=b'x'
+        elif mutation=='head-length':head=head.replace(b'content-length: 1644',b'content-length: 1',1)
+        elif mutation=='content-type':head=head.replace(b'audio/wav',b'text/plain',1)
+        elif mutation=='body-byte':body=bytes([body[0]^1])+body[1:]
+        elif mutation=='if-range':
+            head=head.replace(b'206 Partial Content',b'200 OK',1);head=b'\r\n'.join(line for line in head.split(b'\r\n') if not line.lower().startswith(b'content-range:'));head=head.replace(b'content-length: 4',b'content-length: 1644',1);body=http_inputs()['audio'][0];r['status']=200
+        raw=head+b'\r\n\r\n'+body;r.update(response_base64=base64.b64encode(raw).decode(),response_bytes=len(raw),body_base64=base64.b64encode(body).decode(),body_bytes=len(body))
+        r['headers']={key.lower():value.strip() for key,value in (line.split(':',1) for line in head.decode('iso-8859-1').split('\r\n')[1:])}
+        assert raw!=base64.b64decode(read(PYTHON/'http/trace.json')['http_responses'][index]['response_base64']) or mutation=='method'
+    with pytest.raises(AssertionError):check_media_http(capture)

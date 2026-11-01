@@ -2943,3 +2943,24 @@ Rust 按语义单元留空并逐段 diff 复查，格式、全工作区/all-targ
 矩阵仅追加 st.date_input 本批证据与边界，生成 inventory 仍 130 partial；指南追加启用字符串规则，保留原字节前缀。空字符串/string_trigger_value 的 None/空/部分/多端点返回模型、JSONDecodeError、任意精度/特殊数字、callback 内赋值/混合坏输入、绑定/表单/跨页和真实错误 UI 等仍开放，M3/M5/M7 与完整 Goal 不关闭。受保护用户 colconfig 等现有修改保持；无 PR、合并、部署或发布。
 
 相关八个 Python 模块共 1991 项通过（widget 参数模块 586 项、temporal 415 项）。文档初检因矩阵措辞补充后漏重新生成 inventory 而失败一项，原日志 target/date-enabled-string-docs-initial.log 保留；重新生成后文档/配置/矩阵三模块 55 项通过。提交前核对全部受保护用户文件 SHA、指南原始字节前缀及新捕获来源与暂存 blob 一致。
+
+
+## Current media HEAD and subtitle resource validation (2026-11-01)
+
+从当前矩阵复核媒体正常请求缺口，而非继续只扩大日期错误输入切片。锁定 SDK 1.66.1 实测同一音频 URL 的 HEAD 返回 200、范围 HEAD 返回 206/416，原 Rust 均 404；进一步实测无扩展名 audio/x-wav GET 与 VTT 字幕 GET 也为 404。新增真实网络回归先失败于 audio HEAD: 404 != 200（target/media-http-red.log），修复后全部 48 请求通过。
+
+生产仅 server.rs、media.rs 和 elements/media.rs：已有 /media 路由接受 GET/HEAD，响应 MIME 直接沿用已存媒体，修复无后缀音频、字幕和 HEAD；既有 Range/错误/附件处理复用，HEAD 由真实服务器发送时抑制正文并保留对应长度。新增仅 crate 内部可用的 named-media 存储，普通字幕保持非附件响应；字幕用已有 blake2b16(label)+.vtt 作为参与内容地址的文件名。SDK 的 en 文件名为 746709ed353fc6dedfc50665c7cf7098.vtt，43 字节 VTT 的完整 URL 为 /media/62f7893d6edeae028776bf39f25b93f2.vtt；原 Rust 漏文件名生成 cfc3c7c1ccd55d7da88a2f34d361b2cd，旧的“坐标/每运行时字幕 hash”归因不成立。Rust 公开接口、依赖、示例与 Python fixture 均未改。
+
+复用 media_params_capture.py 加 opt-in http-head：从真实公开音视频发射的 protobuf 取得音频、裸地址音频、视频及字幕四个资源 URL，在 WS 保持期间逐一发起 GET/HEAD 的六组请求：完整、0-3、suffix -4、越界、带不匹配 If-Range、带 1970 日期 If-Range。原始 TCP 写 Connection: close，读取响应直到 EOF，不能只依赖 HTTP 客户端 HEAD.read() 的自动隐藏正文。两端首次捕获各 12 个原始 PB、六个音视频 Element 和 48 个原始 HTTP 响应，严格匹配 8×200、32×206、8×416；这两种 If-Range 在 SDK 中仍返回范围响应，不擅自改为 RFC 假设的整文件。
+
+[SDK](../tests/reference/reference-browser/media-params/http/trace.json)、[当前 Rust](../tests/browser/rust-media-params/http/trace.json) 保留请求/响应完整 base64、长度、状态/头、原始正文、发射 URL/元素关系和采集清理。[修前 Rust](../tests/browser/rust-media-params/http-before/trace.json) 原样保留 36 个 404（全部 HEAD、裸音频 GET、字幕 GET）、实际错误字幕 URL及其余 GET 结果，参考策略检查拒绝它，而不是仅检查 semantic_match 标志。SDK 的 [cases.json](../tests/reference/reference-browser/media-params/http/cases.json) 仅派生原始响应和资源输入供 Rust 离线读取，Python 门逐项回查 raw，并用独立 wave 构造/固定视频/VTT 输入核对原始字节与内容地址。
+
+新增 Rust 公开接口网络回归通过 audio/video 调用生成 URL，再发 48 个真实请求；复用同一 raw TCP helper 支持方法和头，其余已有 GET 回归机械迁移。采集和服务清理先完成再断言，真实 red 也不遗留监听。八个媒体单元、九个媒体运行集成测试通过，包含旧 27 个 Range/下载和特殊下载名、不可变大资源范围检查。Clippy --workspace --all-targets、编辑四个 Rust 文件格式与逐段 diff、示例构建通过，既有 MSVC linker stdout warning 保留；完整工作区 348 项通过（341 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整全绿。
+
+媒体参数 Python 模块新增十三项，共十五项。严格门从 raw PB 反解析长度/message/六元素投影、版本/session/run/完成和 URL来源；从原始 HTTP 反解析请求方法、完整路径、Host/Range/If-Range、响应状态、全部语义头与正文，严格比较完整内容地址，不归一化字幕 URL。每个 HEAD 的实际线缆正文恰为空，仍断言其完整/范围/错误 Content-Length。八种 coherent 负例同步改写 raw 与投影，拒绝状态、泄漏 HEAD 正文、HEAD 长度、MIME、字幕地址、正文位翻转、错误 If-Range 行为及方法。旧媒体参数捕获更名注释为“历史字幕地址缺口”，保留原始失败数据。正常 HTTP 字段完整匹配，http_semantics_match=true；完整 wire semantic_match=false，autoplay 身份、已有非法字幕异常栈/错误 UI 不在本批比较内；未通过 URL 规范化假称完整字幕行为一致。
+
+来源复核发现 Python fixture 为 CRLF，修前 elements/media.rs 也是 CRLF；原始采集 SHA 全部保留，新增各来源的 Git LF blob SHA，对修前文件从 source_commit=49b4c9a 精确重建 CRLF 后验证原始 SHA。当前三个 Rust 来源及最终二进制实际 SHA 与捕获一致，producer 的实际/Git 表示分别验证；source_commit 是启动基线，当前工作区由各 SHA 标识。SDK/修前/修后自有 Popen 均 terminate/wait，记录的 SDK 动态端口及 Rust 8593 无监听。本批无浏览器、播放/定位/字幕显示证据；fixture 视频仅 32 字节格式载荷，不能当成可播放视频验收。
+
+相关七个 Python 模块共 961 项通过。日志 target/media-http-{before,red,green,unit,runtime,clippy,build-final,after,gate,workspace,python,docs}.log；早期只读探针 target/media-head-{sdk-probe.json,rust-before.json,subtitle-probe.json} 保留。矩阵仅补 st.audio/st.video 的本批证据和限制，inventory 仍 130 partial；一行从“未明确缺口”转为“未测参数”，是新增明确边界而非完成状态变化。指南追加已测 HTTP 规则并保留原字节前缀。完整浏览器播放/seek/字幕叠加、下载 HEAD、CORS/缓存验证器、其他 MIME/路径/头组合、更广字幕解析和资源生命周期仍开放；日期模型/JSONDecodeError 与其他原待决项不变，M3/M5/M7 与完整 Goal 不关闭。用户 colconfig 等现有修改保持，无 PR、合并、部署或发布。
+
+文档/配置/矩阵三模块 55 项通过。提交前核对受保护用户文件 SHA、指南原字节前缀、实际源码 SHA 与 Git LF blob SHA 的对应关系；修前源文件按基线 commit 重建，修后源码与暂存 blob 及当前二进制匹配。

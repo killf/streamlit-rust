@@ -136,34 +136,16 @@ async fn delete_upload(req: HttpRequest, path: web::Path<(String, String)>, serv
 // full request answers 200 with `accept-ranges: bytes`; a `bytes=a-b`
 // Range request answers 206 with `content-range` and the sliced body.
 // Content types ride the store's addressing, so the extension is cosmetic.
-#[get("/media/{name}")]
+#[actix_web::route("/media/{name}", method = "GET", method = "HEAD")]
 async fn media_file(req: HttpRequest, path: web::Path<String>) -> HttpResponse {
     use actix_web::http::header::{ACCEPT_RANGES, CONTENT_RANGE, CONTENT_TYPE, Charset, ContentDisposition, DispositionParam, DispositionType, ExtendedValue};
 
     let name = path.into_inner();
-    let (id, extension) = name.rsplit_once('.').unwrap_or((&name, ""));
+    let id = name.rsplit_once('.').map_or(name.as_str(), |(id, _)| id);
     let Some(file) = crate::media::stored_file(id) else {
         return HttpResponse::NotFound().finish();
     };
-    let mime = if file.download {
-        file.mime.as_str()
-    } else {
-        match extension {
-            "png" => "image/png",
-            "jpg" | "jpeg" => "image/jpeg",
-            "webp" => "image/webp",
-            "gif" => "image/gif",
-            "wav" => "audio/wav",
-            "mp3" => "audio/mpeg",
-            "ogg" => "audio/ogg",
-            "flac" => "audio/flac",
-            "aac" => "audio/aac",
-            "mp4" => "video/mp4",
-            "webm" => "video/webm",
-            "ogv" => "video/ogg",
-            _ => return HttpResponse::NotFound().finish(),
-        }
-    };
+    let mime = file.mime.as_str();
     let bytes = file.bytes;
     let range = match req.headers().get("range").filter(|value| !value.as_bytes().is_empty()) {
         Some(header) => match header.to_str().ok().and_then(|header| crate::media::ByteRange::parse(header, bytes.len() as u64)) {

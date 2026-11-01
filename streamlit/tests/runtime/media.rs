@@ -174,10 +174,10 @@ async fn run_once(stream: &mut TcpStream, session_id: &mut String) -> TestResult
     Ok(wires)
 }
 
-async fn http_get(address: std::net::SocketAddr, path: &str, range: Option<&str>) -> TestResult<(u16, Vec<(String, String)>, Vec<u8>)> {
+async fn http_request(address: std::net::SocketAddr, path: &str, method: &str, headers: &[(&str, &str)]) -> TestResult<(u16, Vec<(String, String)>, Vec<u8>)> {
     let mut stream = TcpStream::connect(address).await?;
-    let range_header = range.map(|value| format!("Range: {value}\r\n")).unwrap_or_default();
-    let request = format!("GET {path} HTTP/1.1\r\nHost: {address}\r\n{range_header}Connection: close\r\n\r\n");
+    let extra_headers = headers.iter().map(|(name, value)| format!("{name}: {value}\r\n")).collect::<String>();
+    let request = format!("{method} {path} HTTP/1.1\r\nHost: {address}\r\n{extra_headers}Connection: close\r\n\r\n");
     stream.write_all(request.as_bytes()).await?;
     let mut raw = Vec::new();
     stream.read_to_end(&mut raw).await?;
@@ -262,10 +262,10 @@ async fn csv_download_serves_named_attachment_and_repeatable_range_bytes() -> Te
 
     // 1. 复用真实 HTTP 路由采集完整、范围、重复与未知地址响应。
     let captured = tokio::time::timeout(Duration::from_secs(10), async {
-        let full = http_get(address, &path, None).await?;
-        let range = http_get(address, &path, Some("bytes=0-1")).await?;
-        let repeated = http_get(address, &path, None).await?;
-        let unknown = http_get(address, "/media/0123456789abcdef0123456789abcdef.csv", None).await?;
+        let full = http_request(address, &path, "GET", &[]).await?;
+        let range = http_request(address, &path, "GET", &[("Range", "bytes=0-1")]).await?;
+        let repeated = http_request(address, &path, "GET", &[]).await?;
+        let unknown = http_request(address, "/media/0123456789abcdef0123456789abcdef.csv", "GET", &[]).await?;
         Ok::<_, Box<dyn std::error::Error>>((full, range, repeated, unknown))
     })
     .await;
@@ -347,7 +347,8 @@ async fn media_ranges_match_twenty_seven_frozen_public_http_requests() -> TestRe
         for case in cases {
             let asset = case["asset"].as_str().ok_or("range asset missing")?;
             let url = urls.get(asset).ok_or("public entry did not emit the asset")?;
-            responses.push((url.clone(), http_get(address, url, case["range_header"].as_str()).await?));
+            let headers: Vec<_> = case["range_header"].as_str().map(|value| ("Range", value)).into_iter().collect();
+            responses.push((url.clone(), http_request(address, url, "GET", &headers).await?));
         }
         Ok::<_, Box<dyn std::error::Error>>(responses)
     })
@@ -392,7 +393,7 @@ async fn download_headers_and_bytes_match_ten_frozen_public_cases() -> TestResul
             let Some(element::Type::DownloadButton(button)) = element.r#type else {
                 return Err("unexpected element in download fixture".into());
             };
-            let response = http_get(address, &button.url, None).await?;
+            let response = http_request(address, &button.url, "GET", &[]).await?;
             actual.push((button.label, button.url, response));
         }
         Ok::<_, Box<dyn std::error::Error>>(actual)
@@ -505,7 +506,7 @@ async fn media_elements_match_the_measured_wire_and_serve_the_measured_http() ->
 
     // The measured /media round trips: 200 with accept-ranges for a full
     // GET, 206 with content-range for the browser's open-ended Range.
-    let (status, headers, body) = http_get(address, &image_url, None).await?;
+    let (status, headers, body) = http_request(address, &image_url, "GET", &[]).await?;
     assert_eq!(status, 200);
     assert_eq!(headers.iter().find(|(name, _)| name == "content-type").map(|(_, value)| value.as_str()), Some("image/png"));
     assert_eq!(headers.iter().find(|(name, _)| name == "accept-ranges").map(|(_, value)| value.as_str()), Some("bytes"));
@@ -517,19 +518,19 @@ async fn media_elements_match_the_measured_wire_and_serve_the_measured_http() ->
     // The fixture WAV is byte-identical to the reference's, so the address
     // is the exact measured one.
     assert_eq!(audio_url, "/media/431dec53348c010fe7c4e0be3ac78ede.wav");
-    let (status, headers, body) = http_get(address, &audio_url, Some("bytes=0-")).await?;
+    let (status, headers, body) = http_request(address, &audio_url, "GET", &[("Range", "bytes=0-")]).await?;
     assert_eq!(status, 206);
     assert_eq!(headers.iter().find(|(name, _)| name == "content-type").map(|(_, value)| value.as_str()), Some("audio/wav"));
     let expected_range = format!("bytes 0-{}/{}", wav.len() - 1, wav.len());
     assert_eq!(headers.iter().find(|(name, _)| name == "content-range").map(|(_, value)| value.as_str()), Some(expected_range.as_str()));
     assert_eq!(body, wav);
 
-    let (status, _, _) = http_get(address, "/media/0123456789abcdef0123456789abcdef.png", None).await?;
+    let (status, _, _) = http_request(address, "/media/0123456789abcdef0123456789abcdef.png", "GET", &[]).await?;
     assert_eq!(status, 404);
-    let (status, _, partial) = http_get(address, &audio_url, Some("bytes=10-99")).await?;
+    let (status, _, partial) = http_request(address, &audio_url, "GET", &[("Range", "bytes=10-99")]).await?;
     assert_eq!(status, 206);
     assert_eq!(partial, wav[10..=99]);
-    let (status, _, full) = http_get(address, &audio_url, None).await?;
+    let (status, _, full) = http_request(address, &audio_url, "GET", &[]).await?;
     assert_eq!(status, 200);
     assert_eq!(full, wav);
 
@@ -616,7 +617,7 @@ async fn video_matches_the_measured_wire_and_serves_the_sample_unchanged() -> Te
     assert!(video.subtitles.is_empty());
     assert_eq!(width_kind_local(&video.width_config), "stretch");
 
-    let (status, headers, body) = http_get(address, &video.url, Some("bytes=0-")).await?;
+    let (status, headers, body) = http_request(address, &video.url, "GET", &[("Range", "bytes=0-")]).await?;
     assert_eq!(status, 206);
     assert_eq!(headers.iter().find(|(name, _)| name == "content-type").map(|(_, value)| value.as_str()), Some("video/mp4"));
     let expected_range = format!("bytes 0-{}/{}", VIDEO_SAMPLE.len() - 1, VIDEO_SAMPLE.len());
@@ -686,5 +687,73 @@ async fn media_playback_parameters_match_the_frozen_reference() -> TestResult {
     drop(stream);
     handle.stop(false).await;
     task.await??;
+    Ok(())
+}
+
+fn media_http_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/media-params/http/cases.json")).expect("frozen media inputs");
+        let inputs = reference["assets"].as_array().expect("media inputs");
+        let bytes = |name: &str| serde_json::from_value::<Vec<u8>>(inputs.iter().find(|asset| asset["name"] == name).expect("named media input")["input_bytes"].clone()).expect("media input bytes");
+        st.audio(crate::AudioOptions::new(bytes("audio"), "audio/wav"));
+        st.audio(crate::AudioOptions::new(bytes("audio-bare"), "audio/x-wav"));
+        st.video(crate::VideoOptions::new(bytes("video"), "video/mp4").subtitle("en", String::from_utf8(bytes("subtitle")).expect("VTT input")));
+    })
+}
+
+#[actix_web::test]
+async fn media_get_head_range_and_subtitle_urls_match_frozen_public_requests() -> TestResult {
+    let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/media-params/http/cases.json"))?;
+    let cases = reference["cases"].as_array().ok_or("missing media HTTP cases")?;
+    assert_eq!(cases.len(), 48);
+    let (address, handle, task, mut socket) = start_media_server(media_http_entry).await?;
+    let captured = tokio::time::timeout(Duration::from_secs(15), async {
+        // 1. 从公开控件取得真实 URL，再按 SDK 冻结输入请求生产路由。
+        let wires = run_once(&mut socket, &mut String::new()).await?;
+        let mut urls = std::collections::HashMap::new();
+        for element in wires.elements {
+            match element.r#type {
+                Some(element::Type::Audio(audio)) => {
+                    urls.insert(if audio.url.ends_with(".wav") { "audio" } else { "audio-bare" }, audio.url);
+                }
+                Some(element::Type::Video(video)) => {
+                    urls.insert("video", video.url);
+                    for track in video.subtitles {
+                        if track.label == "en" {
+                            urls.insert("subtitle", track.url);
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+        let mut responses = Vec::new();
+        for case in cases {
+            let url = urls.get(case["asset"].as_str().ok_or("missing asset")?).ok_or("public URL missing")?;
+            let headers: Vec<_> = case["request_headers"]
+                .as_object()
+                .ok_or("missing request headers")?
+                .iter()
+                .map(|(key, value)| Ok((key.as_str(), value.as_str().ok_or("header value")?)))
+                .collect::<TestResult<_>>()?;
+            responses.push((url.clone(), http_request(address, url, case["method"].as_str().ok_or("HTTP method")?, &headers).await?));
+        }
+        Ok::<_, Box<dyn std::error::Error>>(responses)
+    })
+    .await;
+    // 2. 先清理服务再断言，失败时也不遗留监听。
+    drop(socket);
+    handle.stop(false).await;
+    task.await??;
+    let responses = captured??;
+    assert_eq!(responses.len(), cases.len());
+    for ((url, (status, headers, body)), case) in responses.into_iter().zip(cases) {
+        assert_eq!(url, case["url"], "{} {}: public URL", case["asset"], case["method"]);
+        assert_eq!(Some(u64::from(status)), case["status"].as_u64(), "{} {} {:?}", case["asset"], case["method"], case["request_headers"]);
+        let actual: std::collections::BTreeMap<_, _> = headers.into_iter().filter(|(name, _)| !matches!(name.as_str(), "date" | "server" | "connection")).collect();
+        let expected: std::collections::BTreeMap<String, String> = serde_json::from_value(case["headers"].clone())?;
+        assert_eq!(actual, expected, "{} {}: response headers", case["asset"], case["method"]);
+        assert_eq!(body, serde_json::from_value::<Vec<u8>>(case["body_bytes"].clone())?, "{} {}: raw response body", case["asset"], case["method"]);
+    }
     Ok(())
 }
