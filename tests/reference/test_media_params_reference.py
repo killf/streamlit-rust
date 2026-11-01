@@ -24,6 +24,53 @@ MEDIA_TIME_CASES = read(PYTHON / 'trace.json')['playback_time_cases']
 MEDIA_MIME_CASES = read(PYTHON / 'trace.json')['mime_cases']
 
 
+def test_full_mime_registry_proposal_replays_sdk_and_builtin_alternative():
+    import importlib.metadata
+    import mimetypes
+    import platform
+    import sys
+    from streamlit.runtime.memory_media_file_storage import get_extension_for_mimetype
+    from streamlit.testing.v1 import AppTest
+
+    record = read(PYTHON / 'trace.json')['mime_registry_proposal']
+    assert record['sdk'] == importlib.metadata.version('streamlit') == '1.66.1'
+    assert record['python'] == platform.python_version() == '3.14.7'
+    assert record['platform'] == sys.platform == 'win32'
+    seeds = record['registry_seeds']
+    assert len(seeds) == len(set(seeds)) == 278
+    mimetypes.init()
+    assert seeds == sorted(set(mimetypes._db.types_map_inv[0])
+                           | set(mimetypes._db.types_map_inv[1])
+                           | {'audio/wav', 'text/vtt'})
+    queries = sorted(set(seeds) | {value.lower() for value in seeds}
+                     | {value.upper() for value in seeds}
+                     | {value + '; codecs=test' for value in seeds}
+                     | {'', 'not-a-mime', 'audio/x-codex-unknown',
+                        'video/x-codex-unknown', 'application/x-codex-unknown'})
+    assert len(queries) == 886
+    assert set(record['extensions']) == set(record['builtin_extensions']) == set(queries)
+    builtin = mimetypes.MimeTypes()
+    for mime in queries:
+        assert get_extension_for_mimetype(mime) == record['extensions'][mime], mime
+        expected_builtin = {'audio/wav': '.wav', 'text/vtt': '.vtt'}.get(
+            mime, builtin.guess_extension(mime, strict=False)) or ''
+        assert expected_builtin == record['builtin_extensions'][mime], mime
+    assert sum(record['extensions'][mime] != record['builtin_extensions'][mime]
+               for mime in queries) == 161
+
+    source = ('import streamlit as st\nfor mime in ' + repr(queries)
+              + ':\n st.audio(b"ftyp",format=mime)\n st.video(b"ftyp",format=mime)')
+    app = AppTest.from_string(source, default_timeout=30).run()
+    assert not app.exception
+    assert record['public_player_count'] == 1772
+    for kind in ('audio', 'video'):
+        players = app.get(kind)
+        assert len(players) == len(queries)
+        for mime, player in zip(queries, players):
+            digest = hashlib.blake2b(b'4:ftyp' + mime.encode(), digest_size=16).hexdigest()
+            assert player.proto.url == '/mock/media/' + digest + record['extensions'][mime], (kind, mime)
+
+
 @pytest.mark.parametrize('case', MEDIA_MIME_CASES, ids=lambda case: case['name'])
 def test_media_mime_replays_sdk_players_storage_and_asgi_get(case):
     import asyncio

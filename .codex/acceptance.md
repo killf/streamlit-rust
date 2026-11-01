@@ -3123,3 +3123,18 @@ DOM 读取与截图不是原子操作：SDK fresh-loop-paused 的 DOM 是 0.7817
 最终工作区 355 项通过（348 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference；target/media-mime-workspace.log，不称完整工作区全绿。相关六个 Python/文档模块共 260 项通过（112 media-params、68 media-more、25 media-contract、55 文档/配置/矩阵，target/media-mime-python.log、target/media-mime-related.log）；最终文档修改后另复验 55 项通过（target/media-mime-final-docs.log）。
 
 生成清单仍 130 partial。新边界文字明确平台数据库，现有关键词分类器将 st.audio 另标为需环境，故该桶从 12 到 13；这是边界标签补记，不是新增/删减目标或兼容完成数。九个受保护用户文件 SHA 与本批启动快照相同，旧参考字段未变；仅暂存本批九个既有代码/测试/参考/计划/矩阵文件，不包含 Cargo、colconfig、指南和 README 用户修改。无 PR、合并、发布或部署，完整目标继续。
+
+
+## Current full MIME registry proposal evidence (2026-11-01)
+
+继续完整目标，核实上一批尚未覆盖的 MIME 注册表及未知输入。锁定 SDK 1.66.1 / Python 3.14.7 / Windows，使用当前 mimetypes 数据库的两个 inverse map（包括被后续扩展名覆盖的历史类型）及 SDK 首选项，得到 278 个注册类型。最初用 types_map 的键统计时误把扩展名当 MIME；随后改用其值仍遗漏 inverse map 的历史条目，最终只将完整 inverse 集合作为本参考 seeds。原探测日志和两次中间统计保留于 target，不作为完整性证据。
+
+固定 seeds 加其 lower/upper/`; codecs=test` 形式与五个空/非标准/未知输入，去重排序后共 886 个输入。在同一次公开 AppTest 中实际调用 audio/video，1772 个播放器地址均为原始 MIME 参与 BLAKE2b 的正确摘要及 SDK 后缀；未知类型、空 MIME、not-a-mime 同样接受并用裸地址。video/quicktime=.mov、audio/mp4=.m4a、image/avif=.avif、text/plain=.txt、application/octet-stream=.bin，是当前十五类表之外的已证实缺口。
+
+同一组输入同时保存当前 SDK 环境映射与不加载系统扩展的 mimetypes.MimeTypes() 标准内置映射（两者均含 SDK 首选覆盖），共有 161 个后缀结果不同。记录追加为既有 media-params/trace.json 的 mime_registry_proposal，含版本、平台、范围、完整 seeds、两套映射及实际公开播放器数；不冒充完整网络 MIME 注册表、SDK socket/HTTP/WS/浏览器或播放解码验证。旧媒体/时间/45 案字段保留。
+
+依照用户 AGENTS.md 第 2 条，完整映射来源已请求选择：冻结当前验收环境（推荐）、标准内置表或部署系统映射。当前生产扩展名策略未改，也没有新增公共 API、依赖、模块或流程；先完成可审查数据与 SDK 重放，未把推荐或等待当成决定。后续生产实现需按选定来源接通，再做原生 WS/HTTP 差分；完整目标及 M3/M5/M7 保持开放。
+
+最终媒体参数参考重放 113 项、文档/配置/矩阵 55 项通过，共 168 项（target/media-mime-registry-replay.log、target/media-mime-registry-docs.log）。新增一项在全部 886 个输入上逐一重放 SDK/helper 与标准内置表的后缀，再实际重跑 1772 个公开播放器地址，并校验 161 个差异。原 19 个顶层参考字段逐值未变，九个用户文件 SHA 不变；Rust 源码与原生测试无 diff，因此本批不重复 Cargo。矩阵/生成清单未改，仍 130 partial。逐文件 diff/git diff --check 通过；只提交既有参考、Python 测试及两份计划/验收文档，无 PR、合并、发布或部署。
+
+最后补强 registry seeds 与当前 SDK 实际 inverse 集合逐项相等的断言，防止只凭数量声称完整；新增检查单独重跑通过（target/media-mime-registry-final-seeds.log，1 项），未改原数据。

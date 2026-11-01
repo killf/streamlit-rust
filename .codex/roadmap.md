@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 完整 MIME 映射取舍：已冻结 278 个参考环境注册类型及其共 886 个输入，SDK 公开调用生成的 1772 个播放器地址全部核对；参考环境与标准内置映射有 161 个结果差异。数据来源三个选项已提交用户决定，生产策略未改。见[验收](acceptance.md#current-full-mime-registry-proposal-evidence-2026-11-01)，不以参考采集代替原生实现完成。
+
 2026-11-01 MIME 大小写/参数：既有十五类的 45 种形式补齐 90 个 SDK AppTest 播放器和 45 个真实 SDK ASGI GET；原生公开 API 的实际 WS/TCP 对照通过，修复大小写拒绝、参数后缀及 audio/wave 后缀。SDK ASGI 不等于 SDK socket/浏览器；完整数据库、其他平台和下载命名继续开放。见[验收](acceptance.md#current-media-mime-case-and-parameter-validation-2026-11-01)，完整目标保持开放。
 
 2026-11-01 分段字幕/循环：?subtitles=timed 在两端实际核对两条 cue 与两处空档，四个定位时间及对应字幕区域一致；跨多个片长后仍播放，暂停保持的 cue 与时间区间匹配。保留十五张原图、首次瞬态/标签失效/视口变化，104 项视频检查通过；不宣称逐帧精度或完整长稳态。见[验收](acceptance.md#current-timed-caption-and-loop-ui-validation-2026-11-01)。
