@@ -3215,3 +3215,24 @@ SDK 新增 176 项重放通过，共 1408 轮公开 AppTest（target/bool-disabl
 最终 25 项控件单元、7 项真实 WS 控件集成通过（target/bool-disabled-unit.log、target/bool-disabled-runtime.log）。新增禁用集成执行 176 独立会话/1408 轮，原启用 176 会话/704 轮在同一批共享帮助器回归中也通过。工作区 363 项通过（356 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿（target/bool-disabled-workspace.log）。相关 SDK/文档共 231 项：176 新生命周期、55 文档/配置/矩阵（target/bool-disabled-python.log、target/bool-disabled-docs.log），不是整个 widget-params Python 模块的新全量重跑。
 
 原参考十六字段（含旧启用数据）逐值未变，九个用户文件 SHA 不变；矩阵仅补 checkbox/toggle 及生成清单，仍 130 partial。逐文件 diff/git diff --check 通过；只暂存本批九个既有代码/测试/参考/计划/矩阵文件，不纳入用户 Cargo、colconfig、指南/README 修改。无 PR、合并、发布或部署，完整目标与 M3/M5/M7 继续开放。
+
+
+## Current boolean JSON truthiness validation (2026-11-01)
+
+初查 callback 同值赋值：现有 dirty_keys 会记录显式写入，不靠值比较判断，因此本批未重复修改，也未宣称完成新的 callback 写入组合验收。独立公开 SDK 探测发现 Bool 收到 json_value=NaN、1e400 时正常返回 true、同批 callback 执行；原 Rust 先构造 serde_json::Value，在这些输入上解析失败并丢弃整批。新的固定输入红回归在 cb0-json-8（1e400）返回 None、SDK 为 true（target/bool-json-red.log）。
+
+先验证现有锁定 serde_json 1.0.145 的 IgnoredAny：能校验根/嵌套大数及转义的孤立代理字符，而不构造 JSON 值；非有限常量需专门处理。临时诊断测试只用于探测，最终从源码删除；原输出保留 target/bool-json-ignored-probe.log，未新增依赖/feature。没有选用修改公共 JSON 数字模型、全局序列化或 Cargo 配置的路线。
+
+既有 widget-params/trace.json 追加 bool_json_reference：43 个 SDK 接受文本 × 四 checkbox/toggle 默认共 172 案、688 轮公开 AppTest。覆盖 null/bool、正负零、NaN/Infinity/-Infinity、1e400/1e-9999、次正规数/下溢、千位整数、嵌套非有限/大数、空/非空容器与字符串、转义孤立/成对代理字符及 NUL。每案保存原始 WidgetState 字节、五控件返回值和累计 callback 来源/顺序/快照；submit→ID-only→正常恢复，控件 ID 稳定。另存 32 个直接 json.loads 拒绝样例，包括非法常量/数字、token 邻接、尾逗号、非法转义、控制字符及额外数据；其 Python 异常类型和全文保存。这些拒绝证据不是框架错误生命周期或 SDK socket 采集。
+
+生产仅 widgets.rs 的 Bool JSON 路径新增专用 decode_bool_json：① 扫描引号/转义和完整 token 边界，仅将未被引号包裹的 Python 非有限常量等长替换为零/空格；② 用现有 IgnoredAny 校验完整语法，避免大数/代理字符串的值表示限制；③ 根数字按浮点转换后的真值处理，容器/字符串按空与非空，null 沿用声明默认信号。不能让 NaN2、-NaN、非有限词作为未引号键或被拼接数字等变成合法 JSON。原始输入和通用 JSON 值模型不改，不建立一般用途 JSON 解析器或改造其他 codec。
+
+新增单元逐案比较 172 个值，并拒绝 32 个非法样例；真实 WS 沿用布尔报告比较器，按字段选择新固定参考，实际执行同样三次提交和回默认/恢复。公共值、同批 callback 和 ID 对照才构成该网络证据，不宣称完整输出 protobuf 或浏览器行为。旧启用/禁用回归继续运行。SDK 新测试复用原启用报告回放器，因此本次同时重跑旧 176 项；新 172+32 与旧 176 共 380 项通过（target/bool-json-python.log）。
+
+两份 Rust 按语义单元留空行；新扫描分三阶段注释并逐段检查 diff。workspace/all-targets Clippy -D warnings 通过（target/bool-json-clippy.log），保留既有 MSVC linker_messages 告警。公共 API、返回模型、依赖/feature、MIME 或其他待决策略不变。
+
+当前仍未实现非法 JSON 的 JSONDecodeError 框架渲染/中止/后续恢复；不能把局部返回 None 说成此错误兼容。任意深度/整数位数限制、callback 主动赋值、非有限 JSON 的额外禁用组合及浏览器等继续开放；不是完整 Python JSON 域完成。M3/M5/M7、st.checkbox/st.toggle 和完整 Goal 保持开放。
+
+最终 26 项控件单元、8 项真实 WS 控件集成通过（target/bool-json-unit.log、target/bool-json-runtime.log）；新 JSON 集成执行 172 独立会话/688 轮，旧启用和禁用场景同批通过。工作区 365 项通过（358 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿（target/bool-json-workspace.log）。相关 SDK/文档共 435 项：380 SDK/JSON 检查（新 172+32、旧 176）加 55 文档/配置/矩阵（target/bool-json-python.log、target/bool-json-docs.log），不是整个 widget-params 模块的新全量重跑。
+
+旧参考十七字段逐值未变，九个受保护用户文件 SHA 不变，临时诊断测试已从源码删除。矩阵仅补 checkbox/toggle 和生成清单，仍 130 partial；不从有限 JSON 输入和布尔返回值宣称整个 JSON 数值模型兼容。逐文件 diff/git diff --check 与两份 Rust 最终格式检查通过；测试末尾仅补语义阶段空行，不重复无行为变化的 Cargo。只暂存本批九个既有代码/测试/参考/计划/矩阵文件，无 PR、合并、发布或部署，完整目标继续。

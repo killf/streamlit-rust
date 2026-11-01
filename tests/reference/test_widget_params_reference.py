@@ -17,6 +17,22 @@ RUST = Path(__file__).parents[1] / "browser/rust-widget-params"
 
 BOOL_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['bool_coercion_reference']
 BOOL_DISABLED_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['bool_disabled_reference']
+BOOL_JSON_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['bool_json_reference']
+
+
+@pytest.mark.parametrize('case', BOOL_JSON_REFERENCE['cases'], ids=lambda case: case['name'])
+def test_sdk_bool_json_numbers_constants_surrogates_and_recovery(case):
+    assert len(BOOL_JSON_REFERENCE['cases']) == 172
+    assert_bool_input_case(case, BOOL_JSON_REFERENCE)
+
+
+@pytest.mark.parametrize('case', BOOL_JSON_REFERENCE['rejections'], ids=lambda case: repr(case['input']))
+def test_sdk_bool_json_invalid_token_boundaries_remain_rejected(case):
+    assert len(BOOL_JSON_REFERENCE['rejections']) == 32
+    with pytest.raises(json.JSONDecodeError) as error:
+        json.loads(case['input'])
+    assert type(error.value).__name__ == case['error_type']
+    assert str(error.value) == case['error']
 
 
 @pytest.mark.parametrize('case', BOOL_DISABLED_REFERENCE['cases'], ids=lambda case: case['name'])
@@ -57,16 +73,21 @@ def test_sdk_disabled_bool_transient_callbacks_defaults_and_lifecycle(case):
 
 @pytest.mark.parametrize('case', BOOL_REFERENCE['cases'], ids=lambda case: case['name'])
 def test_sdk_checkbox_toggle_wire_coercion_callbacks_and_recovery(case):
+    assert len(BOOL_REFERENCE['cases']) == 176
+    assert_bool_input_case(case, BOOL_REFERENCE)
+
+
+def assert_bool_input_case(case, reference):
     import importlib.metadata
     from streamlit.proto.WidgetStates_pb2 import WidgetState, WidgetStates
     from streamlit.testing.v1 import AppTest
 
-    assert importlib.metadata.version('streamlit') == BOOL_REFERENCE['reference_version'] == '1.66.1'
-    assert len(BOOL_REFERENCE['cases']) == 176 and len(case['expected']) == 3
+    assert importlib.metadata.version('streamlit') == reference['reference_version'] == '1.66.1'
+    assert len(case['expected']) == 3
     wire = WidgetState()
     wire.ParseFromString(bytes(case['input_bytes']))
-    assert not wire.id and wire.WhichOneof('value') == case['field']
-    app = AppTest.from_string(BOOL_REFERENCE['source']).run()
+    assert not wire.id and wire.WhichOneof('value') == case.get('field', 'json_value')
+    app = AppTest.from_string(reference['source']).run()
     assert not app.exception
     identities = {element.label: element.id for kind in ('checkbox', 'toggle', 'text_input') for element in app.get(kind)}
     assert set(identities) == {'cb0', 'cb1', 'tg0', 'tg1', 'peer'}

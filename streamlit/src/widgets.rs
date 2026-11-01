@@ -81,6 +81,71 @@ fn parse_datetime_input(text: &str) -> Option<NaiveDateTime> {
     Some(parse_date_input(date)?.and_time(parse_time_input(trimmed, false)?))
 }
 
+/// Bool serde 只需要真值，不构造受数值范围和 UTF-8 字符串表示限制的 JSON 树。
+fn decode_bool_json(text: &str) -> Option<Value> {
+    let whitespace = |byte: u8| matches!(byte, b' ' | b'\t' | b'\r' | b'\n');
+    let delimiter = |byte: u8| whitespace(byte) || matches!(byte, b'[' | b']' | b'{' | b'}' | b',' | b':');
+    let input = text.as_bytes();
+    let mut normalized = input.to_vec();
+    let (mut quoted, mut escaped, mut index) = (false, false, 0);
+
+    // 1. 仅替换完整、未被引号包裹的 Python 非有限常量，保留语法边界。
+    while index < input.len() {
+        let byte = input[index];
+        if quoted {
+            if escaped {
+                escaped = false;
+            } else if byte == b'\\' {
+                escaped = true;
+            } else if byte == b'"' {
+                quoted = false;
+            }
+            index += 1;
+            continue;
+        }
+        if byte == b'"' {
+            quoted = true;
+            index += 1;
+            continue;
+        }
+        let token: &[u8] = match byte {
+            b'N' => b"NaN",
+            b'I' => b"Infinity",
+            b'-' => b"-Infinity",
+            _ => {
+                index += 1;
+                continue;
+            }
+        };
+        let end = index + token.len();
+        if input[index..].starts_with(token) && (index == 0 || delimiter(input[index - 1])) && (end == input.len() || delimiter(input[end])) {
+            normalized[index] = b'0';
+            normalized[index + 1..end].fill(b' ');
+            index = end;
+        } else {
+            index += 1;
+        }
+    }
+
+    // 2. 忽略值的语法校验接受大数和代理字符，不把它们转换为 Rust 值。
+    serde_json::from_slice::<serde::de::IgnoredAny>(&normalized).ok()?;
+    let text = text.trim_matches(|character: char| matches!(character, ' ' | '\t' | '\r' | '\n'));
+    if text == "null" {
+        return Some(Value::Null);
+    }
+
+    // 3. 容器/字符串只看是否为空；根数字保留浮点上溢/下溢后的真值。
+    let value = match text.as_bytes().first()? {
+        b't' => true,
+        b'f' => false,
+        b'"' => text.len() > 2,
+        b'[' | b'{' => !text[1..text.len() - 1].trim_matches(|character: char| matches!(character, ' ' | '\t' | '\r' | '\n')).is_empty(),
+        _ if matches!(text, "NaN" | "Infinity" | "-Infinity") => true,
+        _ => text.parse::<f64>().ok()? != 0.0,
+    };
+    Some(Value::Bool(value))
+}
+
 /// One temporal day/step in microseconds, as measured on the reference.
 pub(crate) const DAY_MICROS: i64 = 86_400_000_000;
 
@@ -470,14 +535,7 @@ impl Codec {
                     widget_state::Value::StringTriggerValue(value) => value.data.as_ref().is_some_and(|value| !value.is_empty()),
 
                     // 2. 普通 JSON 先解码；消息对象自身始终为真，不能看其 data 是否为空。
-                    widget_state::Value::JsonValue(text) => match serde_json::from_str::<Value>(text).ok()? {
-                        Value::Null => return Some(Value::Null),
-                        Value::Bool(value) => value,
-                        Value::Number(value) => value.as_f64().is_some_and(|value| value != 0.0),
-                        Value::String(value) => !value.is_empty(),
-                        Value::Array(value) => !value.is_empty(),
-                        Value::Object(value) => !value.is_empty(),
-                    },
+                    widget_state::Value::JsonValue(text) => return decode_bool_json(text),
                     widget_state::Value::ArrowValue(_) | widget_state::Value::FileUploaderStateValue(_) | widget_state::Value::ChatInputValue(_) => true,
                 };
 
@@ -1415,6 +1473,33 @@ impl SessionState {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn bool_json_values_and_rejections_match_frozen_sdk() -> anyhow::Result<()> {
+        let reference: Value = serde_json::from_str(include_str!("../../tests/reference/reference-browser/widget-params/trace.json"))?;
+        let reference = &reference["bool_json_reference"];
+        let cases = reference["cases"].as_array().ok_or_else(|| anyhow::anyhow!("JSON cases"))?;
+        assert_eq!(cases.len(), 172);
+
+        for case in cases {
+            let key = case["key"].as_str().ok_or_else(|| anyhow::anyhow!("key"))?;
+            let index = ["cb0", "cb1", "tg0", "tg1"].iter().position(|candidate| *candidate == key).ok_or_else(|| anyhow::anyhow!("target"))?;
+            let wire = WidgetState {
+                id: "json".into(),
+                value: Some(widget_state::Value::JsonValue(case["input"].as_str().ok_or_else(|| anyhow::anyhow!("input"))?.into())),
+            };
+            assert_eq!(Codec::Bool.decode_state(&wire, Some(&Value::Bool(key.ends_with('1')))).as_ref(), Some(&case["expected"][0]["values"][index]), "{}", case["name"]);
+        }
+
+        let rejected = reference["rejections"].as_array().ok_or_else(|| anyhow::anyhow!("rejections"))?;
+        assert_eq!(rejected.len(), 32);
+        for case in rejected {
+            let text = case["input"].as_str().ok_or_else(|| anyhow::anyhow!("rejected input"))?;
+            assert!(Codec::Bool.decode(&widget_state::Value::JsonValue(text.into())).is_none(), "{text:?}");
+        }
+
+        Ok(())
+    }
+
     #[test]
     fn disabled_bool_exposes_transient_value_then_restores_at_registration() -> anyhow::Result<()> {
         use prost::Message;

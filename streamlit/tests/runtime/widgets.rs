@@ -283,17 +283,22 @@ fn bool_entry(st: &Streamlit, lifecycle: bool) -> Pin<Box<dyn Future<Output = ()
 
 #[actix_web::test]
 async fn boolean_wire_coercion_callbacks_and_recovery_match_sdk_over_ws() -> TestResult {
-    assert_boolean_reference(false).await
+    assert_boolean_reference("bool_coercion_reference", false).await
 }
 
 #[actix_web::test]
 async fn disabled_boolean_callbacks_and_lifecycle_match_sdk_over_ws() -> TestResult {
-    assert_boolean_reference(true).await
+    assert_boolean_reference("bool_disabled_reference", true).await
 }
 
-async fn assert_boolean_reference(lifecycle: bool) -> TestResult {
+#[actix_web::test]
+async fn boolean_json_numbers_constants_and_surrogates_match_sdk_over_ws() -> TestResult {
+    assert_boolean_reference("bool_json_reference", false).await
+}
+
+async fn assert_boolean_reference(reference_key: &str, lifecycle: bool) -> TestResult {
     let reference: Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/widget-params/trace.json"))?;
-    let reference = &reference[if lifecycle { "bool_disabled_reference" } else { "bool_coercion_reference" }];
+    let reference = &reference[reference_key];
     let cases = reference["cases"].as_array().ok_or("bool cases")?;
     let phases = if lifecycle {
         reference["phases"].as_array().ok_or("phases")?.iter().map(|phase| phase.as_str().ok_or("phase")).collect::<Result<Vec<_>, _>>()?
@@ -348,7 +353,7 @@ async fn assert_boolean_reference(lifecycle: bool) -> TestResult {
     handle.stop(false).await;
     task.await??;
     let runs = captured??;
-    assert_eq!(cases.len(), 176);
+    assert_eq!(cases.len(), if reference_key == "bool_json_reference" { 172 } else { 176 });
     assert_eq!(runs.len(), cases.len());
     for ((initial, reports), case) in runs.into_iter().zip(cases) {
         assert_eq!(initial.inputs.len(), 5);
