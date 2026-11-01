@@ -49,6 +49,9 @@ struct Run {
     inputs: HashMap<String, String>,
     values: Value,
     input_count: usize,
+
+    // 本轮框架异常；成功轮保持为空。
+    exceptions: Vec<proto::Exception>,
 }
 
 async fn rerun(stream: &mut TcpStream, widgets: Vec<WidgetState>) -> TestResult<Run> {
@@ -64,6 +67,7 @@ async fn rerun(stream: &mut TcpStream, widgets: Vec<WidgetState>) -> TestResult<
         inputs: HashMap::new(),
         values: Value::Null,
         input_count: 0,
+        exceptions: Vec::new(),
     };
     let mut finished = false;
     loop {
@@ -110,6 +114,7 @@ async fn rerun(stream: &mut TcpStream, widgets: Vec<WidgetState>) -> TestResult<
                             run.values = serde_json::from_str(json)?;
                         }
                     }
+                    Some(element::Type::Exception(error)) => run.exceptions.push(error),
                     _ => (),
                 }
             }
@@ -126,7 +131,11 @@ async fn rerun(stream: &mut TcpStream, widgets: Vec<WidgetState>) -> TestResult<
         }
     }
     assert!(!run.id.is_empty());
-    assert!(!run.values.is_null());
+    if run.values.is_null() {
+        assert!(!run.exceptions.is_empty());
+    } else {
+        assert!(run.exceptions.is_empty());
+    }
     Ok(run)
 }
 
@@ -363,6 +372,104 @@ async fn assert_boolean_reference(reference_key: &str, lifecycle: bool) -> TestR
             assert_eq!(report.inputs, initial.inputs);
             assert_eq!(report.id, initial.id);
             assert_eq!(&report.values, expected, "{}", case["name"]);
+        }
+    }
+    Ok(())
+}
+
+#[actix_web::test]
+async fn malformed_json_errors_callbacks_and_session_isolation_match_sdk_over_ws() -> TestResult {
+    let reference: Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/widget-params/trace.json"))?;
+    let cases = reference["json_input_errors_reference"]["cases"].as_array().ok_or("error cases")?;
+    assert_eq!(cases.len(), 96);
+
+    for disabled in [false, true] {
+        let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+        let address = listener.local_addr()?;
+        let entry = if disabled { bool_disabled_entry } else { bool_coercion_entry };
+        let configuration = StreamlitServer::new(entry, "127.0.0.1".into(), 0);
+        let store = configuration.sessions.clone();
+        let server = HttpServer::new(move || App::new().app_data(web::Data::new(configuration.clone())).configure(configure_routes)).workers(1).listen(listener)?.run();
+        let handle = server.handle();
+        let task = actix_web::rt::spawn(server);
+        let captured = tokio::time::timeout(Duration::from_secs(45), async {
+            let mut runs = Vec::new();
+            for (case_index, case) in cases.iter().enumerate().filter(|(_, case)| case["disabled"] == disabled) {
+                let key = case["key"].as_str().ok_or("key")?;
+                let partner = case["partner"].as_str().ok_or("partner")?;
+                let normal = |run: &Run, phase: &str| {
+                    [key, partner]
+                        .into_iter()
+                        .map(|name| WidgetState {
+                            id: run.inputs[name].clone(),
+                            value: Some(if name == "peer" { widget_state::Value::StringValue(phase.into()) } else { widget_state::Value::BoolValue(!name.ends_with('1')) }),
+                        })
+                        .collect()
+                };
+                let mut socket = sessions::connect(address, None).await;
+                let initial = rerun(&mut socket, vec![]).await?;
+                let state = store.state_for_upload(&initial.id).ok_or("session state")?;
+                let warm = rerun(&mut socket, normal(&initial, "warm")).await?;
+                let mut failures = Vec::new();
+
+                for phase in ["bad", "empty", "repair", "repeat"] {
+                    let incoming = if phase == "bad" {
+                        let target = WidgetState {
+                            id: initial.inputs[key].clone(),
+                            value: Some(widget_state::Value::JsonValue(case["input"].as_str().ok_or("input")?.into())),
+                        };
+                        let peer = WidgetState {
+                            id: initial.inputs[partner].clone(),
+                            value: Some(if partner == "peer" { widget_state::Value::StringValue("bad".into()) } else { widget_state::Value::BoolValue(false) }),
+                        };
+                        if case["peer_first"] == true { vec![peer, target] } else { vec![target, peer] }
+                    } else if phase == "repair" {
+                        normal(&initial, "repair")
+                    } else {
+                        vec![]
+                    };
+                    let run = rerun(&mut socket, incoming).await?;
+                    let calls = state.get::<Value>("bool_calls")?.ok_or("callback log")?;
+                    let partner_value = state.get::<Value>(partner)?.ok_or("partner state")?;
+                    failures.push((run, calls, partner_value));
+                }
+                sessions::disconnect(socket).await;
+                let mut fresh_socket = sessions::connect(address, None).await;
+                let fresh = rerun(&mut fresh_socket, vec![]).await?;
+                let fresh_edit = rerun(&mut fresh_socket, normal(&fresh, "fresh")).await?;
+                sessions::disconnect(fresh_socket).await;
+                runs.push((case_index, initial, warm, failures, fresh, fresh_edit));
+            }
+            Ok::<_, Box<dyn std::error::Error>>(runs)
+        })
+        .await;
+        handle.stop(false).await;
+        task.await??;
+        let runs = captured??;
+        assert_eq!(runs.len(), 48);
+
+        for (index, initial, warm, failures, fresh, fresh_edit) in runs {
+            let case = &cases[index];
+            assert_eq!(warm.inputs, initial.inputs);
+            assert_eq!(warm.values, case["warm"], "{}", case["name"]);
+            let expected = case["errors"].as_array().ok_or("errors")?;
+            assert_eq!(failures.len(), expected.len());
+            for ((run, calls, partner), expected) in failures.into_iter().zip(expected) {
+                assert_eq!(run.id, initial.id);
+                assert!(run.inputs.is_empty() && run.values.is_null());
+                assert_eq!(run.exceptions.len(), 1, "{}", case["name"]);
+                let error = &run.exceptions[0];
+                assert_eq!(error.r#type, expected["error_type"], "{}", case["name"]);
+                assert_eq!(error.message, expected["error"], "{}", case["name"]);
+                assert_eq!(Some(error.message_is_markdown), expected["message_is_markdown"].as_bool());
+                assert_eq!(Some(error.is_streamlit_exception), expected["is_streamlit_exception"].as_bool());
+                assert_eq!(calls, expected["calls"], "{}", case["name"]);
+                assert_eq!(partner, expected["partner"], "{}", case["name"]);
+            }
+            assert_ne!(fresh.id, initial.id);
+            assert_eq!(fresh.inputs, fresh_edit.inputs);
+            assert_eq!(fresh.values, case["fresh"][0], "{}", case["name"]);
+            assert_eq!(fresh_edit.values, case["fresh"][1], "{}", case["name"]);
         }
     }
     Ok(())

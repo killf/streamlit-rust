@@ -3236,3 +3236,28 @@ SDK 新增 176 项重放通过，共 1408 轮公开 AppTest（target/bool-disabl
 最终 26 项控件单元、8 项真实 WS 控件集成通过（target/bool-json-unit.log、target/bool-json-runtime.log）；新 JSON 集成执行 172 独立会话/688 轮，旧启用和禁用场景同批通过。工作区 365 项通过（358 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿（target/bool-json-workspace.log）。相关 SDK/文档共 435 项：380 SDK/JSON 检查（新 172+32、旧 176）加 55 文档/配置/矩阵（target/bool-json-python.log、target/bool-json-docs.log），不是整个 widget-params 模块的新全量重跑。
 
 旧参考十七字段逐值未变，九个受保护用户文件 SHA 不变，临时诊断测试已从源码删除。矩阵仅补 checkbox/toggle 和生成清单，仍 130 partial；不从有限 JSON 输入和布尔返回值宣称整个 JSON 数值模型兼容。逐文件 diff/git diff --check 与两份 Rust 最终格式检查通过；测试末尾仅补语义阶段空行，不重复无行为变化的 Cargo。只暂存本批九个既有代码/测试/参考/计划/矩阵文件，无 PR、合并、发布或部署，完整目标继续。
+
+
+## Current registered JSON input error validation (2026-11-01)
+
+继续已选完整错误/callback/恢复方向。此前 Bool JSON 接受值已修复，但非法 JSON 仍静默整批拒绝。公开 SDK 确认：JSONDecodeError 发生在 callback 分派/main 前；同批正常 Peer 输入已收到，先前 warm callback 保留。后续空请求或合法修复包都在处理新输入前再次遇到原错误；新会话独立恢复。最初红单元缺失错误锁存（target/json-input-errors-red.log）。额外 SDK 探测同值显式赋值也没有清除此错误；删除操作探测在 SDK 代理访问时仍抛原异常，未对删除/clear 或任意外部操作作恢复结论。
+
+既有 widget-params/trace.json 追加 json_input_errors_reference：293 个直接 json.loads 语法样例（230 拒绝、63 接受）保留原文、错误类型/完整文本/message/pos/line/column。包括字符串转义、控制字符、Unicode/emoji 字符位置、BOM、对象/数组分隔和 Python 3.14 尾逗号文案、部分数字/常量前缀、额外数据、合法非有限/大数/代理转义和 256 层合法容器。直接语法证据不冒充公开控件/SDK socket 或全部深度资源边界。
+
+另有 96 个公开 AppTest 生命周期场景：目标 checkbox/toggle/text_input、布尔启用/禁用、两种输入顺序、八类非法 JSON。每案 load/warm→bad/empty/repair/repeat 四个失败轮→独立 fresh load/edit，共 768 轮。保存 warm 报告，四轮异常 type/message/Markdown/Streamlit 标志、实际 calls 和正常 partner 状态，以及 fresh 报告。错误轮无 main JSON，callback 日志与 warm 相同，repair 未覆盖原错误；不是宣称所有恢复方式只有新会话。SDK 数据采用内部 _run protobuf 注入，不是 SDK socket 或真实浏览器采集。
+
+生产在 widgets.rs 将 input_error 字符串升级为私有 kind/message，既有 TypeError 保留类型/原文；websocket/handler.rs 按该类型构造同一异常元素，错误仍通过现有锁存/保留未见控件流程阻止 callback/main。已注册 widget 的 json_value 在原语义转换前检查语法，JSON 错误与已有日期错误按输入顺序接收并锁存，其他合法同批值仍应用。没有新增公共接口、文件、依赖或改变公共 JSON 数值模型。
+
+为得到实际 SDK 错误位置，私有 JSON 语法检查使用显式状态栈和独立字符串/数值前缀扫描，不构造 JSON 值树，也不使用 Rust 递归调用栈。错误偏移由 UTF-8 字节位置转换为源字符计数，行号仅按 LF 计算；保留 C JSON 解码器的语法消息、尾逗号位置、非法转义与根值额外数据。Bool JSON 路径复用这份检查，移除前批的非有限常量替换/IgnoreAny 校验重复流程，其已测真值分类与默认信号保留。旧 Bool 接受值、禁用生命周期回归继续验证。
+
+首轮 293 个语法与 96 个生命周期对照通过后，额外 SDK 证实 JSON 错误与禁用 selectbox 数组 TypeError 的输入顺序决定首错。旧 selectbox 分支会覆盖早先 JSON 错误，补的真实红单元复现 TypeError 覆盖 JSONDecodeError（target/json-input-errors-priority-red.log）；改为只锁存首错后两顺序通过。此项为公开 SDK + 私有原生单元证据，未另称混合优先级有真实 WS 差分。
+
+原生 WS 新集成在两个隔离自有服务上执行 96 坏会话及 96 新会话，共 768 轮：暖机返回值、错误四字段、无控件/main 输出、错误会话 ID 持续不变、新会话 ID 不同/正常运行均检查；通过既有 SessionStore 查询实际 callback 日志及正常 partner 值，不能只凭错误 UI 猜 callback 未执行。全部失败也先等待捕获结果、停止并等待自有服务再断言（panic 情形不作这项保证），每组捕获限 45 秒。坏目标的原始状态读取不在本次对照范围，错误以 native 锁存元数据表示。
+
+最终代码检查先行，三份 Rust 按语义单元留空行、复杂扫描有编号说明并逐段 diff 复查；workspace/all-targets Clippy -D warnings 通过（target/json-input-errors-clippy-final.log），保留既有 MSVC linker_messages 告警。29 项控件单元、9 项真实 WS 控件集成通过（target/json-input-errors-unit-final.log、target/json-input-errors-runtime-final.log）。SDK 新模块节点 389 项加两项优先级，共 391 项通过（target/json-input-errors-python.log、target/json-input-errors-priority-python.log），不是整个 widget-params Python 模块的新全量重跑。
+
+边界仍包括未登记/晚到/重复 ID、其他混合错误类别、语义 serde 错误、整数位数/宿主递归等资源限制、外部状态操作、原始坏目标读取、完整堆栈/完整 protobuf 和浏览器 UI。已有 TypeError 方向、日期返回模型与 MIME/Unicode/repr/非 Delta 队列待决取舍未被重定义；本批只补已注册 JSON 语法错误通道，不据此关闭 M3/M5/M7、矩阵条目或完整 Goal。
+
+最终工作区 369 项通过（362 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿（target/json-input-errors-workspace.log）。相关 SDK/文档共 446 项：293 语法+96 生命周期+2 优先级+55 文档/配置/矩阵（target/json-input-errors-python.log、target/json-input-errors-priority-python.log、target/json-input-errors-docs.log）。
+
+原参考十八字段逐值未变，九个受保护用户文件 SHA 不变；仅 checkbox/toggle/text_input 矩阵及生成清单补证，仍 130 partial。逐文件 diff/git diff --check 和三份 Rust 最终格式检查通过，最后只补字段/阶段说明与语义空行，不无故重复无行为变化的 Cargo。只暂存本批十个既有代码/测试/参考/计划/矩阵文件，不纳入用户 Cargo、colconfig、指南/README 修改。无 PR、合并、发布或部署，完整目标继续开放。

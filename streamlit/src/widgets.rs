@@ -81,60 +81,205 @@ fn parse_datetime_input(text: &str) -> Option<NaiveDateTime> {
     Some(parse_date_input(date)?.and_time(parse_time_input(trimmed, false)?))
 }
 
-/// Bool serde 只需要真值，不构造受数值范围和 UTF-8 字符串表示限制的 JSON 树。
-fn decode_bool_json(text: &str) -> Option<Value> {
-    let whitespace = |byte: u8| matches!(byte, b' ' | b'\t' | b'\r' | b'\n');
-    let delimiter = |byte: u8| whitespace(byte) || matches!(byte, b'[' | b']' | b'{' | b'}' | b',' | b':');
-    let input = text.as_bytes();
-    let mut normalized = input.to_vec();
-    let (mut quoted, mut escaped, mut index) = (false, false, 0);
+// JSON 语法状态显式入栈，避免深层容器消耗 Rust 调用栈。
+enum JsonFrame {
+    Value,
 
-    // 1. 仅替换完整、未被引号包裹的 Python 非有限常量，保留语法边界。
-    while index < input.len() {
-        let byte = input[index];
-        if quoted {
-            if escaped {
-                escaped = false;
-            } else if byte == b'\\' {
-                escaped = true;
-            } else if byte == b'"' {
-                quoted = false;
-            }
-            index += 1;
-            continue;
+    RootEnd,
+
+    ArrayValue(Option<usize>),
+
+    ArrayTail,
+
+    ObjectKey(Option<usize>),
+
+    ObjectColon,
+
+    ObjectTail,
+}
+
+fn json_string_end(input: &[u8], start: usize) -> Result<usize, (&'static str, usize)> {
+    let mut index = start + 1;
+    while let Some(&byte) = input.get(index) {
+        match byte {
+            b'"' => return Ok(index + 1),
+            0..=0x1f => return Err(("Invalid control character at", index)),
+            b'\\' => match input.get(index + 1) {
+                None => break,
+                Some(b'"' | b'\\' | b'/' | b'b' | b'f' | b'n' | b'r' | b't') => index += 2,
+                Some(b'u') => {
+                    if !input.get(index + 2..index + 6).is_some_and(|hex| hex.iter().all(u8::is_ascii_hexdigit)) {
+                        return Err((r"Invalid \uXXXX escape", index + 1));
+                    }
+                    index += 6;
+                }
+                Some(_) => return Err((r"Invalid \escape", index)),
+            },
+            _ => index += 1,
         }
-        if byte == b'"' {
-            quoted = true;
+    }
+
+    Err(("Unterminated string starting at", start))
+}
+
+fn json_number_end(input: &[u8], start: usize) -> Option<usize> {
+    // 1. 整数只匹配一个前导零，保留后续非法字符的位置。
+    let mut index = start + usize::from(input.get(start) == Some(&b'-'));
+    match input.get(index)? {
+        b'0' => index += 1,
+        b'1'..=b'9' => {
             index += 1;
-            continue;
-        }
-        let token: &[u8] = match byte {
-            b'N' => b"NaN",
-            b'I' => b"Infinity",
-            b'-' => b"-Infinity",
-            _ => {
+            while input.get(index).is_some_and(u8::is_ascii_digit) {
                 index += 1;
-                continue;
             }
-        };
-        let end = index + token.len();
-        if input[index..].starts_with(token) && (index == 0 || delimiter(input[index - 1])) && (end == input.len() || delimiter(input[end])) {
-            normalized[index] = b'0';
-            normalized[index + 1..end].fill(b' ');
-            index = end;
-        } else {
+        }
+        _ => return None,
+    }
+
+    // 2. 小数点后必须有数字，否则它属于后续额外数据。
+    if input.get(index) == Some(&b'.') && input.get(index + 1).is_some_and(u8::is_ascii_digit) {
+        index += 2;
+        while input.get(index).is_some_and(u8::is_ascii_digit) {
             index += 1;
         }
     }
 
-    // 2. 忽略值的语法校验接受大数和代理字符，不把它们转换为 Rust 值。
-    serde_json::from_slice::<serde::de::IgnoredAny>(&normalized).ok()?;
+    // 3. 不完整指数也留给容器/根值的分隔检查。
+    if matches!(input.get(index), Some(b'e' | b'E')) {
+        let mut end = index + 1;
+        if matches!(input.get(end), Some(b'+' | b'-')) {
+            end += 1;
+        }
+        let digits = end;
+        while input.get(end).is_some_and(u8::is_ascii_digit) {
+            end += 1;
+        }
+        if end > digits {
+            index = end;
+        }
+    }
+
+    Some(index)
+}
+
+fn widget_json_error(text: &str) -> Option<WidgetInputError> {
+    // 1. SDK 使用字符偏移，行号只按 LF 计算；不把 UTF-8 字节数当作位置。
+    let error = |message: &str, offset: usize| {
+        let prefix = &text[..offset];
+        let position = prefix.chars().count();
+        let line = prefix.bytes().filter(|byte| *byte == b'\n').count() + 1;
+        let column = prefix.rsplit('\n').next().unwrap_or("").chars().count() + 1;
+        WidgetInputError {
+            kind: "json.decoder.JSONDecodeError",
+            message: format!("{message}: line {line} column {column} (char {position})"),
+        }
+    };
+    if text.starts_with('\u{feff}') {
+        return Some(error("Unexpected UTF-8 BOM (decode using utf-8-sig)", 0));
+    }
+    let input = text.as_bytes();
+    let mut index = 0;
+    let mut frames = vec![JsonFrame::RootEnd, JsonFrame::Value];
+
+    // 2. 只检查语法，不构造 JSON 值；常量和数值前缀按 SDK 的扫描顺序匹配。
+    while let Some(frame) = frames.pop() {
+        while matches!(input.get(index), Some(b' ' | b'\t' | b'\r' | b'\n')) {
+            index += 1;
+        }
+        match frame {
+            JsonFrame::Value => match input.get(index) {
+                Some(b'"') => match json_string_end(input, index) {
+                    Ok(end) => index = end,
+                    Err((message, offset)) => return Some(error(message, offset)),
+                },
+                Some(b'[') => {
+                    index += 1;
+                    frames.push(JsonFrame::ArrayValue(None));
+                }
+                Some(b'{') => {
+                    index += 1;
+                    frames.push(JsonFrame::ObjectKey(None));
+                }
+                Some(b'n') if input[index..].starts_with(b"null") => index += 4,
+                Some(b't') if input[index..].starts_with(b"true") => index += 4,
+                Some(b'f') if input[index..].starts_with(b"false") => index += 5,
+                Some(b'N') if input[index..].starts_with(b"NaN") => index += 3,
+                Some(b'I') if input[index..].starts_with(b"Infinity") => index += 8,
+                Some(b'-') if input[index..].starts_with(b"-Infinity") => index += 9,
+                Some(b'-' | b'0'..=b'9') => match json_number_end(input, index) {
+                    Some(end) => index = end,
+                    None => return Some(error("Expecting value", index)),
+                },
+                _ => return Some(error("Expecting value", index)),
+            },
+            JsonFrame::ArrayValue(comma) => {
+                if input.get(index) == Some(&b']') {
+                    if let Some(comma) = comma {
+                        return Some(error("Illegal trailing comma before end of array", comma));
+                    }
+                    index += 1;
+                } else {
+                    frames.push(JsonFrame::ArrayTail);
+                    frames.push(JsonFrame::Value);
+                }
+            }
+            JsonFrame::ArrayTail => match input.get(index) {
+                Some(b']') => index += 1,
+                Some(b',') => {
+                    frames.push(JsonFrame::ArrayValue(Some(index)));
+                    index += 1;
+                }
+                _ => return Some(error("Expecting ',' delimiter", index)),
+            },
+            JsonFrame::ObjectKey(comma) => {
+                if input.get(index) == Some(&b'}') {
+                    if let Some(comma) = comma {
+                        return Some(error("Illegal trailing comma before end of object", comma));
+                    }
+                    index += 1;
+                } else if input.get(index) != Some(&b'"') {
+                    return Some(error("Expecting property name enclosed in double quotes", index));
+                } else {
+                    match json_string_end(input, index) {
+                        Ok(end) => index = end,
+                        Err((message, offset)) => return Some(error(message, offset)),
+                    }
+                    frames.push(JsonFrame::ObjectColon);
+                }
+            }
+            JsonFrame::ObjectColon => {
+                if input.get(index) != Some(&b':') {
+                    return Some(error("Expecting ':' delimiter", index));
+                }
+                index += 1;
+                frames.push(JsonFrame::ObjectTail);
+                frames.push(JsonFrame::Value);
+            }
+            JsonFrame::ObjectTail => match input.get(index) {
+                Some(b'}') => index += 1,
+                Some(b',') => {
+                    frames.push(JsonFrame::ObjectKey(Some(index)));
+                    index += 1;
+                }
+                _ => return Some(error("Expecting ',' delimiter", index)),
+            },
+            // 3. 根值完成后只允许 JSON 空白，多余数据的位置保留为首个字符。
+            JsonFrame::RootEnd if index != input.len() => return Some(error("Extra data", index)),
+            JsonFrame::RootEnd => (),
+        }
+    }
+    None
+}
+
+/// Bool serde 只需要真值，不构造受数值范围和字符串表示限制的 JSON 树。
+fn decode_bool_json(text: &str) -> Option<Value> {
+    if widget_json_error(text).is_some() {
+        return None;
+    }
     let text = text.trim_matches(|character: char| matches!(character, ' ' | '\t' | '\r' | '\n'));
     if text == "null" {
         return Some(Value::Null);
     }
-
-    // 3. 容器/字符串只看是否为空；根数字保留浮点上溢/下溢后的真值。
     let value = match text.as_bytes().first()? {
         b't' => true,
         b'f' => false,
@@ -390,6 +535,16 @@ impl Codec {
     /// index and a text label.
     fn button_click_shape(value: &Value) -> bool {
         value.as_object().is_some_and(|click| click.get("row").is_some_and(Value::is_u64) && click.get("label").is_some_and(Value::is_string))
+    }
+
+    fn input_error(&self, wire: Option<&widget_state::Value>) -> Option<WidgetInputError> {
+        if let Some(widget_state::Value::JsonValue(text)) = wire
+            && let Some(error) = widget_json_error(text)
+        {
+            return Some(error);
+        }
+
+        self.date_input_error(wire).map(WidgetInputError::type_error)
     }
 
     fn date_input_error(&self, wire: Option<&widget_state::Value>) -> Option<&'static str> {
@@ -909,9 +1064,24 @@ pub(crate) struct WidgetRegistry {
     /// Registration failure stops rendering without pruning unseen widgets.
     registration_error: Option<RegistrationError>,
 
-    /// Deserialization failed before callback dispatch. The invalid state
-    /// persists across requests, as in the pinned Python session.
-    input_error: Option<String>,
+    /// Deserialization failed before callback dispatch. Keep the first error
+    /// latched across requests, as in the pinned Python session.
+    input_error: Option<WidgetInputError>,
+}
+
+#[derive(Clone)]
+pub(crate) struct WidgetInputError {
+    // 错误元素所用的 Python 类型名。
+    pub(crate) kind: &'static str,
+
+    // 保留解析位置的完整 SDK 文案。
+    pub(crate) message: String,
+}
+
+impl WidgetInputError {
+    fn type_error(message: impl Into<String>) -> Self {
+        Self { kind: "TypeError", message: message.into() }
+    }
 }
 
 #[derive(Clone)]
@@ -1020,24 +1190,25 @@ impl SessionState {
             }
         }
         let mut callbacks = Vec::new();
-        // 2. 日期的已知 TypeError 交由下阶段保留；其他非法输入沿用整批验证。
-        if incoming.iter().any(|widget| {
+        // 2. 已知解析错误交由有序应用阶段锁存；其他非法输入沿用原校验。
+        let errors: Vec<_> = incoming.iter().map(|widget| registry.records.get(&widget.id).and_then(|record| record.codec.input_error(widget.value.as_ref()))).collect();
+        if incoming.iter().zip(&errors).any(|(widget, error)| {
             registry
                 .records
                 .get(&widget.id)
-                .is_some_and(|record| !record.disabled && record.codec.date_input_error(widget.value.as_ref()).is_none() && record.codec.decode_state(widget, record.empty_input.as_ref()).is_none_or(|value| !record.codec.valid(&value)))
+                .is_some_and(|record| !record.disabled && error.is_none() && record.codec.decode_state(widget, record.empty_input.as_ref()).is_none_or(|value| !record.codec.valid(&value)))
         }) {
             return callbacks;
         }
 
         // 3. 应用输入并收集 callback，完成全部变化判断后再交给调用方执行。
-        for widget in incoming {
+        for (widget, error) in incoming.into_iter().zip(errors) {
             if !registry.received.insert(widget.id.clone()) {
                 continue;
             }
-            // 日期的已知类型错误先完成输入接收，最后统一阻止 callback 分派。
-            if let Some(error) = registry.records.get(&widget.id).and_then(|record| record.codec.date_input_error(widget.value.as_ref())) {
-                registry.input_error.get_or_insert_with(|| error.to_owned());
+            // 已知解析错误按输入顺序锁存；仍接收正常同批值，统一阻止 callback。
+            if let Some(error) = error {
+                registry.input_error.get_or_insert(error);
                 continue;
             }
 
@@ -1069,7 +1240,7 @@ impl SessionState {
                         _ => None,
                     };
                     if let Some(kind) = unhashable_type {
-                        registry.input_error = Some(format!("cannot use '{kind}' as a dict key (unhashable type: '{kind}')"));
+                        registry.input_error.get_or_insert_with(|| WidgetInputError::type_error(format!("cannot use '{kind}' as a dict key (unhashable type: '{kind}')")));
                     }
                 }
                 // Applied at registration, like the reference's lazy
@@ -1109,7 +1280,7 @@ impl SessionState {
         callbacks
     }
 
-    pub(crate) fn widget_input_error(&self) -> Option<String> {
+    pub(crate) fn widget_input_error(&self) -> Option<WidgetInputError> {
         self.widgets.lock().input_error.clone()
     }
 
@@ -1473,6 +1644,146 @@ impl SessionState {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn first_json_or_select_error_matches_sdk_input_order() -> anyhow::Result<()> {
+        let reference: Value = serde_json::from_str(include_str!("../../tests/reference/reference-browser/widget-params/trace.json"))?;
+        let cases = reference["json_input_errors_reference"]["priority_cases"].as_array().ok_or_else(|| anyhow::anyhow!("priority cases"))?;
+        assert_eq!(cases.len(), 2);
+        for case in cases {
+            let state = SessionState::default();
+            let flag = state
+                .register_widget(
+                    WidgetSpec {
+                        kind: "checkbox",
+                        key: Some("flag"),
+                        disabled: false,
+                        query: None,
+                        identity: "stable",
+                        default: Value::Bool(false),
+                        codec: Codec::Bool,
+                        callback: None,
+                    },
+                    |value| Ok(value.clone()),
+                )?
+                .0;
+            let frozen = state
+                .register_widget(
+                    WidgetSpec {
+                        kind: "selectbox",
+                        key: Some("frozen"),
+                        disabled: true,
+                        query: None,
+                        identity: "stable",
+                        default: Value::from(0),
+                        codec: Codec::Select(vec![("a".into(), Value::String("a".into())), ("b".into(), Value::String("b".into()))]),
+                        callback: None,
+                    },
+                    |value| Ok(value.clone()),
+                )?
+                .0;
+            state.finish_widgets();
+            let json = WidgetState {
+                id: flag,
+                value: Some(widget_state::Value::JsonValue("{".into())),
+            };
+            let select = WidgetState {
+                id: frozen,
+                value: Some(widget_state::Value::StringArrayValue(crate::proto::StringArray { data: vec!["a".into()] })),
+            };
+            assert!(state.begin_widgets(if case["json_first"] == true { vec![json, select] } else { vec![select, json] }).is_empty());
+            let error = state.widget_input_error().ok_or_else(|| anyhow::anyhow!("missing first error"))?;
+            assert_eq!(error.kind, case["error_type"]);
+            assert_eq!(error.message, case["error"]);
+            state.finish_widgets();
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn json_input_syntax_and_character_positions_match_sdk() -> anyhow::Result<()> {
+        let reference: Value = serde_json::from_str(include_str!("../../tests/reference/reference-browser/widget-params/trace.json"))?;
+        let cases = reference["json_input_errors_reference"]["syntax_cases"].as_array().ok_or_else(|| anyhow::anyhow!("syntax cases"))?;
+        assert_eq!(cases.len(), 293);
+        for case in cases {
+            let text = case["input"].as_str().ok_or_else(|| anyhow::anyhow!("syntax input"))?;
+            let error = widget_json_error(text);
+            if case["accepted"] == true {
+                assert!(error.is_none(), "{}: {text:?}", case["name"]);
+            } else {
+                let error = error.ok_or_else(|| anyhow::anyhow!("{} must be rejected", case["name"]))?;
+                assert_eq!(error.kind, case["error_type"], "{}: {text:?}", case["name"]);
+                assert_eq!(error.message, case["error"], "{}: {text:?}", case["name"]);
+            }
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn malformed_json_latches_before_callbacks_and_before_repair_input() -> anyhow::Result<()> {
+        let reference: Value = serde_json::from_str(include_str!("../../tests/reference/reference-browser/widget-params/trace.json"))?;
+        let cases = reference["json_input_errors_reference"]["cases"].as_array().ok_or_else(|| anyhow::anyhow!("JSON error cases"))?;
+        assert_eq!(cases.len(), 96);
+
+        for case in cases {
+            let state = SessionState::default();
+            let target = case["key"].as_str().ok_or_else(|| anyhow::anyhow!("target"))?;
+            let partner = case["partner"].as_str().ok_or_else(|| anyhow::anyhow!("partner"))?;
+            let register = |key: &str| {
+                state.register_widget(
+                    WidgetSpec {
+                        kind: if key == "peer" {
+                            "text_input"
+                        } else if key.starts_with("cb") {
+                            "checkbox"
+                        } else {
+                            "toggle"
+                        },
+                        key: Some(key),
+                        disabled: key != "peer" && case["disabled"] == true,
+                        query: None,
+                        identity: "stable",
+                        default: if key == "peer" { Value::String("base".into()) } else { Value::Bool(key.ends_with('1')) },
+                        codec: if key == "peer" { Codec::Text { max_chars: None } } else { Codec::Bool },
+                        callback: Some(Arc::new(|_| {})),
+                    },
+                    |value| Ok(value.clone()),
+                )
+            };
+            let target_id = register(target)?.0;
+            let partner_id = register(partner)?.0;
+            state.finish_widgets();
+            let submitted = WidgetState {
+                id: target_id.clone(),
+                value: Some(widget_state::Value::JsonValue(case["input"].as_str().ok_or_else(|| anyhow::anyhow!("input"))?.into())),
+            };
+            let expected_partner = &case["errors"][0]["partner"];
+            let peer = WidgetState {
+                id: partner_id,
+                value: Some(if let Some(text) = expected_partner.as_str() {
+                    widget_state::Value::StringValue(text.into())
+                } else {
+                    widget_state::Value::BoolValue(expected_partner.as_bool().ok_or_else(|| anyhow::anyhow!("bool partner"))?)
+                }),
+            };
+            assert!(state.begin_widgets(if case["peer_first"] == true { vec![peer, submitted] } else { vec![submitted, peer] }).is_empty());
+            assert!(state.widget_input_error().is_some(), "{}", case["name"]);
+            assert_eq!(state.get::<Value>(partner)?.as_ref(), Some(expected_partner), "{}", case["name"]);
+            state.finish_widgets();
+
+            assert!(
+                state
+                    .begin_widgets(vec![WidgetState {
+                        id: target_id,
+                        value: Some(widget_state::Value::BoolValue(true))
+                    }])
+                    .is_empty()
+            );
+            assert!(state.widget_input_error().is_some());
+            state.finish_widgets();
+        }
+        Ok(())
+    }
+
     #[test]
     fn bool_json_values_and_rejections_match_frozen_sdk() -> anyhow::Result<()> {
         let reference: Value = serde_json::from_str(include_str!("../../tests/reference/reference-browser/widget-params/trace.json"))?;
@@ -1959,7 +2270,7 @@ mod tests {
 
                         // 1. 全部变化判断结束前不分派 callback，正常同伴值已接收。
                         assert!(state.begin_widgets(incoming).is_empty());
-                        assert_eq!(state.widget_input_error().as_deref(), Some(expected_error));
+                        assert_eq!(state.widget_input_error().map(|error| error.message).as_deref(), Some(expected_error));
                         assert_eq!(state.get::<bool>("peer")?, Some(true));
                         state.finish_widgets();
 
@@ -1979,7 +2290,7 @@ mod tests {
                                 ])
                                 .is_empty()
                         );
-                        assert_eq!(state.widget_input_error().as_deref(), Some(expected_error));
+                        assert_eq!(state.widget_input_error().map(|error| error.message).as_deref(), Some(expected_error));
                         assert_eq!(state.get::<bool>("peer")?, Some(true));
                         state.finish_widgets();
                     }
@@ -2036,7 +2347,7 @@ mod tests {
                     incoming.reverse();
                 }
                 assert!(state.begin_widgets(incoming).is_empty());
-                let error = state.widget_input_error().ok_or_else(|| anyhow::anyhow!("missing array input error"))?;
+                let error = state.widget_input_error().ok_or_else(|| anyhow::anyhow!("missing array input error"))?.message;
                 assert_eq!(error, expected_error);
                 assert_eq!(state.get::<String>("live")?.as_deref(), Some("one"));
                 state.finish_widgets();
@@ -2056,7 +2367,7 @@ mod tests {
                         ])
                         .is_empty()
                 );
-                assert_eq!(state.widget_input_error().as_deref(), Some(error.as_str()));
+                assert_eq!(state.widget_input_error().map(|error| error.message).as_deref(), Some(error.as_str()));
                 assert_eq!(state.get::<String>("live")?.as_deref(), Some("one"));
                 state.finish_widgets();
             }

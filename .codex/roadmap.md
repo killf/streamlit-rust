@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 JSON 输入错误通道：293 语法样例及 96 AppTest 生命周期场景补齐 JSONDecodeError 类型/字符位置、callback 前中止、原会话持续错误与新会话隔离；真实 WS 768 轮核对错误与实际 callback/partner 状态。私有 kind/message 接入原通道，首错顺序修复；未知/晚到 ID、其他语义/资源边界和浏览器仍开放。见[验收](acceptance.md#current-registered-json-input-error-validation-2026-11-01)，完整目标继续。
+
 2026-11-01 Bool JSON：43 个接受文本 × 四默认共 172 案/688 轮 SDK 参考补齐非有限常量、上下溢/大整数、嵌套值与转义代理字符真值；Bool 专用语法验证避免构造受限 JSON 树，同批 callback/默认恢复接通。另保留 32 个拒绝样例，框架 JSONDecodeError/任意限制仍开放。见[验收](acceptance.md#current-boolean-json-truthiness-validation-2026-11-01)，没有改变公共 JSON 模型或完整目标。
 
 2026-11-01 禁用布尔生命周期：SDK 176 案/1408 轮证实禁用 Bool 的提交值需先暴露给 Peer callback，再在登记恢复旧值。现有临时状态分支扩展到 Bool，覆盖声明默认翻转、ID-only、启用编辑、再次禁用和恢复，控件 ID 稳定；其他 codec/异常/浏览器组合继续开放。见[验收](acceptance.md#current-disabled-boolean-lifecycle-validation-2026-11-01)，完整目标不缩减。

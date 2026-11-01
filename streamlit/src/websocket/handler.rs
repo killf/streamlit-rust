@@ -77,8 +77,8 @@ async fn do_rerun_script(session: &mut Session, lease: &SessionLease, server: &S
         let state = lease.state.clone();
         // 使用 tokio::select! 并发执行用户代码和消息发送
         let entry_future = async {
-            if let Some(message) = state.widget_input_error() {
-                st.exception(crate::ExceptionOptions::new("TypeError", message));
+            if let Some(error) = state.widget_input_error() {
+                st.exception(crate::ExceptionOptions::new(error.kind, error.message));
             } else {
                 for callback in callbacks {
                     callback(&st);

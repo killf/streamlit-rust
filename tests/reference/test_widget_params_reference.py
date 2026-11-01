@@ -18,6 +18,94 @@ RUST = Path(__file__).parents[1] / "browser/rust-widget-params"
 BOOL_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['bool_coercion_reference']
 BOOL_DISABLED_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['bool_disabled_reference']
 BOOL_JSON_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['bool_json_reference']
+JSON_ERRORS_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['json_input_errors_reference']
+
+
+@pytest.mark.parametrize('case', JSON_ERRORS_REFERENCE['priority_cases'])
+def test_sdk_first_json_or_disabled_select_error_follows_input_order(case):
+    from streamlit.proto.WidgetStates_pb2 import WidgetStates
+    from streamlit.testing.v1 import AppTest
+    app = AppTest.from_string(JSON_ERRORS_REFERENCE['priority_source']).run()
+    assert not app.exception
+    identities = {'flag': app.checkbox[0].id, 'frozen': app.selectbox[0].id}
+    raw = WidgetStates()
+    for name in (('flag', 'frozen') if case['json_first'] else ('frozen', 'flag')):
+        widget = raw.widgets.add(id=identities[name])
+        if name == 'flag':
+            widget.json_value = '{'
+        else:
+            widget.string_array_value.data[:] = ['a']
+    app._run(raw)
+    assert len(app.exception) == 1
+    error = app.exception[0].proto
+    assert (error.type, error.message) == (case['error_type'], case['error'])
+
+
+@pytest.mark.parametrize('case', JSON_ERRORS_REFERENCE['syntax_cases'], ids=lambda case: case['name'])
+def test_sdk_json_input_syntax_classification_and_character_positions(case):
+    assert len(JSON_ERRORS_REFERENCE['syntax_cases']) == 293
+    if case['accepted']:
+        json.loads(case['input'])
+    else:
+        with pytest.raises(json.JSONDecodeError) as caught:
+            json.loads(case['input'])
+        error = caught.value
+        assert case['error_type'] == 'json.decoder.JSONDecodeError'
+        assert (str(error), error.msg, error.pos, error.lineno, error.colno) == (
+            case['error'], case['message'], case['pos'], case['line'], case['column'])
+
+
+@pytest.mark.parametrize('case', JSON_ERRORS_REFERENCE['cases'], ids=lambda case: case['name'])
+def test_sdk_registered_json_error_latches_and_fresh_session_recovers(case):
+    import importlib.metadata
+    from streamlit.proto.WidgetStates_pb2 import WidgetState, WidgetStates
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version('streamlit') == JSON_ERRORS_REFERENCE['reference_version'] == '1.66.1'
+    assert len(JSON_ERRORS_REFERENCE['cases']) == 96
+    source = (BOOL_DISABLED_REFERENCE if case['disabled'] else BOOL_REFERENCE)['source']
+    app = AppTest.from_string(source).run()
+    assert not app.exception
+    identities = {element.label: element.id for kind in ('checkbox', 'toggle', 'text_input') for element in app.get(kind)}
+
+    def normal(phase):
+        raw = WidgetStates()
+        for key in (case['key'], case['partner']):
+            widget = raw.widgets.add(id=identities[key])
+            if key == 'peer':
+                widget.string_value = phase
+            else:
+                widget.bool_value = not key.endswith('1')
+        return raw
+
+    app._run(normal('warm'))
+    assert not app.exception and json.loads(app.json[0].value) == case['warm']
+    for phase, expected in zip(('bad', 'empty', 'repair', 'repeat'), case['errors']):
+        raw = WidgetStates()
+        if phase == 'bad':
+            target = WidgetState(id=identities[case['key']], json_value=case['input'])
+            peer = WidgetState(id=identities[case['partner']])
+            if case['partner'] == 'peer':
+                peer.string_value = 'bad'
+            else:
+                peer.bool_value = False
+            for widget in ((peer, target) if case['peer_first'] else (target, peer)):
+                raw.widgets.add().CopyFrom(widget)
+        elif phase == 'repair':
+            raw = normal('repair')
+        app._run(raw)
+        assert len(app.exception) == 1 and not app.json
+        error = app.exception[0].proto
+        assert (error.type, error.message, error.message_is_markdown, error.is_streamlit_exception) == (
+            expected['error_type'], expected['error'], expected['message_is_markdown'], expected['is_streamlit_exception'])
+        assert app.session_state['calls'] == expected['calls']
+        assert app.session_state[case['partner']] == expected['partner']
+
+    app = AppTest.from_string(source).run()
+    assert not app.exception and json.loads(app.json[0].value) == case['fresh'][0]
+    identities = {element.label: element.id for kind in ('checkbox', 'toggle', 'text_input') for element in app.get(kind)}
+    app._run(normal('fresh'))
+    assert not app.exception and json.loads(app.json[0].value) == case['fresh'][1]
 
 
 @pytest.mark.parametrize('case', BOOL_JSON_REFERENCE['cases'], ids=lambda case: case['name'])
