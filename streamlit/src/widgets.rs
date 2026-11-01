@@ -644,19 +644,25 @@ impl Codec {
     }
 
     fn decode_state(&self, state: &WidgetState, empty_input: Option<&Value>) -> Option<Value> {
-        let value = match state.value.as_ref() {
-            Some(widget_state::Value::JsonValue(text)) if matches!(self, Self::DateInput { .. }) => self.decode_date_json(text),
+        let value = match (self, state.value.as_ref()) {
+            (Self::DateInput { .. }, Some(widget_state::Value::JsonValue(text))) => self.decode_date_json(text),
 
-            Some(widget_state::Value::StringValue(text)) if matches!(self, Self::DateInput { .. }) && !text.is_empty() => empty_input.cloned(),
+            // 编辑器也使用 Text codec；只有文本输入控件提供有效默认值，允许 JSON 拆箱。
+            (Self::Text { max_chars }, Some(widget_state::Value::JsonValue(text))) if empty_input.is_some() => {
+                let value = serde_json::from_str::<Option<String>>(text).ok()?;
+                Some(value.map_or(Value::Null, |value| Value::String(max_chars.map_or_else(|| value.clone(), |limit| value.chars().take(limit).collect()))))
+            }
 
-            Some(wire) => self.decode(wire),
+            (Self::DateInput { .. }, Some(widget_state::Value::StringValue(text))) if !text.is_empty() => empty_input.cloned(),
+
+            (_, Some(wire)) => self.decode(wire),
 
             // 支持的 ID-only 包按上一轮 serde 的有效默认值反序列化。
-            None => empty_input.cloned(),
+            (_, None) => empty_input.cloned(),
         }?;
 
-        // 布尔 null 和时间空/无效/越界输入恢复上轮 serde 默认，不强制清空。
-        if matches!(self, Self::Bool | Self::TimeInput { .. } | Self::DateTimeInput { .. }) && value.is_null() {
+        // 布尔/文本 null 和时间空/无效/越界输入恢复上轮 serde 默认，不强制清空。
+        if matches!(self, Self::Bool | Self::Text { .. } | Self::TimeInput { .. } | Self::DateTimeInput { .. }) && value.is_null() {
             return empty_input.cloned();
         }
 
@@ -1390,6 +1396,17 @@ impl SessionState {
         if registry.seen.contains(&id) {
             return Err(WidgetError::DuplicateId(id));
         }
+
+        // 首次 metadata 登记才解析晚到 JSON；保留已执行 callback，下轮在输入前报错。
+        if let Some(error) = registry.pending.iter().find(|state| state.id == id).and_then(|state| match state.value.as_ref() {
+            Some(widget_state::Value::JsonValue(text)) => widget_json_error(text),
+            _ => None,
+        }) {
+            registry.input_error.get_or_insert_with(|| error.clone());
+            registry.registration_error = Some(RegistrationError { error: error.clone(), rendered: false });
+            return Err(WidgetError::InvalidValue(error.message));
+        }
+
         let mut values = self.values.lock();
         // 1. URL 初值、前端提交和代码赋值在注册时统一决定，不覆盖其他控件。
         let query_default = query.map(|_| default.clone());
@@ -1681,6 +1698,76 @@ impl SessionState {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn first_registration_json_error_preserves_prior_callbacks_then_latches() -> anyhow::Result<()> {
+        for disabled in [false, true] {
+            for peer_first in [false, true] {
+                let target = || WidgetSpec {
+                    kind: "checkbox",
+                    key: Some("late"),
+                    disabled,
+                    query: None,
+                    identity: "stable",
+                    default: Value::Bool(false),
+                    codec: Codec::Bool,
+                    callback: None,
+                };
+                let witness = SessionState::default();
+                let target_id = witness.register_widget(target(), |value| Ok(value.clone()))?.0;
+                let state = SessionState::default();
+                let peer = || WidgetSpec {
+                    kind: "checkbox",
+                    key: Some("peer"),
+                    disabled: false,
+                    query: None,
+                    identity: "stable",
+                    default: Value::Bool(false),
+                    codec: Codec::Bool,
+                    callback: Some(Arc::new(|_| {})),
+                };
+                let peer_id = state.register_widget(peer(), |value| Ok(value.clone()))?.0;
+                state.finish_widgets();
+
+                // 1. 目标尚无 metadata；只有已有 Peer 收到变化并进入 callback 队列。
+                let mut incoming = vec![
+                    WidgetState {
+                        id: target_id.clone(),
+                        value: Some(widget_state::Value::JsonValue("{".into())),
+                    },
+                    WidgetState {
+                        id: peer_id,
+                        value: Some(widget_state::Value::BoolValue(true)),
+                    },
+                ];
+                if peer_first {
+                    incoming.reverse();
+                }
+                assert_eq!(state.begin_widgets(incoming).len(), 1);
+                assert!(state.widget_input_error().is_none());
+                state.register_widget(peer(), |value| Ok(value.clone()))?;
+
+                // 2. 首次登记才抛 JSON 错误；下次重跑须在接收修复值前中止。
+                assert!(state.register_widget(target(), |value| Ok(value.clone())).is_err());
+                let error = state.take_registration_error().ok_or_else(|| anyhow::anyhow!("late registration error"))?;
+                assert_eq!(error.kind, "json.decoder.JSONDecodeError");
+                assert_eq!(error.message, "Expecting property name enclosed in double quotes: line 1 column 2 (char 1)");
+                state.finish_widgets();
+                assert!(
+                    state
+                        .begin_widgets(vec![WidgetState {
+                            id: target_id,
+                            value: Some(widget_state::Value::BoolValue(true))
+                        }])
+                        .is_empty()
+                );
+                assert!(state.widget_input_error().is_some());
+                assert_eq!(state.get::<bool>("peer")?, Some(true));
+                state.finish_widgets();
+            }
+        }
+        Ok(())
+    }
+
     #[test]
     fn repeated_widget_ids_use_last_payload_before_validation() -> anyhow::Result<()> {
         let state = SessionState::default();
@@ -2807,6 +2894,14 @@ mod tests {
 
         let unlimited = Codec::Text { max_chars: None };
         assert_eq!(unlimited.decode(&widget_state::Value::StringValue("中文🧊e\u{301}TAIL".into())), Some(Value::String("中文🧊e\u{301}TAIL".into())));
+
+        // JSON 文本拆箱不扩展到没有文本控件默认值的编辑器路径。
+        let wire = WidgetState {
+            id: "text".into(),
+            value: Some(widget_state::Value::JsonValue("\"edited\"".into())),
+        };
+        assert_eq!(unlimited.decode_state(&wire, Some(&Value::from("seed"))), Some(Value::from("edited")));
+        assert_eq!(unlimited.decode_state(&wire, None), None);
     }
 
     #[test]

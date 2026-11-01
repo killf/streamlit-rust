@@ -20,6 +20,49 @@ BOOL_DISABLED_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding=
 BOOL_JSON_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['bool_json_reference']
 JSON_ERRORS_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['json_input_errors_reference']
 WIDGET_DUPLICATES_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['widget_duplicates_reference']
+LATE_WIDGET_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['late_widget_registration_reference']
+
+
+@pytest.mark.parametrize('case', LATE_WIDGET_REFERENCE['cases'], ids=lambda case: case['name'])
+def test_sdk_first_registration_json_callback_partial_output_and_recovery(case):
+    import copy
+    import importlib.metadata
+    from streamlit.proto.WidgetStates_pb2 import WidgetState, WidgetStates
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version('streamlit') == LATE_WIDGET_REFERENCE['reference_version'] == '1.66.1'
+    assert len(LATE_WIDGET_REFERENCE['cases']) == 144
+    kind = case['mode'].split(':')[0]
+    witness = AppTest.from_string(LATE_WIDGET_REFERENCE['source'])
+    witness.session_state.peer = case['mode']
+    witness.run()
+    assert not witness.exception
+    target_id = next(item.id for item in witness.get(kind) if item.label == 'target')
+    app = AppTest.from_file(witness._script_path).run()
+    assert not app.exception and json.loads(app.json[0].value) == {'values': ['closed', '__hidden__'], 'calls': []}
+    peer_id = app.text_input[0].id
+    assert peer_id == witness.text_input[0].id
+    for phase, expected in zip(('submit', 'repeat', 'repair'), case['expected'], strict=True):
+        raw = WidgetStates()
+        if phase != 'repeat':
+            target = WidgetState.FromString(bytes(case['input_bytes' if phase == 'submit' else 'repair_bytes']))
+            assert not target.id
+            target.id = target_id
+            peer = WidgetState(id=peer_id, string_value=case['mode'])
+            for widget in ((peer, target) if phase == 'repair' or case['peer_first'] else (target, peer)):
+                raw.widgets.add().CopyFrom(widget)
+        app._run(raw)
+        assert copy.deepcopy(app.session_state['calls']) == expected['calls']
+        controls = [item for widget_kind in ('text_input', 'text_area', 'checkbox', 'toggle') for item in app.get(widget_kind)]
+        assert [item.label for item in controls] == expected['controls']
+        assert all(item.id == (peer_id if item.label == 'peer' else target_id) for item in controls)
+        if expected['accepted']:
+            assert not app.exception and json.loads(app.json[0].value) == expected['report']
+        else:
+            assert len(app.exception) == 1 and not app.json
+            error = app.exception[0].proto
+            assert (error.type, error.message, error.message_is_markdown, error.is_streamlit_exception) == (
+                expected['error_type'], expected['error'], expected['message_is_markdown'], expected['is_streamlit_exception'])
 
 
 def test_sdk_repeated_id_compaction_order_has_independent_observations():

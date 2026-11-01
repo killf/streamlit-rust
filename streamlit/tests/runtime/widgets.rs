@@ -91,11 +91,14 @@ async fn rerun(stream: &mut TcpStream, widgets: Vec<WidgetState>) -> TestResult<
                         run.inputs.insert(key.into(), value.id);
                     }
                     Some(element::Type::Checkbox(value)) => {
-                        let key = if matches!(value.label.as_str(), "cb0" | "cb1" | "tg0" | "tg1") { value.label } else { "include".into() };
+                        let key = if matches!(value.label.as_str(), "cb0" | "cb1" | "tg0" | "tg1" | "target") { value.label } else { "include".into() };
                         run.inputs.insert(key, value.id);
                     }
-                    Some(element::Type::TextInput(value)) if value.label == "peer" => {
-                        run.inputs.insert("peer".into(), value.id);
+                    Some(element::Type::TextInput(value)) if matches!(value.label.as_str(), "peer" | "target") => {
+                        run.inputs.insert(value.label, value.id);
+                    }
+                    Some(element::Type::TextArea(value)) if value.label == "target" => {
+                        run.inputs.insert(value.label, value.id);
                     }
                     Some(element::Type::Button(value)) => {
                         run.inputs.insert("pulse".into(), value.id);
@@ -238,6 +241,140 @@ async fn temporal_lexical_values_and_callbacks_match_sdk_over_real_ws() -> TestR
         assert_eq!(changed.values["calls"], calls, "{}", case["name"]);
         for peer in ["date", "datetime", "minute", "second"].into_iter().filter(|peer| *peer != kind) {
             assert_eq!(changed.values[peer], initial.values[peer], "{}: peer {peer}", case["name"]);
+        }
+    }
+    Ok(())
+}
+
+fn late_registration_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = async {
+            let changed = |source: &'static str| {
+                move |st: &Streamlit| {
+                    let state = st.session_state();
+                    let mut calls = state.get::<Vec<Value>>("late_calls").expect("callback log").unwrap_or_default();
+                    let peer = state.get::<Value>("peer").expect("peer state").expect("registered peer");
+                    let target = state.get::<Value>("target").expect("target state").unwrap_or_else(|| Value::from("__missing__"));
+                    calls.push(json!([source, peer, target]));
+                    state.set("late_calls", calls).expect("save callbacks");
+                }
+            };
+            let peer = st.text_input(crate::TextInputOptions::new("peer").value("closed").key("peer").on_change(changed("peer")))?.ok_or("peer text")?;
+            let target = if peer == "closed" {
+                Value::from("__hidden__")
+            } else {
+                let fields: Vec<_> = peer.split(':').collect();
+                assert_eq!(fields.len(), 3);
+                let disabled = fields[2] == "disabled";
+                match fields[0] {
+                    "checkbox" => Value::from(st.checkbox(CheckboxOptions::new("target").value(fields[1] == "true").key("target").disabled(disabled).on_change(changed("target")))?),
+                    "toggle" => Value::from(st.toggle(crate::ToggleOptions::new("target").value(fields[1] == "true").key("target").disabled(disabled).on_change(changed("target")))?),
+                    "text_input" => Value::from(st.text_input(crate::TextInputOptions::new("target").value(fields[1]).key("target").disabled(disabled).on_change(changed("target")))?.ok_or("target text")?),
+                    "text_area" => Value::from(st.text_area(crate::TextAreaOptions::new("target", fields[1]).key("target").disabled(disabled).on_change(changed("target")))?.ok_or("target area")?),
+                    _ => return Err("unexpected late widget kind".into()),
+                }
+            };
+            st.write(format!("values={}", json!({"values":[peer,target],"calls":st.session_state().get::<Vec<Value>>("late_calls")?.unwrap_or_default()})));
+            Ok(())
+        }
+        .await;
+        assert!(result.is_ok(), "late fixture failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn first_registration_json_errors_callbacks_and_recovery_match_sdk_over_ws() -> TestResult {
+    let reference: Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/widget-params/trace.json"))?;
+    let cases = reference["late_widget_registration_reference"]["cases"].as_array().ok_or("late cases")?;
+    assert_eq!(cases.len(), 144);
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let configuration = StreamlitServer::new(late_registration_entry, "127.0.0.1".into(), 0);
+    let store = configuration.sessions.clone();
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(configuration.clone())).configure(configure_routes)).workers(1).listen(listener)?.run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+
+    // 1. 独立 witness 会话获取未来 ID；接收会话从未登记目标，不篡改 metadata。
+    let captured = tokio::time::timeout(Duration::from_secs(60), async {
+        let mut identities = HashMap::new();
+        let mut runs = Vec::new();
+        for case in cases {
+            let mode = case["mode"].as_str().ok_or("mode")?;
+            if !identities.contains_key(mode) {
+                let mut witness = sessions::connect(address, None).await;
+                let initial = rerun(&mut witness, vec![]).await?;
+                let shown = rerun(
+                    &mut witness,
+                    vec![WidgetState {
+                        id: initial.inputs["peer"].clone(),
+                        value: Some(widget_state::Value::StringValue(mode.into())),
+                    }],
+                )
+                .await?;
+                identities.insert(mode.to_owned(), shown.inputs["target"].clone());
+                sessions::disconnect(witness).await;
+            }
+            let target_id = &identities[mode];
+            let mut socket = sessions::connect(address, None).await;
+            let initial = rerun(&mut socket, vec![]).await?;
+            let state = store.state_for_upload(&initial.id).ok_or("session state")?;
+            let mut reports = Vec::new();
+            for phase in ["submit", "repeat", "repair"] {
+                let incoming = if phase == "repeat" {
+                    vec![]
+                } else {
+                    let field = if phase == "submit" { "input_bytes" } else { "repair_bytes" };
+                    let bytes = serde_json::from_value::<Vec<u8>>(case[field].clone())?;
+                    let mut target = WidgetState::decode(bytes.as_slice())?;
+                    target.id = target_id.clone();
+                    let peer = WidgetState {
+                        id: initial.inputs["peer"].clone(),
+                        value: Some(widget_state::Value::StringValue(mode.into())),
+                    };
+                    if phase == "repair" || case["peer_first"] == true { vec![peer, target] } else { vec![target, peer] }
+                };
+                let run = rerun(&mut socket, incoming).await?;
+                let calls = state.get::<Value>("late_calls")?.unwrap_or_else(|| json!([]));
+                reports.push((run, calls));
+            }
+            sessions::disconnect(socket).await;
+            runs.push((initial, target_id.clone(), reports));
+        }
+        assert_eq!(identities.len(), 12);
+        Ok::<_, Box<dyn std::error::Error>>(runs)
+    })
+    .await;
+    handle.stop(false).await;
+    task.await??;
+    let runs = captured??;
+
+    // 2. 登记轮保留 Peer 输出/callback，后续错误轮没有主函数输出或新 callback。
+    for ((initial, target_id, reports), case) in runs.into_iter().zip(cases) {
+        assert_eq!(initial.inputs.len(), 1);
+        assert_eq!(initial.values, json!({"values":["closed","__hidden__"],"calls":[]}));
+        let expected = case["expected"].as_array().ok_or("expected")?;
+        assert_eq!(reports.len(), expected.len());
+        for (index, ((run, calls), expected)) in reports.into_iter().zip(expected).enumerate() {
+            assert_eq!(run.id, initial.id);
+            assert_eq!(calls, expected["calls"], "{} phase {index}", case["name"]);
+            let controls = expected["controls"].as_array().ok_or("controls")?;
+            assert_eq!(run.inputs.len(), controls.len(), "{} phase {index}", case["name"]);
+            for key in controls {
+                let key = key.as_str().ok_or("control key")?;
+                assert_eq!(run.inputs.get(key), Some(if key == "target" { &target_id } else { &initial.inputs[key] }));
+            }
+            if expected["accepted"] == true {
+                assert_eq!(run.values, expected["report"], "{} phase {index}", case["name"]);
+            } else {
+                assert!(run.values.is_null());
+                assert_eq!(run.exceptions.len(), 1);
+                let error = &run.exceptions[0];
+                assert_eq!(error.r#type, expected["error_type"]);
+                assert_eq!(error.message, expected["error"]);
+                assert_eq!(error.message_is_markdown, expected["message_is_markdown"]);
+                assert_eq!(error.is_streamlit_exception, expected["is_streamlit_exception"]);
+            }
         }
     }
     Ok(())

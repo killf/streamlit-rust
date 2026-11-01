@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 首次登记输入：144 案/576 轮 SDK 与原生 WS 对照证明，首次 metadata 登记才解析坏 JSON，需保留此前 Peer callback/输出，再在后续轮次输入前继续报错。私有登记通道接通；Text JSON 字符串/null 仅在文本控件有效默认值路径拆箱，成功登记后的 JSON 修改/callback 也已测。见[验收](acceptance.md#current-first-widget-registration-validation-2026-11-01)；已有 metadata 重挂载、其他 serde/codec/查询/表单/浏览器继续开放，完整目标继续。
+
 2026-11-01 重复 WidgetState ID：同批最后完整包覆盖、首次位置决定 callback/首错顺序，先合并再解码，避免被覆盖坏 JSON 锁存。212 案/848 轮 SDK 与真实原生 WS 对照；未知普通 ID 的登记 KeyError 保留既有 callback/部分输出。两最终 JSON 错误的后续顺序保留独立进程观察，不伪造确定性。见[验收](acceptance.md#current-repeated-widget-id-validation-2026-11-01)；跨请求合并、其他 codec/晚到/别名/外部恢复和 UI 仍开放，完整目标继续。
 
 2026-11-01 JSON 输入错误通道：293 语法样例及 96 AppTest 生命周期场景补齐 JSONDecodeError 类型/字符位置、callback 前中止、原会话持续错误与新会话隔离；真实 WS 768 轮核对错误与实际 callback/partner 状态。私有 kind/message 接入原通道，首错顺序修复；未知/晚到 ID、其他语义/资源边界和浏览器仍开放。见[验收](acceptance.md#current-registered-json-input-error-validation-2026-11-01)，完整目标继续。

@@ -3282,3 +3282,22 @@ Rust begin_widgets 先按首次槽位合并重复 ID，后执行既有校验、�
 最终工作区 371 项通过（364 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿（target/widget-duplicates-workspace.log）。本批相关 SDK/文档共 268 项：212 SDK 重放、1 独立进程观察守卫、55 文档/配置/矩阵（target/widget-duplicates-python.log、target/widget-duplicates-observations-python.log、target/widget-duplicates-docs.log）。原参考十九字段逐值未变，九个受保护用户文件 SHA 与启动快照一致；三份 Rust 格式检查和逐文件 diff/git diff --check 通过。仅暂存本批十个既有文件，完整 Goal 继续开放。
 
 最终本包 lib/tests Clippy -D warnings 通过（target/widget-duplicates-clippy.log），仍有既有 MSVC linker_messages 输出，其 lint 明示不受 -D warnings 控制；不称零告警。未因纯验证记录追加重复 Cargo/SDK 测试。
+
+
+## Current first widget registration validation 2026-11-01
+
+继续执行完整兼容错误方案 1，保留错误、已执行 callback 和后续恢复的实际行为，不把晚到输入静默当默认。目标是在接收会话从未登记控件的前提下，识别首个 metadata 登记阶段的 JSON 解析、返回值和后续轮次行为；与此前已登记/重复 ID 的参考分别记录，不用清除私有 metadata 人造此状态。
+
+既有 widget-params/trace.json 新增 late_widget_registration_reference。公开 AppTest 在独立 witness 中渲染将来控件，用同一脚本路径的新 AppTest 建立只有 Peer 的接收会话；双方 Peer ID 相等，成功登记时目标 ID 与 witness 相等。模式包括 checkbox/toggle 各 false/true、text_input/text_area 各 seed，分别启用/禁用，共十二种；六类包（坏对象 JSON、尾逗号 JSON、JSON 字符串、JSON null、ID-only、正常 string wire）及两个输入顺序共 144 案。每案初始、提交、空重跑、修复四轮，共 576 接收轮，另十二次 SDK witness 设置。每阶段 callback 日志深拷贝保存。
+
+最初临时探针在 text_input 模式从 witness 列表取了 Peer ID，导致无关 ValueError 和错误文本结果；明确拒绝这份参考，target/late-widgets-invalid-identity-reference.json 和 target/late-widgets-sdk.log 保留。采集器改为按 target 标签取身份后完整重跑；target/late-widgets-sdk-corrected.log 的接收输入/返回正常。最后文本修复包改为 JSON 字符串，在已有 metadata 的下一轮核对 Text 解码与 callback，再完整采集到 target/late-widgets-sdk-final.log；最终 144 案均无无关 ValueError。
+
+48 个坏 JSON 案的首次提交：只有已有 Peer callback 执行，读取到目标不存在；主函数输出 Peer 元素，在目标登记时抛 json.decoder.JSONDecodeError，没有目标元素或报告。无论禁用与否、输入顺序如何都相同。后续空重跑和正常修复包在处理新输入前报原错，callback 日志保持；这与未登记时就整批前置拒绝不同。其余 96 案正常返回，目标首次登记不触发自己的 callback；启用 Bool 的字符串按真值、null/ID-only 回默认，禁用目标保持默认。Text JSON 字符串和普通 string wire 返回文本，null/ID-only 回 seed；成功登记的文本修复用 JSON 字符串接通正常 target callback，禁用仍不分派。
+
+Rust register_widget_with_id 在已有重复 key/ID 检查后、默认/URL/解码前检测待应用 JSON 语法错误，复用前批 kind/message RegistrationError 输出；同时锁存 input_error 供下一请求在 callback/主函数前渲染。修前直接注册单元在本应抛错处返回 Ok（target/late-widgets-red.log）。Text JSON 拆箱放在 decode_state 的有效默认值分支，只支持已测字符串/null；共用 Text codec 的 data_editor 无该默认，不扩展其旧解码。既有字符截断测试补 shared-codec 边界断言，None/字符和公共返回模型不变。
+
+最终 cargo check --offline --locked -p streamlit --lib --tests 通过（target/late-widgets-check-final.log）。31 项控件单元通过（target/late-widgets-unit-final.log）；此前未加编辑器边界保护的中间 31 项结果另保留 target/late-widgets-unit.log，不代替最终结果。公开 SDK 重放 144 项通过（target/late-widgets-python.log），不是整个 widget-params 模块的全量重跑。真实 WS 模块十一项通过（target/late-widgets-runtime.log），新增一项比较 144 接收会话/576 轮的返回报告、实际 SessionState callback 日志、四项异常字段、首次/后续部分输出和控件/会话 ID，另十二个 witness 会话共 24 设置轮；SDK witness 与原生 witness 设置方式不同，不将它们当逐帧相等证据。
+
+范围仍不包括：已清理但保留旧 metadata 的重新挂载、其他 codec 与 JSON 语义类型错误、首次登记结合重复/未知别名、callback 代码赋值、URL/表单/跨页优先级、任意 Unicode/递归限制、原始错误目标状态读取、完整堆栈/完整 protobuf 和浏览器 UI。既有公共返回值/新依赖/MIME/Unicode/repr/非 Delta 队列取舍未变。矩阵仅补 checkbox/toggle/text_input/text_area 与生成 inventory，仍 130 partial；M3/M5/M7 与完整 Goal 继续开放，不把本批登记切片当通用 SessionState 完成。
+
+最终工作区 373 项通过（366 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿（target/late-widgets-workspace.log）。本批相关 Python/文档共 199 项：144 SDK 重放与 55 文档/配置/矩阵（target/late-widgets-python.log、target/late-widgets-docs.log）。本包 lib/tests Clippy -D warnings 通过，保留既有 MSVC linker_messages 告警（target/late-widgets-clippy.log）；两份 Rust 最终格式检查、逐文件 diff/git diff --check 通过。原参考二十字段逐值未变，九个受保护用户文件 SHA 与本批快照一致。仅暂存本批九个既有文件，不纳入用户 Cargo/colconfig/指南/README 改动；无 PR、合并、部署或发布，完整 Goal 继续开放。纯验证记录追加不重复已通过的代码/SDK 检查。
