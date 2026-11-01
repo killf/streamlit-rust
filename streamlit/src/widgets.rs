@@ -370,6 +370,8 @@ impl Codec {
         let value = match state.value.as_ref() {
             Some(widget_state::Value::JsonValue(text)) if matches!(self, Self::DateInput { .. }) => self.decode_date_json(text),
 
+            Some(widget_state::Value::StringValue(text)) if matches!(self, Self::DateInput { .. }) && !text.is_empty() => empty_input.cloned(),
+
             Some(wire) => self.decode(wire),
 
             // 支持的 ID-only 包按上一轮 serde 的有效默认值反序列化。
@@ -909,14 +911,7 @@ impl SessionState {
             if let Some(record) = registry.records.get_mut(&widget.id)
                 && record.disabled
                 && matches!(record.codec, Codec::DateInput { .. })
-                && let Some(value) = record
-                    .codec
-                    .decode_state(&widget, record.empty_input.as_ref())
-                    .or_else(|| match widget.value.as_ref() {
-                        Some(widget_state::Value::StringValue(text)) if !text.is_empty() => record.empty_input.clone(),
-                        _ => None,
-                    })
-                    .filter(|value| record.codec.valid(value))
+                && let Some(value) = record.codec.decode_state(&widget, record.empty_input.as_ref()).filter(|value| record.codec.valid(value))
             {
                 record.before_input = Some(record.value.clone());
                 record.value = value.clone();
@@ -964,6 +959,11 @@ impl SessionState {
             }
             if changed && let Some(callback) = &record.callback {
                 callbacks.push(callback.clone());
+            }
+
+            // 启用日期也保留原字符串包，callback 后由登记触发重新序列化错误。
+            if matches!(record.codec, Codec::DateInput { .. }) && matches!(widget.value.as_ref(), Some(widget_state::Value::StringValue(text)) if !text.is_empty()) {
+                registry.pending.push(widget);
             }
         }
 
@@ -1021,9 +1021,9 @@ impl SessionState {
             return Ok((String::new(), resolve(&default)?, false));
         }
 
-        // 禁用选择/日期控件的错误包在 URL 初始化前重新序列化；不同 wire 类型
+        // 禁用选择控件的错误包和日期字符串包在 URL 初始化前重新序列化；不同 wire 类型
         // 产生各自的 Python TypeError，此时其他控件 callback 已执行。
-        let scalar_error = if registry.records.get(&id).is_some_and(|record| record.disabled) {
+        let scalar_error = if registry.records.get(&id).is_some_and(|record| record.disabled || matches!(codec, Codec::DateInput { .. })) {
             registry.pending.iter().find(|state| state.id == id).and_then(|state| match (&codec, state.value.as_ref()) {
                 (Codec::Select(_), Some(widget_state::Value::BoolValue(_) | widget_state::Value::IntValue(_) | widget_state::Value::TriggerValue(_))) => Some("'str' object cannot be interpreted as an integer"),
                 (Codec::Select(_), Some(widget_state::Value::DoubleValue(_))) => Some("must be real number, not str"),
@@ -1342,117 +1342,119 @@ mod tests {
     use super::*;
 
     #[test]
-    fn disabled_date_nonempty_strings_run_peer_before_registration_error_and_recover() -> anyhow::Result<()> {
+    fn date_nonempty_strings_run_callbacks_before_registration_error_and_recover() -> anyhow::Result<()> {
         let min = NaiveDate::from_ymd_opt(2025, 1, 1).expect("fixture date");
         let max = NaiveDate::from_ymd_opt(2025, 12, 31).expect("fixture date");
-        for range in [false, true] {
-            for text in ["bad", "2025-04-10", "日期🧊"] {
-                for peer_first in [false, true] {
-                    let state = SessionState::default();
-                    state.begin_widgets(Vec::new());
-                    let native = |start: &str, end: &str| if range { serde_json::json!([start, end]) } else { serde_json::json!(start) };
-                    let default = native("2025-03-15", "2025-03-20");
-                    let register_date = |disabled| {
-                        state.register_widget(
-                            WidgetSpec {
-                                kind: "date_input",
-                                key: Some("day"),
-                                disabled,
-                                query: None,
-                                identity: "stable",
-                                default: default.clone(),
-                                codec: Codec::DateInput {
-                                    range,
-                                    min,
-                                    max,
-                                    reset_native: true,
+        for disabled in [false, true] {
+            for range in [false, true] {
+                for text in ["bad", "2025-04-10", "日期🧊"] {
+                    for peer_first in [false, true] {
+                        let state = SessionState::default();
+                        state.begin_widgets(Vec::new());
+                        let native = |start: &str, end: &str| if range { serde_json::json!([start, end]) } else { serde_json::json!(start) };
+                        let default = native("2025-03-15", "2025-03-20");
+                        let register_date = |disabled| {
+                            state.register_widget(
+                                WidgetSpec {
+                                    kind: "date_input",
+                                    key: Some("day"),
+                                    disabled,
+                                    query: None,
+                                    identity: "stable",
                                     default: default.clone(),
+                                    codec: Codec::DateInput {
+                                        range,
+                                        min,
+                                        max,
+                                        reset_native: true,
+                                        default: default.clone(),
+                                    },
+                                    callback: Some(Arc::new(|_| {})),
                                 },
-                                callback: Some(Arc::new(|_| {})),
+                                |value| Ok(value.clone()),
+                            )
+                        };
+                        let register_peer = || {
+                            state.register_widget(
+                                WidgetSpec {
+                                    kind: "checkbox",
+                                    key: Some("peer"),
+                                    disabled: false,
+                                    query: None,
+                                    identity: "stable",
+                                    default: Value::Bool(false),
+                                    codec: Codec::Bool,
+                                    callback: Some(Arc::new(|_| {})),
+                                },
+                                |value| Ok(value.clone()),
+                            )
+                        };
+                        state.set("day", native("2025-10-01", "2025-10-20"))?;
+                        let date_id = register_date(disabled)?.0;
+                        let peer_id = register_peer()?.0;
+                        state.finish_widgets();
+                        let mut incoming = vec![
+                            WidgetState {
+                                id: date_id.clone(),
+                                value: Some(widget_state::Value::StringValue(text.into())),
                             },
-                            |value| Ok(value.clone()),
-                        )
-                    };
-                    let register_peer = || {
-                        state.register_widget(
-                            WidgetSpec {
-                                kind: "checkbox",
-                                key: Some("peer"),
-                                disabled: false,
-                                query: None,
-                                identity: "stable",
-                                default: Value::Bool(false),
-                                codec: Codec::Bool,
-                                callback: Some(Arc::new(|_| {})),
-                            },
-                            |value| Ok(value.clone()),
-                        )
-                    };
-                    state.set("day", native("2025-10-01", "2025-10-20"))?;
-                    let date_id = register_date(true)?.0;
-                    let peer_id = register_peer()?.0;
-                    state.finish_widgets();
-                    let mut incoming = vec![
-                        WidgetState {
-                            id: date_id.clone(),
-                            value: Some(widget_state::Value::StringValue(text.into())),
-                        },
-                        WidgetState {
-                            id: peer_id.clone(),
-                            value: Some(widget_state::Value::BoolValue(true)),
-                        },
-                    ];
-                    if peer_first {
-                        incoming.reverse();
-                    }
-
-                    // 1. 错误字符串逐字符解析失败，Peer callback 先看到声明默认。
-                    assert_eq!(state.begin_widgets(incoming).len(), 1);
-                    assert!(state.widget_input_error().is_none());
-                    assert_eq!(state.get::<Value>("day")?, Some(default.clone()));
-                    assert!(register_date(true).is_err());
-                    assert_eq!(state.take_registration_error().as_deref(), Some("bad argument type for built-in operation"));
-                    state.finish_widgets();
-
-                    // 2. 登记错误可恢复，临时默认成为保存值，不复活旧 October 值。
-                    assert_eq!(
-                        state
-                            .begin_widgets(vec![WidgetState {
+                            WidgetState {
                                 id: peer_id.clone(),
-                                value: Some(widget_state::Value::BoolValue(false))
-                            }])
-                            .len(),
-                        1
-                    );
-                    let (_, value, sync) = register_date(true)?;
-                    assert_eq!(value, default);
-                    assert!(!sync && state.take_registration_error().is_none());
-                    register_peer()?;
-                    state.finish_widgets();
+                                value: Some(widget_state::Value::BoolValue(true)),
+                            },
+                        ];
+                        if peer_first {
+                            incoming.reverse();
+                        }
 
-                    // 3. 重新启用先沿用禁用回调策略，再恢复正常日期 callback。
-                    for (disabled, start, end, peer, callbacks) in [(true, "2025-08-01", "2025-08-20", true, 1), (false, "2025-11-01", "2025-11-20", false, 2)] {
-                        let dates = if range { vec![start.into(), end.into()] } else { vec![start.into()] };
+                        // 1. 错误字符串逐字符解析失败，Peer callback 先看到声明默认。
+                        assert_eq!(state.begin_widgets(incoming).len(), if disabled { 1 } else { 2 });
+                        assert!(state.widget_input_error().is_none());
+                        assert_eq!(state.get::<Value>("day")?, Some(default.clone()));
+                        assert!(register_date(disabled).is_err());
+                        assert_eq!(state.take_registration_error().as_deref(), Some("bad argument type for built-in operation"));
+                        state.finish_widgets();
+
+                        // 2. 登记错误可恢复，临时默认成为保存值，不复活旧 October 值。
                         assert_eq!(
                             state
-                                .begin_widgets(vec![
-                                    WidgetState {
-                                        id: date_id.clone(),
-                                        value: Some(widget_state::Value::StringArrayValue(crate::proto::StringArray { data: dates }))
-                                    },
-                                    WidgetState {
-                                        id: peer_id.clone(),
-                                        value: Some(widget_state::Value::BoolValue(peer))
-                                    }
-                                ])
+                                .begin_widgets(vec![WidgetState {
+                                    id: peer_id.clone(),
+                                    value: Some(widget_state::Value::BoolValue(false))
+                                }])
                                 .len(),
-                            callbacks
+                            1
                         );
-                        let (_, value, sync) = register_date(false)?;
-                        assert_eq!(value, native(start, end), "previous disabled={disabled}");
-                        assert!(!sync);
+                        let (_, value, sync) = register_date(disabled)?;
+                        assert_eq!(value, default);
+                        assert!(!sync && state.take_registration_error().is_none());
                         register_peer()?;
                         state.finish_widgets();
+
+                        // 3. 再次声明为启用时沿用上轮策略，下一次正常日期输入继续回调。
+                        for (start, end, peer, callbacks) in [("2025-08-01", "2025-08-20", true, if disabled { 1 } else { 2 }), ("2025-11-01", "2025-11-20", false, 2)] {
+                            let dates = if range { vec![start.into(), end.into()] } else { vec![start.into()] };
+                            assert_eq!(
+                                state
+                                    .begin_widgets(vec![
+                                        WidgetState {
+                                            id: date_id.clone(),
+                                            value: Some(widget_state::Value::StringArrayValue(crate::proto::StringArray { data: dates }))
+                                        },
+                                        WidgetState {
+                                            id: peer_id.clone(),
+                                            value: Some(widget_state::Value::BoolValue(peer))
+                                        }
+                                    ])
+                                    .len(),
+                                callbacks
+                            );
+                            let (_, value, sync) = register_date(false)?;
+                            assert_eq!(value, native(start, end), "initial disabled={disabled}");
+                            assert!(!sync);
+                            register_peer()?;
+                            state.finish_widgets();
+                        }
                     }
                 }
             }

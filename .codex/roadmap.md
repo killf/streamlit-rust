@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 启用日期普通字符串登记错误：日期自身和 Peer callback 先读声明默认，再报 TypeError；仅提交 Peer 即可恢复，保存默认不复活旧 October。两种策略共 24 个 SDK/注册组合先红后绿，两端各 12 独立会话、72 轮、606 帧、258 Element；除栈外语义匹配。见[验收](acceptance.md#current-enabled-date-string-registration-error-validation-2026-11-01)。不改公开模型，空串/trigger/None、JSONDecodeError 和其他组合仍开放。
+
 2026-11-01 启用日期输入处理：已知 raw/JSON TypeError 沿用持续错误机制，不再静默整批拒绝；可表示 JSON 更新原生值并按输入顺序执行日期/Peer callback，观察保留新值、不额外同步。两条 Rust 单元先红后绿，SDK 两种策略共 264 例。三组启用补充采集各先真实 enable-idle，两端各 132 独立会话、624 轮、4980 帧、1992 Element；正常元素及除栈外错误语义匹配。见[验收](acceptance.md#current-enabled-date-input-admission-validation-2026-11-01)。普通字符串登记错误、JSONDecodeError 和公开日期模型等仍开放。
 
 2026-11-01 禁用日期正常 JSON：null/字符串/日期数组/有序对象键先供 Peer callback 读取，禁用登记再恢复旧原生值并只同步目标一次。48 个 SDK/注册组合先红后绿，两端各 48 独立会话、240 轮、2112 帧、960 完整 Element 匹配，含对象重复键和重新启用/正常编辑。见[验收](acceptance.md#current-disabled-date-normal-json-validation-2026-11-01)。不新增依赖或公共 API，空/部分范围与启用 JSON 等仍开放。

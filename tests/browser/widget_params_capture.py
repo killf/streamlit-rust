@@ -72,7 +72,7 @@ parser.add_argument('--url', help='caller-owned Rust server URL (comparison capt
 args = parser.parse_args()
 args.date_strings = args.date_strings or args.date_json_normal
 args.date_errors = args.date_errors or args.date_json_errors
-assert not args.date_enabled or args.date_errors or args.date_json_normal
+assert not args.date_enabled or args.date_errors or args.date_strings
 assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy, args.radio_identity, args.select_empty, args.multi_empty, args.multi_limits, args.format_collisions, args.radio_duplicates, args.group_width, args.group_policy, args.group_state, args.group_defaults, args.feedback_identity, args.feedback_empty, args.text_empty, args.number_empty, args.time_empty, args.datetime_empty, args.datetime_bounds, args.date_single, args.date_bounds, args.date_range, args.date_mode, args.date_implicit, args.date_disabled, args.date_errors, args.date_strings)) <= 1
 assert not args.number_float or args.number_sequence
 assert not args.select_unkeyed or args.select_policy

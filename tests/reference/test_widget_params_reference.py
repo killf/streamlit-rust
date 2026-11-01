@@ -6402,12 +6402,12 @@ DATE_JSON_NORMAL = {
 def check_date_strings(capture, *, json_normal=False, enabled=False):
     cases=[{'target':target,'value':text,'peer_first':first} for target in ('Single','Range') for text in (DATE_JSON_NORMAL if json_normal else ('bad','2025-04-10','日期🧊')) for first in (False,True)]
     per_case=6 if enabled else 5
-    assert not enabled or json_normal
     if enabled:assert capture['date_input_policy']=='enabled'
     assert capture['successful'] and 'producer_error' not in capture and capture['reference_version']=='1.66.1'
     assert capture['runtime'] in ('python','rust') and capture['cases']==cases and capture['finishes']==[0]*(len(cases)*per_case)
     assert capture['cleanup']['websocket_closed'] and capture['cleanup']['server_stopped' if capture['runtime']=='python' else 'caller_server_stopped']
-    assert len(capture['frames'])==(len(cases)*(53 if enabled else 44) if json_normal else 498) and len(capture['elements'])==(len(cases)*(24 if enabled else 20) if json_normal else 210)
+    expected_elements=(len(cases)*20 if json_normal else 210)+len(cases)*4*enabled
+    assert len(capture['frames'])==(len(cases)*44 if json_normal else 498)+len(cases)*9*enabled and len(capture['elements'])==expected_elements
     expected=[]
     for case in cases:
         for raw_attempt in range(per_case):
@@ -6453,8 +6453,8 @@ def check_date_strings(capture, *, json_normal=False, enabled=False):
                         dates=(['2025-08-01'] if target=='Single' else ['2025-08-10','2025-08-20']) if attempt==3 else (['2025-11-01'] if target=='Single' else ['2025-11-10','2025-11-20'])
                         assert widget.WhichOneof('value')=='string_array_value' and list(widget.string_array_value.data)==dates
                 values[2]=attempt in (1,3)
-                if attempt==1 and json_normal:
-                    exposed=list(values);decoded=DATE_JSON_NORMAL[case['value']]
+                if attempt==1 and (json_normal or enabled):
+                    exposed=list(values);decoded=DATE_JSON_NORMAL[case['value']] if json_normal else None
                     exposed[target_index]=(decoded[0] if target=='Single' else decoded) if decoded is not None else ('2025-03-15' if target=='Single' else ['2025-03-15','2025-03-20'])
                     if enabled:
                         values=exposed
@@ -6495,7 +6495,7 @@ def check_date_strings(capture, *, json_normal=False, enabled=False):
                 else:view[kind].pop('id')
                 fields.append(view)
             normalized.append(fields)
-    assert len(sessions)==len(cases) and len(run_ids)==len(cases)*per_case and offset==(len(cases)*(24 if enabled else 20) if json_normal else 210)
+    assert len(sessions)==len(cases) and len(run_ids)==len(cases)*per_case and offset==expected_elements
     return normalized
 
 
@@ -6512,9 +6512,9 @@ def test_disabled_date_string_semantics_match_with_runtime_stacks_preserved():
 
 
 @pytest.mark.parametrize('mutation',('message','recovery-error','callback-default','path','stale-id','oneof','session-leak','seed-sync'))
-@pytest.mark.parametrize('json_normal,enabled',((False,False),(True,False),(True,True)),ids=('string-error','json-normal','json-enabled'))
+@pytest.mark.parametrize('json_normal,enabled',((False,False),(True,False),(True,True),(False,True)),ids=('string-error','json-normal','json-enabled','string-enabled'))
 def test_disabled_date_string_gate_rejects_coherent_wrong_wire(mutation,json_normal,enabled):
-    capture=read(PYTHON/('date-enabled-json-normal/trace.json' if enabled else 'date-json-normal/trace.json' if json_normal else 'date-strings/trace.json'))
+    capture=read(PYTHON/(('date-enabled-json-normal/trace.json' if json_normal else 'date-enabled-strings/trace.json') if enabled else 'date-json-normal/trace.json' if json_normal else 'date-strings/trace.json'))
     target=(0 if mutation=='seed-sync' else 6 if mutation=='session-leak' else 3 if mutation in ('recovery-error','callback-default') else 38 if mutation=='path' else 2) if enabled else (0 if mutation=='seed-sync' else 5 if mutation=='session-leak' else 2 if mutation in ('recovery-error','callback-default') else 31 if mutation=='path' else 1)
     first_session=color_runs(capture,('date_input','checkbox','json','exception'))[0]['sessions'][0].initialize.session_id
     run,changed=-1,0
@@ -6594,3 +6594,15 @@ def test_enabled_date_normal_json_complete_elements_match():
     assert captures[0]['producer_sources_sha256']==captures[1]['producer_sources_sha256']
     assert captures[1]['semantic_match'] is True
     assert check_date_strings(captures[0],json_normal=True,enabled=True)==check_date_strings(captures[1],json_normal=True,enabled=True)
+
+
+@pytest.mark.parametrize('root',(PYTHON,RUST),ids=('python','rust'))
+def test_enabled_date_string_callbacks_registration_error_and_recovery(root):
+    check_date_strings(read(root/'date-enabled-strings/trace.json'),enabled=True)
+
+
+def test_enabled_date_string_error_semantics_match_with_runtime_stacks_preserved():
+    captures=[read(root/'date-enabled-strings/trace.json') for root in (PYTHON,RUST)]
+    assert captures[0]['producer_sources_sha256']==captures[1]['producer_sources_sha256']
+    assert captures[1]['error_semantics_match'] is True and captures[1]['semantic_match'] is False
+    assert check_date_strings(captures[0],enabled=True)==check_date_strings(captures[1],enabled=True)
