@@ -1234,10 +1234,10 @@ impl SessionState {
                 continue;
             }
 
-            // 禁用日期/布尔先暴露解码值；登记恢复旧值，不分派自身 callback。
+            // 禁用日期/布尔/文本先暴露解码值；登记恢复旧值，不分派自身 callback。
             if let Some(record) = registry.records.get_mut(&widget.id)
                 && record.disabled
-                && matches!(record.codec, Codec::DateInput { .. } | Codec::Bool)
+                && (matches!(record.codec, Codec::DateInput { .. } | Codec::Bool) || (matches!(record.codec, Codec::Text { .. }) && record.empty_input.is_some()))
                 && let Some(value) = record.codec.decode_state(&widget, record.empty_input.as_ref()).filter(|value| record.codec.valid(value))
             {
                 record.before_input = Some(record.value.clone());
@@ -1245,7 +1245,7 @@ impl SessionState {
                 if let Some(key) = &record.key {
                     values.insert(key.clone(), value);
                 }
-                if matches!(record.codec, Codec::Bool) || !matches!(widget.value.as_ref(), Some(widget_state::Value::StringValue(_))) {
+                if matches!(record.codec, Codec::Bool | Codec::Text { .. }) || !matches!(widget.value.as_ref(), Some(widget_state::Value::StringValue(_))) {
                     continue;
                 }
             }
@@ -1698,6 +1698,64 @@ impl SessionState {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn disabled_text_exposes_input_to_peer_then_restores_native_value() -> anyhow::Result<()> {
+        for kind in ["text_input", "text_area"] {
+            for max_chars in [None, Some(5)] {
+                for default in [Value::Null, Value::from("seed")] {
+                    for json in [false, true] {
+                        let state = SessionState::default();
+                        let target = || WidgetSpec {
+                            kind,
+                            key: Some("target"),
+                            disabled: true,
+                            query: None,
+                            identity: "stable",
+                            default: default.clone(),
+                            codec: Codec::Text { max_chars },
+                            callback: Some(Arc::new(|_| {})),
+                        };
+                        let target_id = state.register_widget(target(), |value| Ok(value.clone()))?.0;
+                        let peer = || WidgetSpec {
+                            kind: "checkbox",
+                            key: Some("peer"),
+                            disabled: false,
+                            query: None,
+                            identity: "stable",
+                            default: Value::Bool(false),
+                            codec: Codec::Bool,
+                            callback: Some(Arc::new(|_| {})),
+                        };
+                        let peer_id = state.register_widget(peer(), |value| Ok(value.clone()))?.0;
+                        state.finish_widgets();
+
+                        // 1. 只有 Peer callback 分派，读取已截断的临时文本。
+                        let text = "forged🧊tail";
+                        let submitted = if json { widget_state::Value::JsonValue(serde_json::to_string(text)?) } else { widget_state::Value::StringValue(text.into()) };
+                        let callbacks = state.begin_widgets(vec![
+                            WidgetState { id: target_id, value: Some(submitted) },
+                            WidgetState {
+                                id: peer_id,
+                                value: Some(widget_state::Value::BoolValue(true)),
+                            },
+                        ]);
+                        assert_eq!(callbacks.len(), 1);
+                        assert_eq!(state.get::<Value>("target")?, Some(Value::from(if max_chars.is_some() { "forge" } else { text })));
+
+                        // 2. 登记恢复前一轮 native 值，保留旧 None，不把临时文本当代码赋值。
+                        let (_, restored, sync) = state.register_widget(target(), |value| Ok(value.clone()))?;
+                        assert_eq!(restored, default);
+                        assert_eq!(state.get::<Value>("target")?, Some(default.clone()));
+                        assert!(sync);
+                        state.register_widget(peer(), |value| Ok(value.clone()))?;
+                        state.finish_widgets();
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
     #[test]
     fn first_registration_json_error_preserves_prior_callbacks_then_latches() -> anyhow::Result<()> {
         for disabled in [false, true] {

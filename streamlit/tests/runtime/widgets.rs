@@ -94,10 +94,10 @@ async fn rerun(stream: &mut TcpStream, widgets: Vec<WidgetState>) -> TestResult<
                         let key = if matches!(value.label.as_str(), "cb0" | "cb1" | "tg0" | "tg1" | "target") { value.label } else { "include".into() };
                         run.inputs.insert(key, value.id);
                     }
-                    Some(element::Type::TextInput(value)) if matches!(value.label.as_str(), "peer" | "target") => {
+                    Some(element::Type::TextInput(value)) if matches!(value.label.as_str(), "peer" | "target" | "ti0" | "ti1" | "ti2" | "ti3") => {
                         run.inputs.insert(value.label, value.id);
                     }
-                    Some(element::Type::TextArea(value)) if value.label == "target" => {
+                    Some(element::Type::TextArea(value)) if matches!(value.label.as_str(), "target" | "ta0" | "ta1" | "ta2" | "ta3") => {
                         run.inputs.insert(value.label, value.id);
                     }
                     Some(element::Type::Button(value)) => {
@@ -241,6 +241,127 @@ async fn temporal_lexical_values_and_callbacks_match_sdk_over_real_ws() -> TestR
         assert_eq!(changed.values["calls"], calls, "{}", case["name"]);
         for peer in ["date", "datetime", "minute", "second"].into_iter().filter(|peer| *peer != kind) {
             assert_eq!(changed.values[peer], initial.values[peer], "{}: peer {peer}", case["name"]);
+        }
+    }
+    Ok(())
+}
+
+fn disabled_text_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = async {
+            // 1. Peer 决定本轮声明；callback 读取本批全部原生值。
+            let phase = st.session_state().get::<String>("peer")?.unwrap_or_else(|| "base".into());
+            let disabled = !matches!(phase.as_str(), "enable" | "edit" | "recover" | "observe");
+            let flipped = !matches!(phase.as_str(), "base" | "submit" | "recover" | "observe");
+            let changed = |source: &'static str| {
+                move |st: &Streamlit| {
+                    let state = st.session_state();
+                    let mut calls = state.get::<Vec<Value>>("disabled_text_calls").expect("callback log").unwrap_or_default();
+                    let mut snapshot = vec![Value::from(source)];
+                    for key in ["ti0", "ti1", "ti2", "ti3", "ta0", "ta1", "ta2", "ta3", "peer"] {
+                        snapshot.push(state.get::<Value>(key).expect("callback value").expect("registered peer"));
+                    }
+                    calls.push(Value::Array(snapshot));
+                    state.set("disabled_text_calls", calls).expect("save callbacks");
+                }
+            };
+
+            // 2. 八个文本控件覆盖空值默认和字符上限，最后输出完整 callback 历史。
+            let mut values = Vec::new();
+            for key in ["ti0", "ti1", "ti2", "ti3", "ta0", "ta1", "ta2", "ta3"] {
+                let default = if key.ends_with(['0', '2']) { None } else { Some("base🧊tail") };
+                let default = if flipped { if default.is_none() { Some("changed🧊tail") } else { None } } else { default };
+                let limited = key.ends_with(['2', '3']);
+                let value = if key.starts_with("ti") {
+                    let options = crate::TextInputOptions::new(key).key(key).disabled(disabled).on_change(changed(key));
+                    let options = if let Some(default) = default { options.value(default) } else { options.value_none() };
+                    st.text_input(if limited { options.max_chars(5) } else { options })?
+                } else {
+                    let options = crate::TextAreaOptions::new(key, default.unwrap_or("")).key(key).disabled(disabled).on_change(changed(key));
+                    let options = if default.is_none() { options.value_none() } else { options };
+                    st.text_area(if limited { options.max_chars(5) } else { options })?
+                };
+                values.push(serde_json::to_value(value)?);
+            }
+            values.push(serde_json::to_value(st.text_input(crate::TextInputOptions::new("peer").value("base").key("peer").on_change(changed("peer")))?)?);
+            st.write(format!("values={}", json!({"values":values,"calls":st.session_state().get::<Vec<Value>>("disabled_text_calls")?.unwrap_or_default()})));
+            Ok(())
+        }
+        .await;
+        assert!(result.is_ok(), "disabled text fixture failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn disabled_text_callbacks_defaults_and_lifecycle_match_sdk_over_ws() -> TestResult {
+    let reference: Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/widget-params/trace.json"))?;
+    let reference = &reference["disabled_text_lifecycle_reference"];
+    let cases = reference["cases"].as_array().ok_or("disabled text cases")?;
+    let phases = reference["phases"].as_array().ok_or("phases")?;
+    assert_eq!(cases.len(), 128);
+    assert_eq!(phases.len(), 8);
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(disabled_text_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+
+    // 1. 九轮真实请求覆盖默认变化、禁用切换与两种同批顺序。
+    let captured = tokio::time::timeout(Duration::from_secs(60), async {
+        let mut runs = Vec::new();
+        for case in cases {
+            let mut socket = sessions::connect(address, None).await;
+            let initial = rerun(&mut socket, vec![]).await?;
+            let key = case["key"].as_str().ok_or("target key")?;
+            let mut reports = Vec::new();
+            for phase in phases {
+                let phase = phase.as_str().ok_or("phase")?;
+                let peer = WidgetState {
+                    id: initial.inputs["peer"].clone(),
+                    value: Some(widget_state::Value::StringValue(phase.into())),
+                };
+                let incoming = if matches!(phase, "changed" | "enable" | "observe") {
+                    vec![peer]
+                } else {
+                    let mut target = WidgetState { id: initial.inputs[key].clone(), value: None };
+                    if matches!(phase, "submit" | "disabled-again") {
+                        let bytes = serde_json::from_value::<Vec<u8>>(case["input_bytes"].clone())?;
+                        target = WidgetState::decode(bytes.as_slice())?;
+                        target.id = initial.inputs[key].clone();
+                    } else if phase == "edit" {
+                        target.value = Some(widget_state::Value::JsonValue(serde_json::to_string("edit🧊tail")?));
+                    } else if phase == "recover" {
+                        target.value = Some(widget_state::Value::StringValue("recover🧊tail".into()));
+                    }
+                    if case["peer_first"] == true { vec![peer, target] } else { vec![target, peer] }
+                };
+                reports.push(rerun(&mut socket, incoming).await?);
+            }
+            sessions::disconnect(socket).await;
+            runs.push((initial, reports));
+        }
+        Ok::<_, Box<dyn std::error::Error>>(runs)
+    })
+    .await;
+    handle.stop(false).await;
+    task.await??;
+    let runs = captured??;
+
+    // 2. 从增量参考还原完整 callback 历史，逐轮比较全部九个值和稳定身份。
+    for ((initial, reports), case) in runs.into_iter().zip(cases) {
+        assert_eq!(initial.inputs.len(), 9);
+        assert_eq!(initial.values, reference["initial"]);
+        let expected = case["expected"].as_array().ok_or("expected phases")?;
+        assert_eq!(reports.len(), expected.len());
+        let mut calls = Vec::new();
+        for (index, (report, expected)) in reports.into_iter().zip(expected).enumerate() {
+            calls.extend(expected["new_calls"].as_array().ok_or("new callbacks")?.iter().cloned());
+            assert_eq!(report.id, initial.id);
+            assert_eq!(report.inputs, initial.inputs);
+            assert_eq!(report.values, json!({"values":expected["values"],"calls":calls}), "{} phase {index}", case["name"]);
         }
     }
     Ok(())

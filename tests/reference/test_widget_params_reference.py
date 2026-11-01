@@ -21,6 +21,46 @@ BOOL_JSON_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf
 JSON_ERRORS_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['json_input_errors_reference']
 WIDGET_DUPLICATES_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['widget_duplicates_reference']
 LATE_WIDGET_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['late_widget_registration_reference']
+DISABLED_TEXT_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['disabled_text_lifecycle_reference']
+
+
+@pytest.mark.parametrize('case', DISABLED_TEXT_REFERENCE['cases'], ids=lambda case: case['name'])
+def test_sdk_disabled_text_transient_callbacks_defaults_and_lifecycle(case):
+    import importlib.metadata
+    from streamlit.proto.WidgetStates_pb2 import WidgetState, WidgetStates
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version('streamlit') == DISABLED_TEXT_REFERENCE['reference_version'] == '1.66.1'
+    assert len(DISABLED_TEXT_REFERENCE['cases']) == 128
+    phases = DISABLED_TEXT_REFERENCE['phases']
+    assert phases == ['submit', 'changed', 'missing', 'enable', 'edit', 'disabled-again', 'recover', 'observe']
+    app = AppTest.from_string(DISABLED_TEXT_REFERENCE['source']).run()
+    assert not app.exception and json.loads(app.json[0].value) == DISABLED_TEXT_REFERENCE['initial']
+    identities = {item.label: item.id for kind in ('text_input', 'text_area') for item in app.get(kind)}
+    assert len(identities) == 9
+    calls = []
+    for phase, expected in zip(phases, case['expected'], strict=True):
+        peer = WidgetState(id=identities['peer'], string_value=phase)
+        if phase in ('changed', 'enable', 'observe'):
+            widgets = [peer]
+        else:
+            target = WidgetState(id=identities[case['key']])
+            if phase in ('submit', 'disabled-again'):
+                target.ParseFromString(bytes(case['input_bytes']))
+                assert not target.id
+                target.id = identities[case['key']]
+            elif phase == 'edit':
+                target.json_value = json.dumps('edit🧊tail')
+            elif phase == 'recover':
+                target.string_value = 'recover🧊tail'
+            widgets = [peer, target] if case['peer_first'] else [target, peer]
+        raw = WidgetStates()
+        for widget in widgets:
+            raw.widgets.add().CopyFrom(widget)
+        app._run(raw)
+        calls.extend(expected['new_calls'])
+        assert not app.exception and json.loads(app.json[0].value) == {'values': expected['values'], 'calls': calls}
+        assert {item.label: item.id for kind in ('text_input', 'text_area') for item in app.get(kind)} == identities
 
 
 @pytest.mark.parametrize('case', LATE_WIDGET_REFERENCE['cases'], ids=lambda case: case['name'])

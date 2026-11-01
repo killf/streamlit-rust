@@ -3301,3 +3301,22 @@ Rust register_widget_with_id 在已有重复 key/ID 检查后、默认/URL/解�
 范围仍不包括：已清理但保留旧 metadata 的重新挂载、其他 codec 与 JSON 语义类型错误、首次登记结合重复/未知别名、callback 代码赋值、URL/表单/跨页优先级、任意 Unicode/递归限制、原始错误目标状态读取、完整堆栈/完整 protobuf 和浏览器 UI。既有公共返回值/新依赖/MIME/Unicode/repr/非 Delta 队列取舍未变。矩阵仅补 checkbox/toggle/text_input/text_area 与生成 inventory，仍 130 partial；M3/M5/M7 与完整 Goal 继续开放，不把本批登记切片当通用 SessionState 完成。
 
 最终工作区 373 项通过（366 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿（target/late-widgets-workspace.log）。本批相关 Python/文档共 199 项：144 SDK 重放与 55 文档/配置/矩阵（target/late-widgets-python.log、target/late-widgets-docs.log）。本包 lib/tests Clippy -D warnings 通过，保留既有 MSVC linker_messages 告警（target/late-widgets-clippy.log）；两份 Rust 最终格式检查、逐文件 diff/git diff --check 通过。原参考二十字段逐值未变，九个受保护用户文件 SHA 与本批快照一致。仅暂存本批九个既有文件，不纳入用户 Cargo/colconfig/指南/README 改动；无 PR、合并、部署或发布，完整 Goal 继续开放。纯验证记录追加不重复已通过的代码/SDK 检查。
+
+
+## Current disabled text lifecycle validation 2026-11-01
+
+继续完整兼容目标及错误方案 1；本批处理有类型依据的正常文本/null/缺省输入，不用忽略禁用提交来替代 callback 观察和状态恢复。既有 widget-params/trace.json 新增 disabled_text_lifecycle_reference，SDK 为锁定 Streamlit 1.66.1 / Python 3.14.7，公开 AppTest 接收原始 WidgetStates，不声称 SDK socket/浏览器验证。
+
+八个目标覆盖 text_input/text_area × None/非空默认 × 无/five-codepoint 字符上限，每案只提交一个目标及正常 Peer；八类包包括空文本、非空/换行/结合字符及 emoji 文本、空/非空 JSON 字符串、JSON null、ID-only，两种输入顺序共 128 案。九轮依次初始禁用、提交、默认声明翻转、缺省、启用、JSON 编辑、再次禁用、正常恢复和观察，共 128 接收会话/1152 轮。所有输入合法，源码默认与值均冻结，未混入未决定的其他 JSON 数值/公共返回模型。
+
+SDK 的禁用输入先参与反序列化：Peer callback 可读临时新文本及经上限截断的值，目标登记后恢复原 native 值（包括 None），自身 callback 在上一轮禁用时不分派。默认 None 与非空声明在中途互换，ID 保持；ID-only 和 JSON null 遵循上一轮有效默认，显式空字符串保持空串。分派依据旧 metadata：编辑及再次禁用两轮均触发目标和 Peer（按批次顺序），恢复一轮的旧 metadata 仍禁用，所以只有 Peer callback，但本轮启用的目标接受新值。每案八轮各一次 Peer、另两次目标 callback，共 1280 次有序事件，全部同时观察九个值；观察轮不重放目标 callback。
+
+参考每阶段保存 values 和 new_calls，用增量还原完整日志，避免重复累积拷贝或可变 SDK 列表被后续轮次回写。SDK 重放和原生 WS 每轮都重建完整 calls 后精确比较整个报告，不只比较新增片段。所有九个控件 ID、同一 session ID 和其他未提交控件的返回值一并验证；Unicode 仅为已测换行、结合字符、合法 emoji/JSON 转义的标量截断，不涉及任意 Unicode 分类/repr 或代理错误。
+
+修前 Rust 单元明确失败：目标值仍为 Null，SDK Peer callback 应读 forged🧊tail（target/disabled-text-red.log）。生产只将 begin_widgets 既有临时输入分支扩展到 Text 且 empty_input 存在的记录，继续抑制旧禁用目标自身 callback，登记复用 before_input 恢复；Text 输入控件即使默认 None 也有 Some(Null) 元数据，共用 data_editor Text codec 无该元数据，因此保持旧行为。没有新公共 API、依赖、文件或返回模型；错误/队列路径未重定义。
+
+cargo check --offline --locked -p streamlit --lib --tests 通过（target/disabled-text-check.log），32 项控件单元通过（target/disabled-text-unit.log），新单元内部覆盖两种文本、两种默认、两种字符限制、两种 wire 的十六个组合。真实 WS 模块十二项通过（target/disabled-text-runtime.log），新增一项完整执行这 128 案/1152 轮；旧晚登记/重复 ID/JSON 错误/布尔/禁用生命周期同批复验。SDK 新增 128 项重放通过（target/disabled-text-python.log），不称 widget-params 整模块全量重跑。
+
+仍开放：生命周期结合非法 JSON/语义错误类型、callback 代码赋值、动态字符限制、validation/live、查询绑定、表单/跨页、任意资源/Unicode边界、完整 Element 字段/异常堆栈、DOM/交互体验。矩阵仅补 text_input/text_area 和生成 inventory，仍 130 partial；M3/M5/M7 及完整 Goal 保持开放。用户 colconfig_params/Cargo/指南/README 修改保留，后续工作区和文档检查另记，不借本切片关闭其他能力。
+
+最终工作区 375 项通过（368 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿（target/disabled-text-workspace.log）。相关 SDK/文档共 183 项通过：128 SDK、55 文档/配置/矩阵（target/disabled-text-python.log、target/disabled-text-docs.log）。本包 lib/tests Clippy -D warnings 通过，保留既有 MSVC linker_messages 告警（target/disabled-text-clippy.log）。两份 Rust 最终格式检查与逐文件 diff/git diff --check 通过；人工复查后只补阶段空行，不因无行为变化重复 Cargo。原参考二十一字段逐值未变，九个受保护用户文件 SHA 与启动快照一致；只暂存本批九个既有文件，无 PR、合并、发布或部署，完整 Goal 继续开放。

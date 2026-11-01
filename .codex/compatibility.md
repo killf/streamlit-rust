@@ -4,6 +4,8 @@ Streamlit runtime compatibility is pinned to 1.66.1. The historical API matrix c
 
 ## Long-term documentation scope
 
+2026-11-01 禁用 text_input/text_area：同批 Peer callback 读取经解码/截断的临时输入，控件登记恢复旧值及 None；启用切换的 callback 分派仍使用上一轮 metadata。128 案/1152 轮 SDK/原生 WS 覆盖默认变化、缺省、编辑、再次禁用与恢复，九个值/完整 callback 历史和身份匹配。见[验收](acceptance.md#current-disabled-text-lifecycle-validation-2026-11-01)；无公共模型或编辑器行为扩展，任意异常/查询/表单/UI 仍未完成。
+
 2026-11-01 首次登记：未知但将于本轮创建的控件收到坏 JSON 时，先保留已有 Peer callback 和 Peer 元素，再渲染登记 JSONDecodeError；原会话后续空/合法修复包继续原错。十二种 Bool/文本默认与禁用模式、六类输入、两种顺序共 144 案/576 接收轮 SDK/原生 WS 对照；Text JSON 字符串和 null 默认回退接通，编辑器共用 codec 路径保留。见[验收](acceptance.md#current-first-widget-registration-validation-2026-11-01)，不构成任意重挂载/serde/错误恢复/UI 完成。
 
 2026-11-01 重复输入 ID：最后完整 WidgetState 在首次 ID 位置生效，覆盖 ID-only/坏 JSON 后再判断 callback 和错误。SDK/原生 WS 各 212 案/848 轮保留返回值、有序日志、原会话异常与部分输出；未知普通 ID 在文本登记报 KeyError，不能清空已执行 callback。两个最终 JSON 错误的后续 compaction 遍历允许独立进程已观察到的任一错误，仅首轮顺序确定。见[验收](acceptance.md#current-repeated-widget-id-validation-2026-11-01)，没有完整 codec/别名/队列/UI 兼容结论。
