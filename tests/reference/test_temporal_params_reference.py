@@ -13,6 +13,59 @@ PYTHON = Path(__file__).parent / "reference-browser/temporal-params"
 RUST = Path(__file__).parents[1] / "browser/rust-temporal-params"
 
 
+LEXICAL_CASES = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['lexical_reference']['cases']
+
+
+@pytest.mark.parametrize('case', LEXICAL_CASES, ids=lambda case: case['name'])
+def test_sdk_temporal_lexical_boundaries_replay_serde_and_public_callbacks(case):
+    import importlib.metadata
+    from datetime import date, datetime, time
+    from streamlit.elements.widgets.time_widgets import (
+        DateInputSerde, DateTimeInputSerde, TimeInputSerde, _DateInputValues,
+    )
+    from streamlit.proto.WidgetStates_pb2 import WidgetStates
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version('streamlit') == '1.66.1' and len(LEXICAL_CASES) == 75
+    kind = case['kind']
+    if kind == 'date':
+        serde = DateInputSerde(_DateInputValues.from_raw_values(
+            value=date(2025, 3, 15), min_value=date(2024, 1, 1), max_value=date(2026, 12, 31)))
+        declaration = 'date_input("Value",value=date(2025,3,15),min_value=date(2024,1,1),max_value=date(2026,12,31)'
+        default = '2025-03-15'
+    elif kind == 'datetime':
+        serde = DateTimeInputSerde(datetime(2025, 3, 15, 12, 30), datetime(2024, 1, 1), datetime(2026, 12, 31, 23, 59))
+        declaration = 'datetime_input("Value",value=datetime(2025,3,15,12,30),min_value=datetime(2024,1,1),max_value=datetime(2026,12,31,23,59)'
+        default = '2025-03-15T12:30'
+    else:
+        serde = TimeInputSerde(time(12, 30) if kind == 'minute' else time(12, 30, 45), step=900 if kind == 'minute' else 1)
+        declaration = 'time_input("Value",value=' + ('time(12,30),step=900' if kind == 'minute' else 'time(12,30,45),step=1')
+        default = '12:30' if kind == 'minute' else '12:30:45'
+    raw = [case['input']] if kind in ('date', 'datetime') else case['input']
+    assert serde.serialize(serde.deserialize(raw)) == case['expected']
+    fmt = {'date': '%Y-%m-%d', 'datetime': '%Y-%m-%dT%H:%M', 'minute': '%H:%M', 'second': '%H:%M:%S'}[kind]
+    source = ('import streamlit as st\nfrom datetime import date,datetime,time\n'
+              + 'wire=lambda value:value.strftime(' + repr(fmt) + ')\n'
+              + 'if "calls" not in st.session_state:st.session_state.calls=[]\n'
+              + 'def changed():st.session_state.calls.append(wire(st.session_state.value))\n'
+              + 'value=st.' + declaration + ',key="value",on_change=changed)\n'
+              + 'st.json({"value":wire(value),"calls":st.session_state.calls})')
+    app = AppTest.from_string(source).run()
+    assert not app.exception
+    widget_kind = {'date': 'date_input', 'datetime': 'datetime_input', 'minute': 'time_input', 'second': 'time_input'}[kind]
+    identity = app.get(widget_kind)[0].id
+    incoming = WidgetStates()
+    widget = incoming.widgets.add(id=identity)
+    if isinstance(raw, list):
+        widget.string_array_value.data[:] = raw
+    else:
+        widget.string_value = raw
+    app._run(incoming)
+    assert not app.exception and app.get(widget_kind)[0].id == identity
+    expected = case['expected'][0] if isinstance(case['expected'], list) else case['expected']
+    assert json.loads(app.json[0].value) == {'value': expected, 'calls': [] if expected == default else [expected]}
+
+
 @pytest.mark.parametrize('target',('Single','Range'))
 @pytest.mark.parametrize('text',('bad','2025-04-10','日期🧊'))
 @pytest.mark.parametrize('peer_first',(False,True))

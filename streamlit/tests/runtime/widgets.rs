@@ -92,6 +92,15 @@ async fn rerun(stream: &mut TcpStream, widgets: Vec<WidgetState>) -> TestResult<
                     Some(element::Type::Button(value)) => {
                         run.inputs.insert("pulse".into(), value.id);
                     }
+                    Some(element::Type::DateInput(value)) => {
+                        run.inputs.insert(value.label, value.id);
+                    }
+                    Some(element::Type::TimeInput(value)) => {
+                        run.inputs.insert(value.label, value.id);
+                    }
+                    Some(element::Type::DateTimeInput(value)) => {
+                        run.inputs.insert(value.label, value.id);
+                    }
                     Some(element::Type::Markdown(value)) => {
                         if let Some(json) = value.body.strip_prefix("values=") {
                             run.values = serde_json::from_str(json)?;
@@ -115,6 +124,110 @@ async fn rerun(stream: &mut TcpStream, widgets: Vec<WidgetState>) -> TestResult<
     assert!(!run.id.is_empty());
     assert!(!run.values.is_null());
     Ok(run)
+}
+
+fn temporal_lexical_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = async {
+            let day = chrono::NaiveDate::from_ymd_opt(2025, 3, 15).ok_or("reference date")?;
+            let min = chrono::NaiveDate::from_ymd_opt(2024, 1, 1).ok_or("minimum")?;
+            let max = chrono::NaiveDate::from_ymd_opt(2026, 12, 31).ok_or("maximum")?;
+            let minute = chrono::NaiveTime::from_hms_opt(12, 30, 0).ok_or("minute default")?;
+            let second = chrono::NaiveTime::from_hms_opt(12, 30, 45).ok_or("second default")?;
+            let changed = |kind: &'static str| {
+                move |st: &Streamlit| {
+                    let state = st.session_state();
+                    let mut calls = state.get::<Vec<Value>>("lexical_calls").expect("callback log").unwrap_or_default();
+                    calls.push(json!([kind, state.get::<Value>(kind).expect("callback input")]));
+                    state.set("lexical_calls", calls).expect("save callback log");
+                }
+            };
+
+            let date = st.date_input(crate::DateInputOptions::new("date").value(day).min(min).max(max).key("date").on_change(changed("date")))?;
+            let crate::DateSelection::Single(date) = date else { return Err("single date expected".into()) };
+            let datetime = st.datetime_input(
+                crate::DateTimeInputOptions::new("datetime")
+                    .value(day.and_time(minute))
+                    .min(min.and_time(chrono::NaiveTime::MIN))
+                    .max(max.and_hms_opt(23, 59, 0).ok_or("final minute")?)
+                    .key("datetime")
+                    .on_change(changed("datetime")),
+            )?;
+            let minute = st.time_input(crate::TimeInputOptions::new("minute").value(minute).step(900).key("minute").on_change(changed("minute")))?;
+            let second = st.time_input(crate::TimeInputOptions::new("second").value(second).step(1).key("second").on_change(changed("second")))?;
+            st.write(format!(
+                "values={}",
+                json!({
+                    "date":date.to_string(), "datetime":datetime.map(|value|value.format("%Y-%m-%dT%H:%M").to_string()),
+                    "minute":minute.map(|value|value.format("%H:%M").to_string()), "second":second.map(|value|value.format("%H:%M:%S").to_string()),
+                    "calls":st.session_state().get::<Vec<Value>>("lexical_calls")?.unwrap_or_default(),
+                })
+            ));
+            Ok(())
+        }
+        .await;
+        assert!(result.is_ok(), "lexical fixture failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn temporal_lexical_values_and_callbacks_match_sdk_over_real_ws() -> TestResult {
+    let reference: Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/temporal-params/trace.json"))?;
+    let cases = reference["lexical_reference"]["cases"].as_array().ok_or("lexical cases")?;
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(temporal_lexical_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let captured = tokio::time::timeout(Duration::from_secs(45), async {
+        let mut runs = Vec::new();
+        for case in cases {
+            let mut socket = sessions::connect(address, None).await;
+            let initial = rerun(&mut socket, vec![]).await?;
+            let kind = case["kind"].as_str().ok_or("kind")?;
+            let input = case["input"].as_str().ok_or("input")?;
+            let wire = if matches!(kind, "date" | "datetime") {
+                widget_state::Value::StringArrayValue(proto::StringArray { data: vec![input.into()] })
+            } else {
+                widget_state::Value::StringValue(input.into())
+            };
+            let changed = rerun(
+                &mut socket,
+                vec![WidgetState {
+                    id: initial.inputs[kind].clone(),
+                    value: Some(wire),
+                }],
+            )
+            .await?;
+            sessions::disconnect(socket).await;
+            runs.push((initial, changed));
+        }
+        Ok::<_, Box<dyn std::error::Error>>(runs)
+    })
+    .await;
+    handle.stop(false).await;
+    task.await??;
+    let runs = captured??;
+    assert_eq!(cases.len(), 75);
+    assert_eq!(runs.len(), cases.len());
+
+    for ((initial, changed), case) in runs.into_iter().zip(cases) {
+        let kind = case["kind"].as_str().ok_or("kind")?;
+        let expected = if matches!(kind, "date" | "datetime") { &case["expected"][0] } else { &case["expected"] };
+        assert_eq!(initial.inputs.len(), 4);
+        assert_eq!(changed.inputs, initial.inputs);
+        assert_eq!(changed.id, initial.id);
+        assert_eq!(&changed.values[kind], expected, "{}", case["name"]);
+        let calls = if initial.values[kind] == *expected { json!([]) } else { json!([[kind, expected]]) };
+        assert_eq!(changed.values["calls"], calls, "{}", case["name"]);
+        for peer in ["date", "datetime", "minute", "second"].into_iter().filter(|peer| *peer != kind) {
+            assert_eq!(changed.values[peer], initial.values[peer], "{}: peer {peer}", case["name"]);
+        }
+    }
+    Ok(())
 }
 
 fn states(run: &Run, pulse: bool) -> Vec<WidgetState> {

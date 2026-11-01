@@ -3158,3 +3158,22 @@ Rust 用法仍为 `st.video(VideoOptions::from_url("https://youtu.be/Ab_cD-12345
 首轮识别单元另发现实现误把 www.youtu.be 当成支持短链，而 SDK 将其保留为 Native；原失败 target/youtube-url-unit.log 保留，未改参考数据。改为只对 youtube 主机处理 www/m 前缀，确切短链单独识别；重新按代码检查→单元→运行集成顺序验证，3 项字幕/URL 单元和 14 项媒体集成通过（target/youtube-url-unit-fixed.log、target/youtube-url-runtime.log）。42 个真实原生 WS 元素逐个对齐完整播放器或异常类型/全文/标志，服务已停止并等待退出。其余媒体契约/文档/配置/矩阵 80 项通过，合并 media-more 共 190 项 Python 检查（target/youtube-url-docs-media.log、target/youtube-url-python.log）。
 
 最终工作区 357 项通过（350 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿；日志 target/youtube-url-workspace.log。只更新 st.video 矩阵及生成清单，仍 130 partial；旧参考十二字段和九个受保护用户文件均不变。仅暂存本批十个既有代码/测试/参考/计划/矩阵文件，不包含用户 Cargo、colconfig、指南/README 修改；无 PR、合并、发布或部署，完整目标保持开放。
+
+
+## Current temporal lexical input validation (2026-11-01)
+
+完整目标继续推进。前端数字日期/时间文本的解析与 SDK strptime 字段规则不一致：原 Rust 直接使用 Chrono，真实红回归在 minute-3 `01: 2` 返回 01:02，SDK 则回有效默认 12:30（target/temporal-lexical-red.log）。其他明确 SDK 规则包括四位非零年份、单数字组件、日/小时的单空格填充、小写 t、legacy 逗号后的必需空白；未将所有列举输入都宣称为原 Rust 的差异。
+
+既有 temporal-params/trace.json 追加 lexical_reference：SDK 1.66.1/Python 3.14.7 的 75 案（15 日期、18 分钟时间、18 秒时间、24 日期时间），固定默认与 2024..2026 边界，保存完整输入和 SDK 序列化结果。既有原始捕获字段保持不变。SDK 新增 75 项各重放直接 serde 与公开 AppTest：用实际 WidgetStates 注入，检查同一 ID、规范返回值和仅在值改变时发生的一次 callback；空白/错误字段回默认而不生成额外 callback。AppTest 使用内部 _run 注入，不冒充正常浏览器或 SDK socket 采集。
+
+生产仅修改 widgets.rs 的私有解析：字段先检查 ASCII 数字宽度与允许的日/小时单空格，再由 NaiveDate/NaiveTime 构造器验证日历及钟点范围。时间不吞分钟/秒字段空白，datetime 接受 T/t 且仅 legacy 逗号后消费一个或多个 Python 空白，复用已有 python_whitespace（包括 U+001C 与 NBSP 的实测例）。保留 Codec 既有默认回退、越界处理、分钟步长去秒、callback 顺序与公共返回模型；不新增模块、接口、依赖或 Unicode 数据。未触碰待决日期 None/部分范围设计。
+
+原生新集成沿用既有真实 WS 帮助器，每案独立会话、初始/提交两轮，从实际 protobuf 注入字符串或字符串数组，通过公开 date_input/time_input/datetime_input 取得返回值；按固定 SDK 结果比较规范值、callback 是否触发及看到的值、稳定控件/会话 ID，以及未提交的其他三个控件保持原值。捕获返回结果后停止并等待自有服务，再断言；捕获总限 45 秒。不因值相同的冗余提交制造 callback，不将本次协议结果冒充浏览器日历操作。
+
+首次 Clippy 指出新增测试中的 unwrap，改为带上下文 expect 后 workspace/all-targets Clippy -D warnings 通过（最终 target/temporal-lexical-clippy-ws.log），保留既有 MSVC linker_messages 告警。23 项控件单元通过（target/temporal-lexical-unit.log），SDK 时间控件模块 490 项通过（原 415 加 75，target/temporal-lexical-python.log）。编辑的两份 Rust 按语义单元留空行，复杂解析按职责说明，并逐段复查 diff。
+
+本批 numeric 字符仅 ASCII；Unicode 数字分类、真实浏览器输入/导航、日期空值/部分范围模型及禁用/ignore/查询绑定等任意组合继续开放。既有范围解码和返回模型不变，MIME 来源、Unicode/repr 与非 Delta 队列取舍仍待各自决定；st.date_input/st.time_input/st.datetime_input 与完整目标不关闭。
+
+最终真实 WS 控件模块 5 项通过（target/temporal-lexical-runtime.log），新增一项完整执行 75 独立会话/150 轮；旧四项保留。工作区 359 项通过（352 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿（target/temporal-lexical-workspace.log）。SDK/文档四模块共 545 项通过：490 时间控件、55 文档/配置/矩阵（target/temporal-lexical-python.log、target/temporal-lexical-docs.log）。
+
+矩阵仅更新三项日期/时间控件及其生成清单，仍 130 partial；旧参考十五字段逐值未变，九个受保护用户文件 SHA 保持一致。逐文件 diff/git diff --check 通过，只暂存本批九个既有代码/测试/参考/计划/矩阵文件；用户 Cargo、colconfig、指南/README 修改不纳入。无 PR、合并、发布或部署，M3/M5/M7 和完整目标继续开放。

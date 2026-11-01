@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 时间文本边界：75 个固定 SDK 输入重放公开返回值/callback，修复 Chrono 对分钟空白等字段的宽松接收，补齐小写 t 和 legacy 空白规则。私有解析保留默认、边界与公共模型；原生真实 WS 每案独立会话检查值/callback/ID/其他控件。见[验收](acceptance.md#current-temporal-lexical-input-validation-2026-11-01)，Unicode 数字、浏览器与日期模型继续开放。
+
 2026-11-01 YouTube URL：42 个公开 SDK 参考冻结分类/改写及字幕互斥优先级，真实原生 WS 先复现 Native 错误；现有 URL API 的私有识别接通 iframe 类型，覆盖 ASCII watch/短链/embed/oembed/归因等形式。真实 iframe 加载/播放和 Unicode 正则继续开放；MIME 来源等待独立选择。见[验收](acceptance.md#current-youtube-ascii-url-classification-validation-2026-11-01)，完整目标不缩减。
 
 2026-11-01 完整 MIME 映射取舍：已冻结 278 个参考环境注册类型及其共 886 个输入，SDK 公开调用生成的 1772 个播放器地址全部核对；参考环境与标准内置映射有 161 个结果差异。数据来源三个选项已提交用户决定，生产策略未改。见[验收](acceptance.md#current-full-mime-registry-proposal-evidence-2026-11-01)，不以参考采集代替原生实现完成。

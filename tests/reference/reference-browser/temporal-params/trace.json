@@ -365,5 +365,540 @@
     "websocket_closed": true,
     "server_stopped": true
   },
-  "successful": true
+  "successful": true,
+  "lexical_reference": {
+    "reference_version": "1.66.1",
+    "python_version": "3.14.7",
+    "scope": "SDK serde string lexical boundaries, fixed defaults/bounds. ASCII digits; Unicode whitespace only in legacy format separator. No full Unicode digit, WS/browser or callback claim.",
+    "cases": [
+      {
+        "name": "date-0",
+        "kind": "date",
+        "input": "2025-03-15",
+        "expected": [
+          "2025-03-15"
+        ]
+      },
+      {
+        "name": "date-1",
+        "kind": "date",
+        "input": "2025/03/15",
+        "expected": [
+          "2025-03-15"
+        ]
+      },
+      {
+        "name": "date-2",
+        "kind": "date",
+        "input": "2025-3-5",
+        "expected": [
+          "2025-03-05"
+        ]
+      },
+      {
+        "name": "date-3",
+        "kind": "date",
+        "input": "2025-03- 5",
+        "expected": [
+          "2025-03-05"
+        ]
+      },
+      {
+        "name": "date-4",
+        "kind": "date",
+        "input": "+2025-03-15",
+        "expected": [
+          "2025-03-15"
+        ]
+      },
+      {
+        "name": "date-5",
+        "kind": "date",
+        "input": "02025-03-15",
+        "expected": [
+          "2025-03-15"
+        ]
+      },
+      {
+        "name": "date-6",
+        "kind": "date",
+        "input": " 2025-03-15",
+        "expected": [
+          "2025-03-15"
+        ]
+      },
+      {
+        "name": "date-7",
+        "kind": "date",
+        "input": "2025- 3-15",
+        "expected": [
+          "2025-03-15"
+        ]
+      },
+      {
+        "name": "date-8",
+        "kind": "date",
+        "input": "2025-03-015",
+        "expected": [
+          "2025-03-15"
+        ]
+      },
+      {
+        "name": "date-9",
+        "kind": "date",
+        "input": "2025-03-15 ",
+        "expected": [
+          "2025-03-15"
+        ]
+      },
+      {
+        "name": "date-10",
+        "kind": "date",
+        "input": "2025-03-15\n",
+        "expected": [
+          "2025-03-15"
+        ]
+      },
+      {
+        "name": "date-11",
+        "kind": "date",
+        "input": "2025-02-29",
+        "expected": [
+          "2025-03-15"
+        ]
+      },
+      {
+        "name": "date-12",
+        "kind": "date",
+        "input": "2024-02-29",
+        "expected": [
+          "2024-02-29"
+        ]
+      },
+      {
+        "name": "date-13",
+        "kind": "date",
+        "input": "2025-03-00",
+        "expected": [
+          "2025-03-15"
+        ]
+      },
+      {
+        "name": "date-14",
+        "kind": "date",
+        "input": "2025/03/ 5",
+        "expected": [
+          "2025-03-05"
+        ]
+      },
+      {
+        "name": "minute-0",
+        "kind": "minute",
+        "input": "12:30",
+        "expected": "12:30"
+      },
+      {
+        "name": "minute-1",
+        "kind": "minute",
+        "input": "1:2",
+        "expected": "01:02"
+      },
+      {
+        "name": "minute-2",
+        "kind": "minute",
+        "input": " 1:02",
+        "expected": "01:02"
+      },
+      {
+        "name": "minute-3",
+        "kind": "minute",
+        "input": "01: 2",
+        "expected": "12:30"
+      },
+      {
+        "name": "minute-4",
+        "kind": "minute",
+        "input": "01:02:3",
+        "expected": "01:02"
+      },
+      {
+        "name": "minute-5",
+        "kind": "minute",
+        "input": "01:02: 3",
+        "expected": "12:30"
+      },
+      {
+        "name": "minute-6",
+        "kind": "minute",
+        "input": "01:02\n",
+        "expected": "12:30"
+      },
+      {
+        "name": "minute-7",
+        "kind": "minute",
+        "input": "01:02 ",
+        "expected": "12:30"
+      },
+      {
+        "name": "minute-8",
+        "kind": "minute",
+        "input": "01:002",
+        "expected": "12:30"
+      },
+      {
+        "name": "minute-9",
+        "kind": "minute",
+        "input": "001:02",
+        "expected": "12:30"
+      },
+      {
+        "name": "minute-10",
+        "kind": "minute",
+        "input": "01:\t2",
+        "expected": "12:30"
+      },
+      {
+        "name": "minute-11",
+        "kind": "minute",
+        "input": "\t1:02",
+        "expected": "12:30"
+      },
+      {
+        "name": "minute-12",
+        "kind": "minute",
+        "input": "01:02:60",
+        "expected": "12:30"
+      },
+      {
+        "name": "minute-13",
+        "kind": "minute",
+        "input": "01:02:61",
+        "expected": "12:30"
+      },
+      {
+        "name": "minute-14",
+        "kind": "minute",
+        "input": "24:00",
+        "expected": "12:30"
+      },
+      {
+        "name": "minute-15",
+        "kind": "minute",
+        "input": "23:59:59",
+        "expected": "23:59"
+      },
+      {
+        "name": "minute-16",
+        "kind": "minute",
+        "input": "00:00:00",
+        "expected": "00:00"
+      },
+      {
+        "name": "minute-17",
+        "kind": "minute",
+        "input": "1:2:3",
+        "expected": "01:02"
+      },
+      {
+        "name": "second-0",
+        "kind": "second",
+        "input": "12:30",
+        "expected": "12:30:00"
+      },
+      {
+        "name": "second-1",
+        "kind": "second",
+        "input": "1:2",
+        "expected": "01:02:00"
+      },
+      {
+        "name": "second-2",
+        "kind": "second",
+        "input": " 1:02",
+        "expected": "01:02:00"
+      },
+      {
+        "name": "second-3",
+        "kind": "second",
+        "input": "01: 2",
+        "expected": "12:30:45"
+      },
+      {
+        "name": "second-4",
+        "kind": "second",
+        "input": "01:02:3",
+        "expected": "01:02:03"
+      },
+      {
+        "name": "second-5",
+        "kind": "second",
+        "input": "01:02: 3",
+        "expected": "12:30:45"
+      },
+      {
+        "name": "second-6",
+        "kind": "second",
+        "input": "01:02\n",
+        "expected": "12:30:45"
+      },
+      {
+        "name": "second-7",
+        "kind": "second",
+        "input": "01:02 ",
+        "expected": "12:30:45"
+      },
+      {
+        "name": "second-8",
+        "kind": "second",
+        "input": "01:002",
+        "expected": "12:30:45"
+      },
+      {
+        "name": "second-9",
+        "kind": "second",
+        "input": "001:02",
+        "expected": "12:30:45"
+      },
+      {
+        "name": "second-10",
+        "kind": "second",
+        "input": "01:\t2",
+        "expected": "12:30:45"
+      },
+      {
+        "name": "second-11",
+        "kind": "second",
+        "input": "\t1:02",
+        "expected": "12:30:45"
+      },
+      {
+        "name": "second-12",
+        "kind": "second",
+        "input": "01:02:60",
+        "expected": "12:30:45"
+      },
+      {
+        "name": "second-13",
+        "kind": "second",
+        "input": "01:02:61",
+        "expected": "12:30:45"
+      },
+      {
+        "name": "second-14",
+        "kind": "second",
+        "input": "24:00",
+        "expected": "12:30:45"
+      },
+      {
+        "name": "second-15",
+        "kind": "second",
+        "input": "23:59:59",
+        "expected": "23:59:59"
+      },
+      {
+        "name": "second-16",
+        "kind": "second",
+        "input": "00:00:00",
+        "expected": "00:00:00"
+      },
+      {
+        "name": "second-17",
+        "kind": "second",
+        "input": "1:2:3",
+        "expected": "01:02:03"
+      },
+      {
+        "name": "datetime-0",
+        "kind": "datetime",
+        "input": "2025-03-15T10:30",
+        "expected": [
+          "2025-03-15T10:30"
+        ]
+      },
+      {
+        "name": "datetime-1",
+        "kind": "datetime",
+        "input": "2025-03-15t10:30",
+        "expected": [
+          "2025-03-15T10:30"
+        ]
+      },
+      {
+        "name": "datetime-2",
+        "kind": "datetime",
+        "input": "2025-3-5T1:2",
+        "expected": [
+          "2025-03-05T01:02"
+        ]
+      },
+      {
+        "name": "datetime-3",
+        "kind": "datetime",
+        "input": "2025-03- 5T 1:02",
+        "expected": [
+          "2025-03-05T01:02"
+        ]
+      },
+      {
+        "name": "datetime-4",
+        "kind": "datetime",
+        "input": "+2025-03-15T10:30",
+        "expected": [
+          "2025-03-15T12:30"
+        ]
+      },
+      {
+        "name": "datetime-5",
+        "kind": "datetime",
+        "input": "02025-03-15T10:30",
+        "expected": [
+          "2025-03-15T12:30"
+        ]
+      },
+      {
+        "name": "datetime-6",
+        "kind": "datetime",
+        "input": " 2025-03-15T10:30",
+        "expected": [
+          "2025-03-15T12:30"
+        ]
+      },
+      {
+        "name": "datetime-7",
+        "kind": "datetime",
+        "input": "2025-03-15T01: 2",
+        "expected": [
+          "2025-03-15T12:30"
+        ]
+      },
+      {
+        "name": "datetime-8",
+        "kind": "datetime",
+        "input": "2025-03-15T10:30 ",
+        "expected": [
+          "2025-03-15T12:30"
+        ]
+      },
+      {
+        "name": "datetime-9",
+        "kind": "datetime",
+        "input": "2025-03-15T10:30\n",
+        "expected": [
+          "2025-03-15T12:30"
+        ]
+      },
+      {
+        "name": "datetime-10",
+        "kind": "datetime",
+        "input": "2025/03/15, 10:30",
+        "expected": [
+          "2025-03-15T10:30"
+        ]
+      },
+      {
+        "name": "datetime-11",
+        "kind": "datetime",
+        "input": "2025/03/15,\t10:30",
+        "expected": [
+          "2025-03-15T10:30"
+        ]
+      },
+      {
+        "name": "datetime-12",
+        "kind": "datetime",
+        "input": "2025/03/15,\n10:30",
+        "expected": [
+          "2025-03-15T10:30"
+        ]
+      },
+      {
+        "name": "datetime-13",
+        "kind": "datetime",
+        "input": "2025/03/15,10:30",
+        "expected": [
+          "2025-03-15T12:30"
+        ]
+      },
+      {
+        "name": "datetime-14",
+        "kind": "datetime",
+        "input": "2025/03/15,  1:02",
+        "expected": [
+          "2025-03-15T01:02"
+        ]
+      },
+      {
+        "name": "datetime-15",
+        "kind": "datetime",
+        "input": "2025/03/15,\u001c10:30",
+        "expected": [
+          "2025-03-15T10:30"
+        ]
+      },
+      {
+        "name": "datetime-16",
+        "kind": "datetime",
+        "input": "2025/03/15, 10:30",
+        "expected": [
+          "2025-03-15T10:30"
+        ]
+      },
+      {
+        "name": "datetime-17",
+        "kind": "datetime",
+        "input": "2025/03/15, 01: 2",
+        "expected": [
+          "2025-03-15T12:30"
+        ]
+      },
+      {
+        "name": "datetime-18",
+        "kind": "datetime",
+        "input": "2025-03-15 T10:30",
+        "expected": [
+          "2025-03-15T12:30"
+        ]
+      },
+      {
+        "name": "datetime-19",
+        "kind": "datetime",
+        "input": "2025-03-15T10:30:01",
+        "expected": [
+          "2025-03-15T12:30"
+        ]
+      },
+      {
+        "name": "datetime-20",
+        "kind": "datetime",
+        "input": "2025-03-15T24:00",
+        "expected": [
+          "2025-03-15T12:30"
+        ]
+      },
+      {
+        "name": "datetime-21",
+        "kind": "datetime",
+        "input": "2025-02-29T12:30",
+        "expected": [
+          "2025-03-15T12:30"
+        ]
+      },
+      {
+        "name": "datetime-22",
+        "kind": "datetime",
+        "input": "2024-02-29T12:30",
+        "expected": [
+          "2024-02-29T12:30"
+        ]
+      },
+      {
+        "name": "datetime-23",
+        "kind": "datetime",
+        "input": "2025-03-15T1:2",
+        "expected": [
+          "2025-03-15T01:02"
+        ]
+      }
+    ]
+  }
 }

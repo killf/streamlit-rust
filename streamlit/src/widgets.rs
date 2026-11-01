@@ -21,7 +21,64 @@ pub(crate) const JS_SAFE_INTEGER: f64 = 9_007_199_254_740_991.0;
 pub(crate) const TIME_ANCHOR_MICROS: i64 = 946_684_800_000_000;
 
 fn parse_date_input(text: &str) -> Option<NaiveDate> {
-    NaiveDate::parse_from_str(text, "%Y-%m-%d").or_else(|_| NaiveDate::parse_from_str(text, "%Y/%m/%d")).ok()
+    let mut fields = text.split(if text.contains('/') { '/' } else { '-' });
+    let year = fields.next()?;
+    if year.len() != 4 || !year.bytes().all(|byte| byte.is_ascii_digit()) {
+        return None;
+    }
+    let year: i32 = year.parse().ok()?;
+    let month = parse_temporal_number(fields.next()?, false)?;
+    let day = parse_temporal_number(fields.next()?, true)?;
+    if year == 0 || fields.next().is_some() {
+        return None;
+    }
+
+    NaiveDate::from_ymd_opt(year, month, day)
+}
+
+/// Python strptime 仅在日/小时允许一个空格加一位数字，不修剪其他字段。
+fn parse_temporal_number(text: &str, space_padded: bool) -> Option<u32> {
+    let digits = if space_padded && text.len() == 2 { text.strip_prefix(' ').unwrap_or(text) } else { text };
+    if !(1..=2).contains(&digits.len()) || !digits.bytes().all(|byte| byte.is_ascii_digit()) {
+        return None;
+    }
+
+    digits.parse().ok()
+}
+
+fn parse_time_input(text: &str, seconds_allowed: bool) -> Option<NaiveTime> {
+    let mut fields = text.split(':');
+    let hour = parse_temporal_number(fields.next()?, true)?;
+    let minute = parse_temporal_number(fields.next()?, false)?;
+    let second = match fields.next() {
+        Some(value) if seconds_allowed => parse_temporal_number(value, false)?,
+        Some(_) => return None,
+        None => 0,
+    };
+    if fields.next().is_some() {
+        return None;
+    }
+
+    NaiveTime::from_hms_opt(hour, minute, second)
+}
+
+fn parse_datetime_input(text: &str) -> Option<NaiveDateTime> {
+    // 1. SDK 的 ISO 分隔 T 不区分大小写，时间仍只接受小时/分钟。
+    if let Some((date, time)) = text.split_once(['T', 't']) {
+        if date.contains('/') {
+            return None;
+        }
+        return Some(parse_date_input(date)?.and_time(parse_time_input(time, false)?));
+    }
+
+    // 2. legacy 逗号后必须有 Python 空白；其他字段的空白不能被吞掉。
+    let (date, time) = text.split_once(',')?;
+    let trimmed = time.trim_start_matches(crate::utils::python_whitespace);
+    if !date.contains('/') || trimmed.len() == time.len() {
+        return None;
+    }
+
+    Some(parse_date_input(date)?.and_time(parse_time_input(trimmed, false)?))
 }
 
 /// One temporal day/step in microseconds, as measured on the reference.
@@ -506,20 +563,12 @@ impl Codec {
             }
             (Self::TimeInput { step }, widget_state::Value::StringValue(text)) => {
                 let format = if step % 60 != 0 { "%H:%M:%S" } else { "%H:%M" };
-                let parsed = chrono::NaiveTime::parse_from_str(text, "%H:%M:%S")
-                    .or_else(|_| chrono::NaiveTime::parse_from_str(text, "%H:%M"))
-                    .ok()
-                    .filter(|time| chrono::Timelike::nanosecond(time) < 1_000_000_000);
+                let parsed = parse_time_input(text, true);
                 Some(parsed.map_or(Value::Null, |time| Value::String(time.format(format).to_string())))
             }
             (Self::DateTimeInput { min, max, .. }, widget_state::Value::StringArrayValue(array)) => {
                 // 只解析首项；空、无效和越界产生回默认标记，不把私有 Null 当成清空。
-                let parsed = array.data.first().and_then(|text| {
-                    chrono::NaiveDateTime::parse_from_str(text, "%Y-%m-%dT%H:%M")
-                        .or_else(|_| chrono::NaiveDateTime::parse_from_str(text, "%Y/%m/%d, %H:%M"))
-                        .ok()
-                        .filter(|moment| moment >= min && moment <= max)
-                });
+                let parsed = array.data.first().and_then(|text| parse_datetime_input(text).filter(|moment| moment >= min && moment <= max));
                 Some(parsed.map_or(Value::Null, |moment| Value::String(moment.format("%Y-%m-%dT%H:%M").to_string())))
             }
             (Codec::Slider { count, integer, .. }, widget_state::Value::DoubleArrayValue(array)) if array.data.len() == *count => {
@@ -1339,6 +1388,50 @@ impl SessionState {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn temporal_lexical_inputs_match_frozen_sdk_defaults() -> anyhow::Result<()> {
+        let reference: Value = serde_json::from_str(include_str!("../../tests/reference/reference-browser/temporal-params/trace.json"))?;
+        let cases = reference["lexical_reference"]["cases"].as_array().ok_or_else(|| anyhow::anyhow!("missing lexical cases"))?;
+        assert_eq!(cases.len(), 75);
+
+        for case in cases {
+            let kind = case["kind"].as_str().ok_or_else(|| anyhow::anyhow!("kind"))?;
+            let text = case["input"].as_str().ok_or_else(|| anyhow::anyhow!("input"))?;
+            let (codec, default, wire) = match kind {
+                "date" => (
+                    Codec::DateInput {
+                        range: false,
+                        min: NaiveDate::from_ymd_opt(2024, 1, 1).expect("valid reference minimum"),
+                        max: NaiveDate::from_ymd_opt(2026, 12, 31).expect("valid reference maximum"),
+                        reset_native: false,
+                        default: Value::String("2025-03-15".into()),
+                    },
+                    Value::String("2025-03-15".into()),
+                    widget_state::Value::StringArrayValue(crate::proto::StringArray { data: vec![text.into()] }),
+                ),
+                "datetime" => (
+                    Codec::DateTimeInput {
+                        min: NaiveDate::from_ymd_opt(2024, 1, 1).expect("valid reference minimum").and_hms_opt(0, 0, 0).expect("valid midnight"),
+                        max: NaiveDate::from_ymd_opt(2026, 12, 31).expect("valid reference maximum").and_hms_opt(23, 59, 0).expect("valid final minute"),
+                        reset_default: None,
+                    },
+                    Value::String("2025-03-15T12:30".into()),
+                    widget_state::Value::StringArrayValue(crate::proto::StringArray { data: vec![text.into()] }),
+                ),
+                _ => (
+                    Codec::TimeInput { step: if kind == "minute" { 900 } else { 1 } },
+                    Value::String(if kind == "minute" { "12:30" } else { "12:30:45" }.into()),
+                    widget_state::Value::StringValue(text.into()),
+                ),
+            };
+            let actual = codec.decode_state(&WidgetState { id: "lexical".into(), value: Some(wire) }, Some(&default));
+            let expected = if matches!(kind, "date" | "datetime") { &case["expected"][0] } else { &case["expected"] };
+            assert_eq!(actual.as_ref(), Some(expected), "{}: {text:?}", case["name"]);
+        }
+
+        Ok(())
+    }
+
     use super::*;
 
     #[test]

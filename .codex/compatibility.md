@@ -4,6 +4,8 @@ Streamlit runtime compatibility is pinned to 1.66.1. The historical API matrix c
 
 ## Long-term documentation scope
 
+2026-11-01 日期/时间输入文本按已测 SDK 字段规则解析，`01: 2` 等非法文本回默认，小写 t 和 legacy 必需空白得到支持；75 案保存直接 serde、公开 AppTest/callback 与原生 WS 检查。仅 ASCII 数字和指定空白边界，不构成全部 Unicode、浏览器或日期范围模型兼容。见[验收](acceptance.md#current-temporal-lexical-input-validation-2026-11-01)。
+
 2026-11-01 YouTube ASCII URL：SDK 公开 AppTest 的 42 案分辨 23 个 iframe、14 个普通 URL 和五项错误；既有 from_url API 内部接通 iframe 地址改写与字幕互斥。协议识别无需外部网络，真实 iframe 加载/播放仍未测；Unicode 正则和 autoplay 身份也未关闭。见[验收](acceptance.md#current-youtube-ascii-url-classification-validation-2026-11-01)。
 
 2026-11-01 媒体 MIME 实证：锁定 Windows/Python 3.14.7 SDK 1.66.1，十五类 × 原样/大写/参数共 45 案，公开 AppTest 90 个播放器与真实 SDK ASGI GET 参考通过重放，Rust 实际 WS/HTTP 对照通过。原始 MIME 仍参与地址和响应头，参数及 audio/wave 无后缀；仅内部后缀实现调整。ASGI 不算 SDK socket/浏览器，四字节传输不算播放验证，完整 MIME 注册表、其他平台和下载命名未关闭。见[验收](acceptance.md#current-media-mime-case-and-parameter-validation-2026-11-01)。
