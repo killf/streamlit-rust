@@ -2798,3 +2798,24 @@ widgets.rs 删除单值/范围重复解析，共用现有单日期 ISO/legacy �
 
 仅 st.date_input 矩阵补真实 UI 参考与明确失败项，生成 inventory 仍 130 partial；指南追加当前正常交互局限并保留旧字节前缀。已结合实证再次请用户选择日期公共返回模型：1 推荐统一 Single(Option<NaiveDate>)/Range(Vec<NaiveDate>) 并迁移调用方；2 保留旧变体另增空/可变范围变体；3 保留旧 API 另增可空/可变范围 API。依用户 AGENTS.md 第 2 条，破坏性公开接口待明确选择后实施，不把推荐或等待当同意。用户已有修改保持，无 PR、合并、发布或部署；空/部分/多端点、其他日期 UI 和更广组合仍未完成，M3/M5/M7 与完整 Goal 保持开放。
 本批相同八模块共 1588 项通过（widget 参数 487、temporal 参数 111），文档/配置/矩阵三模块 55 项通过；产品部分范围不兼容仍作为明确失败保留。
+
+## Current disabled date callback exposure validation (2026-11-01)
+
+在日期公共返回模型仍待选择时，检查已能表达的单日期/完整范围禁用策略。锁定 SDK 1.66.1 会先反序列化禁用日期的前端提交，供同批其他控件 callback 读取；日期自身 callback 按上轮 disabled 抑制，随后登记仍禁用的控件才恢复旧值并同步。旧 Rust 将所有禁用日期延迟到登记，Peer callback 因而读到旧值。本批修复这一时序，不改变公开接口、依赖或错误 oneof 策略。
+
+widgets.rs 的 begin_widgets 在既有禁用分支前，仅对已登记且原先 disabled 的 DateInput、能通过现有 decode/valid 的值，设置 before_input 旧快照、记录和 keyed state 的解码新值，然后直接跳过自己的 callback 收集。沿用登记阶段恢复旧值/代码赋值优先机制；不再把已解码的包放回 pending，用新参数二次解码。其他 codec、不可表达的部分范围和错 oneof 路径保持。没有新增 registry 字段、生产文件、依赖或公共 API。
+
+公开 API 十二阶段单元先真实红于 disabled-forged：Peer 读到 March 默认，而不是提交的单值 4/1 和范围 4/10..4/20；target/date-disabled-red.log 保留，修后全部通过。load 初始禁用；forged 只运行 Peer callback，读取提交值，登记后返回/default state 仍为旧 March 日期且两日期同步；observe 不重复。enabled-joint 同轮启用并接受 May 提交，仍按上轮禁用仅调用 Peer；enabled-edit 正常执行 single/range/peer 三回调。disabled-joint 在原启用状态下先让三回调读 July 提交，再恢复 June 旧值。disabled-invalid 在 callback 前回声明 March 默认，登记仍恢复 June；legacy 转为 ISO 供 Peer 读取。disabled-assign 的 Peer 先读 September 输入，应用随后代码赋 October 日期，覆盖旧值与提交并同步；观察不重复，启用保留，November 正常提交恢复三回调。
+
+[SDK](../tests/reference/reference-browser/widget-params/date-disabled/trace.json) 与 [Rust](../tests/browser/rust-widget-params/date-disabled/trace.json) 首次原生捕获各十二轮、107 原始帧、48 完整 Element、十四条有序 callback，同一 session、十二个 run、三个稳定 ID。两个现有 widget_params 示例与采集器增加 opt-in date-disabled，旧分支保留；不把这些手工协议提交当成浏览器会发送禁用控件变化。完整 Element 只规范化 opaque ID 和 JSON body 后逐字段一致，严格门通过才设置 Rust semantic_match=true，首次捕获没有覆盖。
+
+复用日期边界门并参数化新策略，重解析 raw base64/protobuf/bytes/message/元素汇总，检查完整 message/status 次序、旧 ID/oneof/原始 bad 或 legacy 数组/history、session/run/path、disabled/default/min/max/is_range/format/布局/策略/value/set_value/one-shot、返回/native 和全部 callback 类型和值。新增十一项至 widget 参数模块 498。八类 coherent 负例各确认实际改动一帧并同步 raw/message/元素，拒绝 Peer 读旧值、禁用提交直接成为返回值、禁用日期额外 callback、启用轮错误同步、禁用同轮 callback 读恢复后旧值、非法字符串未回默认、代码赋值被提交覆盖、过期 range 输入 ID。原 date-bounds callback 类型检查也补严格 bool/list/string，旧门仍通过。
+
+同一当前 Rust 二进制重放旧 date-bounds 十三轮（116/52）、date-range 十九轮（170/76）、date-mode 十二轮（95/36）、date-implicit 十二轮（95/36）、date-single 十六轮（127/48），全部完整 Element 匹配冻结 SDK，target/date-disabled-old-*/trace.json 保留。当前 Python fixture 另重采旧十三轮边界到 target/date-disabled-sdk-old-bounds/trace.json，也与冻结 SDK 相同。旧参考及上一批已知范围日历失败的原始截图/帧不改，本批没有新浏览器采集，也未修复部分范围的丢 callback。
+
+起初 SDK-only AppTest 调查记录在 target/date-disabled-sdk-probe.log，显示一些非迭代 oneof 或非字符串数组会在变化判断期报错并持续到恢复轮；字符串类还可能在登记序列化时报错，具体取决于值和原生访问。它不是本批已修复/已对齐的错误类型清单，也不是原生 WS 冻结证据。该路径仍须继续按用户已选方案 1 复现 Python 错误、已发生 callback 和恢复，不能因本批正确类型结果而忽略这些差异。None/空/部分/多端点公开模型仍待选择。
+
+编辑 Rust 格式、三个 Rust 文件逐文件 diff、全工作区/all-target Clippy、公开单元、真实 pickers 两项和示例构建通过；既有 MSVC linker stdout warning 保留。完整工作区 343 项通过（336 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称全绿。新禁用与旧日期边界定向门共 22 项通过；相同八个 Python 模块共 1599 项通过，其中 temporal 111 项未增加。日志 target/date-disabled-{red,green,clippy-final,pickers,build,workspace,gate,python,sdk-ws,date-disabled-ws,date-bounds-ws,date-range-ws,date-mode-ws,date-implicit-ws,date-single-ws,sdk-old-bounds,server,docs}.log。
+
+三个 producer 与 widgets/widget_api 源文件实际 SHA 和二进制 SHA 已与新捕获核对；source_commit=06e4ed3 为启动基线，具体工作区文件由 SHA 标识。SDK 采集服务与自持 Rust Popen 均 finally terminate/wait；50595/51312/8599 无监听。指南追加已测禁用回调时序并保留原字节前缀，矩阵只补 st.date_input 的本批证据与 limitation，生成 inventory 仍 130 partial。用户 colconfig 及其他已有修改保持，无 PR、合并、发布或部署；错误 oneof、空/部分/多端点、unkeyed/ignore、query binding、表单/跨页与更广组合仍开放，M3/M5/M7 和完整 Goal 保持开放。
+文档/配置/矩阵三模块 55 项通过。提交前另核对原始捕获来源 SHA 与暂存 blob 一致，原指南字节前缀和全部受保护用户文件 SHA 保持。

@@ -4987,6 +4987,138 @@ mod tests {
     }
 
     #[test]
+    fn disabled_dates_expose_incoming_to_peer_before_registration_restores_old_values() -> anyhow::Result<()> {
+        use chrono::NaiveDate;
+
+        let parse = |text: &str| NaiveDate::parse_from_str(text, "%Y-%m-%d").expect("fixture date");
+        let changed = |source: &'static str| {
+            move |st: &Streamlit| {
+                let state = st.session_state();
+                let mut calls = state.get::<Vec<Value>>("disabled_date_calls").expect("calls").unwrap_or_default();
+                calls.push(serde_json::json!([
+                    source,
+                    state.get::<Value>("single").expect("single"),
+                    state.get::<Value>("range").expect("range"),
+                    state.get::<bool>("peer").expect("peer")
+                ]));
+                state.set("disabled_date_calls", calls).expect("callback write");
+            }
+        };
+        let phases = [
+            "disabled-load",
+            "disabled-forged",
+            "disabled-observe",
+            "enabled-joint",
+            "enabled-edit",
+            "disabled-joint",
+            "disabled-invalid",
+            "disabled-legacy",
+            "disabled-assign",
+            "disabled-final",
+            "enabled-return",
+            "enabled-recover",
+        ];
+        let state = SessionState::default();
+        let mut ids = Vec::<String>::new();
+        let mut expected_calls = Vec::<Value>::new();
+        for (index, phase) in phases.iter().enumerate() {
+            let disabled = phase.starts_with("disabled-");
+            let submitted = match index {
+                1 => Some((["2025-04-01", "2025-04-10", "2025-04-20"], true)),
+                3 => Some((["2025-05-01", "2025-05-10", "2025-05-20"], false)),
+                4 => Some((["2025-06-01", "2025-06-10", "2025-06-20"], true)),
+                5 => Some((["2025-07-01", "2025-07-10", "2025-07-20"], false)),
+                6 => Some((["bad", "bad", "2025-08-20"], true)),
+                7 => Some((["2025/08/01", "2025/08/10", "2025/08/20"], false)),
+                8 => Some((["2025-09-01", "2025-09-10", "2025-09-20"], true)),
+                11 => Some((["2025-11-01", "2025-11-10", "2025-11-20"], false)),
+                _ => None,
+            };
+            let incoming = submitted.as_ref().map_or_else(Vec::new, |(dates, peer)| {
+                vec![
+                    WidgetState {
+                        id: ids[0].clone(),
+                        value: Some(widget_state::Value::StringArrayValue(proto::StringArray { data: vec![dates[0].into()] })),
+                    },
+                    WidgetState {
+                        id: ids[1].clone(),
+                        value: Some(widget_state::Value::StringArrayValue(proto::StringArray {
+                            data: dates[1..].iter().map(|date| (*date).to_owned()).collect(),
+                        })),
+                    },
+                    WidgetState {
+                        id: ids[2].clone(),
+                        value: Some(widget_state::Value::BoolValue(*peer)),
+                    },
+                ]
+            });
+            let callbacks = state.begin_widgets(incoming);
+            let (st, mut wire) = app(&state);
+            for callback in callbacks {
+                callback(&st);
+            }
+
+            // 1. 同伴先读取上轮模式解码的提交值，禁用日期自身不触发 callback。
+            if let Some((dates, peer)) = submitted {
+                let normalized = if index == 6 {
+                    ["2025-03-15", "2025-03-15", "2025-03-20"]
+                } else if index == 7 {
+                    ["2025-08-01", "2025-08-10", "2025-08-20"]
+                } else {
+                    dates
+                };
+                let sources: &[&str] = if matches!(index, 4 | 5 | 11) { &["single", "range", "peer"] } else { &["peer"] };
+                expected_calls.extend(sources.iter().map(|source| serde_json::json!([source, normalized[0], &normalized[1..], peer])));
+            }
+            assert_eq!(state.get::<Vec<Value>>("disabled_date_calls")?.unwrap_or_default(), expected_calls, "{phase}");
+
+            // 2. 登记禁用控件恢复旧值；本轮显式代码赋值优先。
+            if index == 8 {
+                st.session_state().set("single", "2025-10-01")?;
+                st.session_state().set("range", ["2025-10-10", "2025-10-20"])?;
+            }
+            let options = |label: &str, key: &str, range: bool| {
+                let options = DateInputOptions::new(label).key(key).disabled(disabled).min(parse("2025-01-01")).max(parse("2025-12-31"));
+                if range { options.value_range(parse("2025-03-15"), parse("2025-03-20")) } else { options.value(parse("2025-03-15")) }
+            };
+            let expected = match index {
+                3 => ["2025-05-01", "2025-05-10", "2025-05-20"],
+                4..=7 => ["2025-06-01", "2025-06-10", "2025-06-20"],
+                8..=10 => ["2025-10-01", "2025-10-10", "2025-10-20"],
+                11 => ["2025-11-01", "2025-11-10", "2025-11-20"],
+                _ => ["2025-03-15", "2025-03-15", "2025-03-20"],
+            };
+            assert_eq!(st.date_input(options("Single", "single", false).on_change(changed("single")))?, DateSelection::Single(parse(expected[0])));
+            assert_eq!(st.date_input(options("Range", "range", true).on_change(changed("range")))?, DateSelection::Range(parse(expected[1]), parse(expected[2])));
+            st.checkbox(CheckboxOptions::new("Peer").key("peer").on_change(changed("peer")))?;
+            let mut current = Vec::new();
+            for position in 0..3 {
+                let element = input(&mut wire)?;
+                if let element::Type::DateInput(widget) = element {
+                    current.push(widget.id.clone());
+                    assert_eq!(widget.disabled, disabled);
+                    assert_eq!(widget.set_value, matches!(index, 1 | 5 | 6 | 7 | 8));
+                    assert_eq!(widget.value, if widget.set_value { if position == 0 { vec![expected[0]] } else { expected[1..].to_vec() } } else { vec![] });
+                } else if let element::Type::Checkbox(widget) = element {
+                    current.push(widget.id);
+                } else {
+                    panic!()
+                }
+            }
+            if index == 0 {
+                ids = current;
+            } else {
+                assert_eq!(current, ids);
+            }
+            assert_eq!(state.get::<Value>("single")?, Some(serde_json::json!(expected[0])));
+            assert_eq!(state.get::<Value>("range")?, Some(serde_json::json!(&expected[1..])));
+            state.finish_widgets();
+        }
+
+        Ok(())
+    }
+
+    #[test]
     fn date_mode_changes_follow_bound_policy() -> anyhow::Result<()> {
         use chrono::NaiveDate;
 

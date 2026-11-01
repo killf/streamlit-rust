@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 禁用日期 callback 时序：单日期/完整范围的归一化提交先供同伴 callback 读取，日期自身按上轮禁用策略抑制，登记再恢复旧值；代码赋值优先。公开 API 十二阶段先红后绿，两端原生十二轮、107 帧、48 Element、14 条 callback 匹配，禁用/启用同轮切换及旧五组日期协议复验通过。见[验收](acceptance.md#current-disabled-date-callback-exposure-validation-2026-11-01)。无公共 API 改动，错误 oneof、部分范围返回模型及真实范围日历失败仍开放，完整目标不变。
+
 2026-11-01 日期范围真实 Chrome 失败证据：两端各九阶段、五轮、45 帧、20 Element；首个起点点击发送同样的单端点值，SDK 已更新并 callback，Rust 输入框变化但后端保留旧完整范围且漏 callback。补齐终点后恢复完整提交，累计 callback 为 SDK 四条/Rust 三条。18 张原始 JPEG、DOM 和原始网络事件保留，严格参考门拒绝 Rust。见[验收](acceptance.md#current-date-range-actual-chrome-failure-evidence-2026-11-01)。日期返回模型三个选项再次随实证提交用户决定，未选前不实施破坏性公共接口变更；完整目标保持开放。
 
 2026-11-01 日期隐式边界模式保留：省略 min/max 时沿用旧单值或完整范围的实际类型，由现有 DateSelection 返回，ID 不变、不额外同步或 callback；显式模式重置仍保留。四组边界策略十二阶段及两端原生十二轮、95 帧、36 Element、10 条 callback 匹配；2050 年代码赋值四组合和旧四组协议复验通过。见[验收](acceptance.md#current-date-implicit-bound-mode-retention-validation-2026-11-01)。无公共 API 改动，None/部分/多端点模型和浏览器等继续开放。

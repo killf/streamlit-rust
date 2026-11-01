@@ -801,6 +801,20 @@ impl SessionState {
             if !registry.received.insert(widget.id.clone()) {
                 continue;
             }
+            // 禁用日期先向同伴 callback 暴露解码值，登记时再用 before_input 恢复。
+            if let Some(record) = registry.records.get_mut(&widget.id)
+                && record.disabled
+                && matches!(record.codec, Codec::DateInput { .. })
+                && let Some(value) = record.codec.decode_state(&widget, record.empty_input.as_ref()).filter(|value| record.codec.valid(value))
+            {
+                record.before_input = Some(record.value.clone());
+                record.value = value.clone();
+                if let Some(key) = &record.key {
+                    values.insert(key.clone(), value);
+                }
+                continue;
+            }
+
             if registry.records.get(&widget.id).is_none_or(|record| record.disabled) {
                 if registry.records.get(&widget.id).is_some_and(|record| record.disabled && matches!(record.codec, Codec::Select(_))) {
                     let unhashable_type = match widget.value.as_ref() {

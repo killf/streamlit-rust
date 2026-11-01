@@ -3724,29 +3724,55 @@ DATE_BOUNDS_VALUES = (["2025-03-15", ["2025-03-15", "2025-03-20"], False], ["202
     ["2025-03-15", ["2025-03-15", "2025-03-20"], False], ["2025-03-15", ["2025-03-15", "2025-03-20"], False])
 DATE_BOUNDS_CALLS = [[source, single, selected_range, peer] for single, selected_range, peer in (
     ("2025-04-20", ["2025-04-20", "2025-05-20"], True), ("2025-04-25", ["2025-04-25", "2025-05-25"], False)) for source in ("single", "range", "peer")]
+DATE_DISABLED_PHASES = ("disabled-load","disabled-forged","disabled-observe","enabled-joint","enabled-edit","disabled-joint","disabled-invalid","disabled-legacy","disabled-assign","disabled-final","enabled-return","enabled-recover")
+DATE_DISABLED_INPUTS = {1:("2025-04-01",["2025-04-10","2025-04-20"],True), 3:("2025-05-01",["2025-05-10","2025-05-20"],False),
+    4:("2025-06-01",["2025-06-10","2025-06-20"],True), 5:("2025-07-01",["2025-07-10","2025-07-20"],False), 6:("bad",["bad","2025-08-20"],True),
+    7:("2025/08/01",["2025/08/10","2025/08/20"],False), 8:("2025-09-01",["2025-09-10","2025-09-20"],True), 11:("2025-11-01",["2025-11-10","2025-11-20"],False)}
+DATE_DISABLED_VALUES = (["2025-03-15",["2025-03-15","2025-03-20"],False], ["2025-03-15",["2025-03-15","2025-03-20"],True],
+    ["2025-03-15",["2025-03-15","2025-03-20"],True], ["2025-05-01",["2025-05-10","2025-05-20"],False],
+    ["2025-06-01",["2025-06-10","2025-06-20"],True], ["2025-06-01",["2025-06-10","2025-06-20"],False],
+    ["2025-06-01",["2025-06-10","2025-06-20"],True], ["2025-06-01",["2025-06-10","2025-06-20"],False],
+    ["2025-10-01",["2025-10-10","2025-10-20"],True], ["2025-10-01",["2025-10-10","2025-10-20"],True],
+    ["2025-10-01",["2025-10-10","2025-10-20"],True], ["2025-11-01",["2025-11-10","2025-11-20"],False])
+DATE_DISABLED_COUNTS = (0,1,1,2,5,8,9,10,11,11,11,14)
+DATE_DISABLED_CALLS = [[source,single,dates,peer] for index,(single,dates,peer) in (
+    (1,("2025-04-01",["2025-04-10","2025-04-20"],True)), (3,("2025-05-01",["2025-05-10","2025-05-20"],False)),
+    (4,("2025-06-01",["2025-06-10","2025-06-20"],True)), (5,("2025-07-01",["2025-07-10","2025-07-20"],False)),
+    (6,("2025-03-15",["2025-03-15","2025-03-20"],True)), (7,("2025-08-01",["2025-08-10","2025-08-20"],False)),
+    (8,("2025-09-01",["2025-09-10","2025-09-20"],True)), (11,("2025-11-01",["2025-11-10","2025-11-20"],False)))
+    for source in (("single","range","peer") if index in (4,5,11) else ("peer",))]
 
 
-def check_date_bounds(capture):
+def check_date_bounds(capture, *, disabled=False):
+    phases = DATE_DISABLED_PHASES if disabled else DATE_BOUNDS_PHASES
     assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
-    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 13
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * len(phases)
     assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
-    assert len(capture["frames"]) == 116 and len(capture["elements"]) == 52
+    assert len(capture["frames"]) == (107 if disabled else 116) and len(capture["elements"]) == len(phases) * 4
+    if disabled:
+        kinds = [(message.WhichOneof("type"),message.session_status_changed.script_is_running) if message.WhichOneof("type") == "session_status_changed" else message.WhichOneof("type") for message in frames(capture)]
+        expected = []
+        for index in range(len(phases)):
+            expected += ["rerun_script"] + ([("session_status_changed",False)] if index else [])
+            expected += ["new_session",("session_status_changed",True)]+["delta"]*4+["script_finished"]
+        assert kinds == expected
     runs = color_runs(capture, ("date_input", "checkbox", "json"))
     normalized, sessions, run_ids, ids = [], set(), set(), None
-    for index, (phase, run) in enumerate(zip(DATE_BOUNDS_PHASES, runs, strict=True)):
+    for index, (phase, run) in enumerate(zip(phases, runs, strict=True)):
         request = run["request"]
-        assert request.query_string == "probe=date-bounds&phase=" + phase and not request.is_history_navigation
+        assert request.query_string == "probe=" + ("date-disabled" if disabled else "date-bounds") + "&phase=" + phase and not request.is_history_navigation
         assert len(run["sessions"]) == 1 and run["finishes"] == [0]
         session = run["sessions"][0]
         assert session.initialize.environment_info.streamlit_version == "1.66.1"
         sessions.add(session.initialize.session_id);run_ids.add(session.script_run_id)
         assert [entry[0] for entry in run["entries"]] == ["date_input", "date_input", "checkbox", "json"]
         current = []
-        values = DATE_BOUNDS_VALUES[index]
+        values = DATE_DISABLED_VALUES[index] if disabled else DATE_BOUNDS_VALUES[index]
         for position, (kind, widget, element) in enumerate(run["entries"][:3]):
             assert widget.label == ("Single", "Range", "Peer")[position] and widget.id.endswith("-date_bound_" + ("single", "range", "peer")[position])
-            assert not widget.disabled and not widget.ignore_rerun and not widget.form_id and not widget.help and widget.label_visibility.value == 0
-            sync = position < 2 and index in (2, 5, 6, 7, 9, 10, 11)
+            assert widget.disabled is (disabled and position < 2 and phase.startswith('disabled-'))
+            assert not widget.ignore_rerun and not widget.form_id and not widget.help and widget.label_visibility.value == 0
+            sync = position < 2 and index in ((1,5,6,7,8) if disabled else (2,5,6,7,9,10,11))
             assert widget.set_value is sync and element.has_one_shot_effect is sync and element.HasField("has_one_shot_effect") is sync
             if kind == "checkbox":
                 assert not widget.default and not widget.value and element.width_config.use_content
@@ -3755,7 +3781,9 @@ def check_date_bounds(capture):
                 assert list(widget.default) == (["2025-03-15"] if position == 0 else ["2025-03-15", "2025-03-20"])
                 selected = [values[0]] if position == 0 else values[1]
                 assert list(widget.value) == (selected if sync else [])
-                if index in (7, 8):
+                if disabled:
+                    assert (widget.min,widget.max) == ("2025-01-01","2025-12-31")
+                elif index in (7, 8):
                     assert widget.min == "2015-03-15" and widget.max == ("2035-03-15" if position == 0 else "2035-03-20")
                 else:
                     low = "2025-02-01" if index == 9 else "2025-03-01" if index >= 11 else "2025-01-01"
@@ -3766,7 +3794,12 @@ def check_date_bounds(capture):
         if ids is None: ids = current
         else: assert current == ids
         incoming = request.widget_states.widgets
-        if index in (1, 5):
+        if disabled and index in DATE_DISABLED_INPUTS:
+            single, dates, peer = DATE_DISABLED_INPUTS[index]
+            assert len(incoming) == 3 and [widget.id for widget in incoming] == ids
+            assert [widget.WhichOneof("value") for widget in incoming] == ["string_array_value","string_array_value","bool_value"]
+            assert list(incoming[0].string_array_value.data) == [single] and list(incoming[1].string_array_value.data) == dates and incoming[2].bool_value is peer
+        elif not disabled and index in (1, 5):
             start, end = ("2025-04-20", "2025-05-20") if index == 1 else ("2025-04-25", "2025-05-25")
             assert len(incoming) == 3 and [widget.id for widget in incoming] == ids
             assert [widget.WhichOneof("value") for widget in incoming] == ["string_array_value", "string_array_value", "bool_value"]
@@ -3774,8 +3807,9 @@ def check_date_bounds(capture):
             assert incoming[2].bool_value is (index == 1)
         else: assert not incoming
         report = json.loads(run["entries"][-1][1].body)
-        assert report == {"phase": phase, "values": values, "native": values, "calls": DATE_BOUNDS_CALLS[:0 if index == 0 else 3 if index < 5 else 6]}
-        for projection in (report["values"], report["native"]):
+        calls = DATE_DISABLED_CALLS[:DATE_DISABLED_COUNTS[index]] if disabled else DATE_BOUNDS_CALLS[:0 if index == 0 else 3 if index < 5 else 6]
+        assert report == {"phase": phase, "values": values, "native": values, "calls": calls}
+        for projection in (report["values"], report["native"], *(call[1:] for call in report["calls"])):
             assert type(projection[0]) is str and type(projection[1]) is list and len(projection[1]) == 2 and all(type(value) is str for value in projection[1]) and type(projection[2]) is bool
         assert [entry["delta_path"] for entry in capture["elements"][index * 4:index * 4 + 4]] == [[0, i] for i in range(4)]
         fields = []
@@ -3785,13 +3819,57 @@ def check_date_bounds(capture):
             else: view[kind].pop("id")
             fields.append(view)
         normalized.append(fields)
-    assert len(sessions) == 1 and len(run_ids) == 13
+    assert len(sessions) == 1 and len(run_ids) == len(phases)
     return normalized
 
 
 @pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
 def test_date_bounds_single_range_reset_after_callbacks(root):
     check_date_bounds(read(root / "date-bounds/trace.json"))
+
+
+@pytest.mark.parametrize("root", (PYTHON,RUST), ids=("python","rust"))
+def test_disabled_dates_expose_callback_values_then_restore_at_registration(root):
+    check_date_bounds(read(root/"date-disabled/trace.json"),disabled=True)
+
+
+def test_disabled_dates_complete_elements_match_reference():
+    captures = [read(root/"date-disabled/trace.json") for root in (PYTHON,RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_date_bounds(captures[0],disabled=True) == check_date_bounds(captures[1],disabled=True)
+
+
+@pytest.mark.parametrize("mutation", ("peer-stale","forged-native","disabled-callback","transition-sync","joint-callback","invalid-fallback","assignment-priority","stale-id"))
+def test_disabled_dates_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON/"date-disabled/trace.json")
+    target = {"peer-stale":1,"forged-native":1,"disabled-callback":1,"transition-sync":3,"joint-callback":5,"invalid-fallback":6,"assignment-priority":8,"stale-id":7}[mutation]
+    run, changed = -1, 0
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client:run += 1
+        if run != target:continue
+        message = BackMsg() if client else ForwardMsg();message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == 'stale-id':message.rerun_script.widget_states.widgets[1].id='$$ID-stale-date_bound_range'
+        elif not client and message.WhichOneof('type') == 'delta':
+            element = message.delta.new_element;kind = element.WhichOneof('type')
+            if kind == 'date_input' and element.date_input.label == 'Single' and mutation == 'transition-sync':
+                element.date_input.set_value=True;element.date_input.value[:]=['2025-03-15'];element.has_one_shot_effect=True
+            elif kind == 'json' and mutation not in ('stale-id','transition-sync'):
+                report=json.loads(element.json.body)
+                if mutation == 'peer-stale':report['calls'][-1][1:3]=['2025-03-15',['2025-03-15','2025-03-20']]
+                elif mutation == 'forged-native':report['values']=report['native']=['2025-04-01',['2025-04-10','2025-04-20'],True]
+                elif mutation == 'disabled-callback':report['calls'].append(['range','2025-04-01',['2025-04-10','2025-04-20'],True])
+                elif mutation == 'joint-callback':report['calls'][-3][1]='2025-06-01'
+                elif mutation == 'invalid-fallback':report['calls'][-1][2]=['bad','2025-08-20']
+                else:report['values']=report['native']=['2025-09-01',['2025-09-10','2025-09-20'],True]
+                element.json.body=json.dumps(report)
+            else:continue
+        else:continue
+        changed += 1
+        raw=message.SerializeToString();frame.update(base64=base64.b64encode(raw).decode(),bytes=len(raw),message=MessageToDict(message,preserving_proto_field_name=True))
+    assert changed == 1
+    capture['elements']=[{'kind':m.delta.new_element.WhichOneof('type'),'fields':MessageToDict(getattr(m.delta.new_element,m.delta.new_element.WhichOneof('type')),preserving_proto_field_name=True),'delta_path':list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m,ForwardMsg) and m.WhichOneof('type')=='delta']
+    with pytest.raises(AssertionError):check_date_bounds(capture,disabled=True)
 
 
 def test_date_bounds_complete_elements_match_reference():

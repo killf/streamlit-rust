@@ -6,8 +6,9 @@ use ::streamlit::*;
 use streamlit::StreamlitApi;
 
 fn render(st: &Streamlit) -> Result<(), WidgetError> {
-    if matches!(st.query_params().get("probe").as_deref(), Some("date-bounds" | "date-range")) {
+    if matches!(st.query_params().get("probe").as_deref(), Some("date-bounds" | "date-range" | "date-disabled")) {
         let range_probe = st.query_params().get("probe").as_deref() == Some("date-range");
+        let disabled_probe = st.query_params().get("probe").as_deref() == Some("date-disabled");
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let changed = |source: &'static str| {
             move |st: &Streamlit| {
@@ -36,10 +37,14 @@ fn render(st: &Streamlit) -> Result<(), WidgetError> {
             st.session_state().set("date_bound_single", start)?;
             st.session_state().set("date_bound_range", [start, end])?;
         }
+        if disabled_probe && phase == "disabled-assign" {
+            st.session_state().set("date_bound_single", "2025-10-01")?;
+            st.session_state().set("date_bound_range", ["2025-10-10", "2025-10-20"])?;
+        }
         let parse = |text: &str| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").expect("fixture date");
         let options = |label: &str, key: &str, range: bool| {
             let updated_default = range_probe && range && matches!(phase.as_str(), "range-defaults" | "range-fallback" | "range-observe" | "range-recover" | "range-invalid-final");
-            let options = DateInputOptions::new(label).value(parse("2025-03-15")).key(key);
+            let options = DateInputOptions::new(label).value(parse("2025-03-15")).key(key).disabled(disabled_probe && phase.starts_with("disabled-"));
             let options = if range {
                 options.value_range(parse(if updated_default { "2025-06-10" } else { "2025-03-15" }), parse(if updated_default { "2025-06-20" } else { "2025-03-20" }))
             } else {

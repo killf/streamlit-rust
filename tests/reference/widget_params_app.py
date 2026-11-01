@@ -1,9 +1,10 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") in ("date-bounds", "date-range"):
+if st.query_params.get("probe") in ("date-bounds", "date-range", "date-disabled"):
     from datetime import date
     range_probe = st.query_params.get("probe") == "date-range"
+    disabled_probe = st.query_params.get("probe") == "date-disabled"
     phase = st.query_params.get("phase", "load")
     parse = date.fromisoformat
     def wire(value):
@@ -17,15 +18,19 @@ if st.query_params.get("probe") in ("date-bounds", "date-range"):
         start, end = assignments[phase]
         st.session_state.date_bound_single = parse(start)
         st.session_state.date_bound_range = (parse(start), parse(end))
+    if disabled_probe and phase == "disabled-assign":
+        st.session_state.date_bound_single = parse("2025-10-01")
+        st.session_state.date_bound_range = (parse("2025-10-10"), parse("2025-10-20"))
     def bounds(range_mode):
         if phase in ("implicit", "implicit-observe"):
             return {}
         low = "2025-02-01" if phase == "minimum" else "2025-03-01" if phase in ("lower", "final") else "2025-01-01"
         high = "2025-04-10" if phase in ("narrow", "observe", "joint", "assign") else ("2025-05-20" if range_mode else "2025-04-20") if phase == "maximum" else "2025-12-31"
         return dict(min_value=parse(low), max_value=parse(high))
-    single = st.date_input("Single", value=parse("2025-03-15"), key="date_bound_single", on_change=changed, args=("single",), **bounds(False))
+    disabled = disabled_probe and phase.startswith("disabled-")
+    single = st.date_input("Single", value=parse("2025-03-15"), key="date_bound_single", on_change=changed, args=("single",), disabled=disabled, **bounds(False))
     range_default = (parse("2025-06-10"), parse("2025-06-20")) if range_probe and phase in ("range-defaults", "range-fallback", "range-observe", "range-recover", "range-invalid-final") else (parse("2025-03-15"), parse("2025-03-20"))
-    selected_range = st.date_input("Range", value=range_default, key="date_bound_range", on_change=changed, args=("range",), **bounds(True))
+    selected_range = st.date_input("Range", value=range_default, key="date_bound_range", on_change=changed, args=("range",), disabled=disabled, **bounds(True))
     peer = st.checkbox("Peer", key="date_bound_peer", on_change=changed, args=("peer",))
     st.json({"phase": phase, "values": [wire(single), wire(selected_range), peer], "native": [wire(st.session_state.date_bound_single), wire(st.session_state.date_bound_range), st.session_state.date_bound_peer], "calls": st.session_state.date_bound_calls})
 elif st.query_params.get("probe") in ("date-single", "date-mode", "date-implicit"):
