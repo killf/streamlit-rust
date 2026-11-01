@@ -3846,9 +3846,10 @@ DATE_MODE_VALUES = (["2025-03-15",False], ["2025-04-20",True], [["2025-03-15","2
 DATE_MODE_INPUTS = {1: (["2025-04-20"],True), 3: (["2025-05-01","2025-05-10"],False), 5: (["2025-06-01","2025-06-10"],True), 8: (["2025-03-10","2025-03-20"],False), 10: (["2025-03-12"],True)}
 DATE_MODE_COUNTS = (0,2,2,4,4,6,6,6,8,8,10,10)
 DATE_MODE_CALLS = [[source,*DATE_MODE_VALUES[index]] for index in (1,3,5,8,10) for source in ("day","peer")]
+DATE_IMPLICIT_VALUES = tuple(DATE_MODE_VALUES[index] for index in (0,1,1,3,3,5,5,5,8,8,10,11))
 
 
-def check_date_mode(capture):
+def check_date_mode(capture, *, implicit=False):
     assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
     assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 12
     assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
@@ -3863,7 +3864,7 @@ def check_date_mode(capture):
     normalized, sessions, run_ids, ids = [], set(), set(), None
     for index, (phase, run) in enumerate(zip(DATE_MODE_PHASES,runs,strict=True)):
         request = run["request"]
-        assert request.query_string == "probe=date-mode&phase=" + phase and not request.is_history_navigation
+        assert request.query_string == "probe=" + ("date-implicit" if implicit else "date-mode") + "&phase=" + phase and not request.is_history_navigation
         assert len(run["sessions"]) == 1 and run["finishes"] == [0]
         session = run["sessions"][0]
         assert session.initialize.environment_info.streamlit_version == "1.66.1"
@@ -3873,12 +3874,12 @@ def check_date_mode(capture):
         for position, (kind, widget, element) in enumerate(run["entries"][:2]):
             assert widget.label == ("Day","Peer")[position] and widget.id.endswith("-date_single_" + ("day","peer")[position])
             assert not widget.disabled and not widget.ignore_rerun and not widget.form_id and not widget.help and widget.label_visibility.value == 0
-            sync = position == 0 and index in (2,4,6,9)
+            sync = not implicit and position == 0 and index in (2,4,6,9)
             assert widget.set_value is sync and element.HasField("has_one_shot_effect") is sync and element.has_one_shot_effect is sync
             if kind == "date_input":
                 assert element.width_config.use_stretch and widget.is_range is DATE_MODE_RANGES[index] and not widget.query_param_key and widget.format == "YYYY/MM/DD"
                 high = "2025-03-31" if index in (6,7,8) else "2025-03-15" if index >= 9 else "2025-12-31"
-                assert (widget.min,widget.max) == ("2025-01-01",high)
+                assert (widget.min,widget.max) == (("2015-03-15","2035-03-20" if DATE_MODE_RANGES[index] else "2035-03-15") if implicit else ("2025-01-01",high))
                 default = ["2025-03-15","2025-03-20"] if DATE_MODE_RANGES[index] else ["2025-03-15"]
                 assert list(widget.default) == default and list(widget.value) == (default if sync else [])
             else:
@@ -3895,7 +3896,8 @@ def check_date_mode(capture):
             assert list(incoming[0].string_array_value.data) == dates and incoming[1].bool_value is peer
         else: assert not incoming
         report = json.loads(run["entries"][-1][1].body)
-        assert report == {"phase":phase,"values":DATE_MODE_VALUES[index],"native":DATE_MODE_VALUES[index],"calls":DATE_MODE_CALLS[:DATE_MODE_COUNTS[index]]}
+        values = DATE_IMPLICIT_VALUES[index] if implicit else DATE_MODE_VALUES[index]
+        assert report == {"phase":phase,"values":values,"native":values,"calls":DATE_MODE_CALLS[:DATE_MODE_COUNTS[index]]}
         for projection in (report["values"],report["native"],*(call[1:] for call in report["calls"])):
             assert (type(projection[0]) is str or type(projection[0]) is list and len(projection[0]) == 2 and all(type(date) is str for date in projection[0])) and type(projection[1]) is bool
         assert [entry["delta_path"] for entry in capture["elements"][index * 3:index * 3 + 3]] == [[0,i] for i in range(3)]
@@ -3911,20 +3913,24 @@ def check_date_mode(capture):
 
 
 @pytest.mark.parametrize("root", (PYTHON,RUST), ids=("python","rust"))
-def test_date_mode_explicit_bounds_reset_and_callback_recovery(root):
-    check_date_mode(read(root / "date-mode/trace.json"))
+@pytest.mark.parametrize("implicit", (False,True), ids=("explicit","implicit"))
+def test_date_mode_bound_policy_and_callback_recovery(root, implicit):
+    check_date_mode(read(root / (("date-implicit" if implicit else "date-mode") + "/trace.json")),implicit=implicit)
 
 
-def test_date_mode_complete_elements_match_reference():
-    captures = [read(root / "date-mode/trace.json") for root in (PYTHON,RUST)]
+@pytest.mark.parametrize("implicit", (False,True), ids=("explicit","implicit"))
+def test_date_mode_complete_elements_match_reference(implicit):
+    captures = [read(root / (("date-implicit" if implicit else "date-mode") + "/trace.json")) for root in (PYTHON,RUST)]
     assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
-    assert captures[0]["producer_git_blob_sha256"] == captures[1]["producer_git_blob_sha256"] and captures[0]["source_git_blob_commit"] == captures[1]["source_git_blob_commit"]
-    assert check_date_mode(captures[0]) == check_date_mode(captures[1])
+    if not implicit:
+        assert captures[0]["producer_git_blob_sha256"] == captures[1]["producer_git_blob_sha256"] and captures[0]["source_git_blob_commit"] == captures[1]["source_git_blob_commit"]
+    assert check_date_mode(captures[0],implicit=implicit) == check_date_mode(captures[1],implicit=implicit)
 
 
 @pytest.mark.parametrize("mutation", ("missing-sync","old-native","repeat-sync","callback-old","wrong-mode","old-id","surplus-input","changed-id"))
-def test_date_mode_gate_rejects_coherent_wrong_wire(mutation):
-    capture = read(PYTHON / "date-mode/trace.json")
+@pytest.mark.parametrize("implicit", (False,True), ids=("explicit","implicit"))
+def test_date_mode_gate_rejects_coherent_wrong_wire(mutation, implicit):
+    capture = read(PYTHON / (("date-implicit" if implicit else "date-mode") + "/trace.json"))
     target = {"missing-sync":2,"old-native":4,"repeat-sync":7,"callback-old":3,"wrong-mode":2,"old-id":8,"surplus-input":5,"changed-id":2}[mutation]
     run, changed = -1, 0
     for frame in capture["frames"]:
@@ -3937,13 +3943,15 @@ def test_date_mode_gate_rejects_coherent_wrong_wire(mutation):
         elif not client and message.WhichOneof("type") == "delta":
             element = message.delta.new_element;kind = element.WhichOneof("type")
             if kind == "date_input" and mutation in ("missing-sync","repeat-sync","wrong-mode","changed-id"):
-                if mutation == "missing-sync": element.date_input.set_value=False;element.date_input.ClearField("value");element.ClearField("has_one_shot_effect")
+                if mutation == "missing-sync":
+                    if implicit: element.date_input.set_value=True;element.date_input.value[:]=["2025-03-15","2025-03-20"];element.has_one_shot_effect=True
+                    else: element.date_input.set_value=False;element.date_input.ClearField("value");element.ClearField("has_one_shot_effect")
                 elif mutation == "repeat-sync": element.date_input.set_value=True;element.date_input.value[:]=["2025-03-15","2025-03-20"];element.has_one_shot_effect=True
                 elif mutation == "wrong-mode": element.date_input.is_range=False
                 else: element.date_input.id="$$ID-new-date_single_day"
             elif kind == "json" and mutation in ("old-native","callback-old"):
                 report=json.loads(element.json.body)
-                if mutation == "old-native": report["values"][0]=report["native"][0]=["2025-05-01","2025-05-10"]
+                if mutation == "old-native": report["values"][0]=report["native"][0]="2025-03-15" if implicit else ["2025-05-01","2025-05-10"]
                 else: report["calls"][-2][1]="2025-03-15"
                 element.json.body=json.dumps(report)
             else: continue
@@ -3952,7 +3960,7 @@ def test_date_mode_gate_rejects_coherent_wrong_wire(mutation):
         raw=message.SerializeToString();frame.update(base64=base64.b64encode(raw).decode(),bytes=len(raw),message=MessageToDict(message,preserving_proto_field_name=True))
     assert changed == 1
     capture["elements"]=[{"kind":m.delta.new_element.WhichOneof("type"),"fields":MessageToDict(getattr(m.delta.new_element,m.delta.new_element.WhichOneof("type")),preserving_proto_field_name=True),"delta_path":list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m,ForwardMsg) and m.WhichOneof("type")=="delta"]
-    with pytest.raises(AssertionError): check_date_mode(capture)
+    with pytest.raises(AssertionError): check_date_mode(capture,implicit=implicit)
 
 
 DATE_RANGE_PHASES = ("load", "range-edit", "range-missing", "range-legacy", "range-bad-start", "range-bad-end", "range-low", "range-high",

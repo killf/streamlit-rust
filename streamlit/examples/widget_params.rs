@@ -78,8 +78,9 @@ fn render(st: &Streamlit) -> Result<(), WidgetError> {
         return Ok(());
     }
 
-    if matches!(st.query_params().get("probe").as_deref(), Some("date-single" | "date-mode")) {
-        let mode_probe = st.query_params().get("probe").as_deref() == Some("date-mode");
+    if matches!(st.query_params().get("probe").as_deref(), Some("date-single" | "date-mode" | "date-implicit")) {
+        let mode_probe = matches!(st.query_params().get("probe").as_deref(), Some("date-mode" | "date-implicit"));
+        let implicit_bounds = st.query_params().get("probe").as_deref() == Some("date-implicit");
         let phase = st.query_params().get("phase").unwrap_or_else(|| "load".into());
         let changed = |source: &'static str| {
             move |st: &Streamlit| {
@@ -101,7 +102,8 @@ fn render(st: &Streamlit) -> Result<(), WidgetError> {
         } else {
             "2025-12-31"
         };
-        let options = DateInputOptions::new("Day").value(parse(default)).min(parse("2025-01-01")).max(parse(high)).key("date_single_day").on_change(changed("day"));
+        let options = DateInputOptions::new("Day").value(parse(default)).key("date_single_day").on_change(changed("day"));
+        let options = if implicit_bounds { options } else { options.min(parse("2025-01-01")).max(parse(high)) };
         let day = st.date_input(if range { options.value_range(parse("2025-03-15"), parse("2025-03-20")) } else { options })?;
         let day = match day {
             DateSelection::Single(day) => serde_json::json!(day.format("%Y-%m-%d").to_string()),

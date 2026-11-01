@@ -2754,3 +2754,26 @@ widgets.rs 删除单值/范围重复解析，共用现有单日期 ISO/legacy �
 本批相关八模块 1561 项通过（widget 参数 465、temporal 参数 106），文档/配置/矩阵三模块 55 项通过；命令范围与上一批 1541 项一致，新增十一项原生门和九项 SDK 验证。
 
 推送后来源审计补充：采集器工作区为 CRLF，Git 文本规范化提交为 LF，因此原始 producer_sources_sha256 与对应提交 blob 的 SHA 不同。保留全部原始文件字节 SHA 与原始帧，另在两端 date-mode metadata 增加 source_git_blob_commit=1d2f5c2、producer_git_blob_sha256，Rust 同时记录 rust_git_blob_sha256；逐文件验证仅 CRLF→LF 存在差异。生产源文件和二进制实际 SHA 仍与首次采集相符，不将规范化后的 SHA 冒称当时文件字节，不重采或覆盖帧。
+
+## Current date implicit-bound mode retention validation (2026-11-01)
+
+锁定 SDK 1.66.1 AppTest 证明：没有显式 min/max 时，有 key 的日期控件改变单值/范围声明仍保留旧原生值的实际类型，直到新输入按当前已登记模式解码。旧 Rust codec.valid 把原生类型绑在本轮声明模式，单值切换范围时报 value does not match date_input；返回转换也按本轮模式强制解析。现有 DateSelection::Single/Range 已能表达这两类值，本批无需新公共模型。
+
+生产改动限现有两个位置：DateInput 的原生 valid 同时接受合法日期字符串或完整两项 ISO 日期数组；date_input 的公开结果转换按实际值是数组还是标量选择已有变体。前端 decode 仍按已登记 range 标志解码和检查全部日期/列表长度，wrong oneof、合法空/部分/多端点返回等未借此放宽。上一批显式边界的模式不匹配重置仍先于 valid，保持回本轮默认及 value/set_value/one-shot 一次同步的行为；本批隐式边界切换不产生同步或额外 callback。
+
+复用公开 API 十二阶段单元，扩展为 both/minimum/maximum/implicit 四种策略。先真实红于 implicit 单值编辑后切换范围，日志 target/date-implicit-red.log 保留；修后四组共四十八阶段均通过。隐式 range 轮保留单值 4/20，single 轮保留范围 5/1..5/10；后续范围声明继续保留单值 6/1，切回单值继续保留范围 3/10..3/20。正常新输入分别产生完整范围或取第一日期的单值，十条 callback 读取整批日期/Peer，身份始终保留，观察无重复同步。
+
+另公开 API 单元对声明单值/范围 × 原生单值/完整范围四组合验证代码赋值和观察：2050-02-01 或 2050-02-01..2051-03-01 超出推导的 2015..2035 窗口仍保留实际类型，返回/keyed state 相同，代码赋值按实际一项或两项同步一次，下一轮无输入保留且不重发。对应 SDK AppTest 新增隐式策略一项及原生赋值四项，原有三种显式策略继续通过，合计八项定向 SDK 验证。AppTest 内部 _run 使用实际 WidgetStates，观察传空 WidgetStates，不称正常浏览器操作。
+
+[SDK](../tests/reference/reference-browser/widget-params/date-implicit/trace.json) 与 [Rust](../tests/browser/rust-widget-params/date-implicit/trace.json) 首次原生采集各十二轮、95 帧、36 完整 Element、十条有序 callback，同一连接/session、十二 run、两个稳定 ID。复用已有 date-mode 的十二步，新增 opt-in date-implicit 仅省略边界；min/max wire 按本轮声明默认推导，返回/原生状态可为上轮类型，所有日期同步标记均为空。完整 Element 仅规范化 opaque ID 和 JSON body 后逐字段一致，严格门通过后才设置 Rust semantic_match=true，首次成功参考未覆盖。
+
+同一原始帧校验器参数化显式/隐式两种策略，重解析 base64/protobuf/bytes/message 与元素汇总，核对完整 message/status 次序、实际旧输入 ID/string_array/bool oneof/原始列表/history、session/run/path、模式/default/计算或显式边界/format/布局/策略/同步、所有返回/原生/十条有序 callback 的类型和值。参数模块增加十一项至 476。隐式八类 coherent 负例实际改动一帧并同时更新 raw/message/元素投影，拒绝错误重置同步、原生范围被改回单值默认、观察重复同步、旧日期 callback、错误模式、过期输入 ID、截短 surplus 请求、改变输出 ID；显式原有八类继续验证。
+
+当前同一 Rust 二进制重放原 date-mode 十二轮（95 帧/36 Element）、date-single 十六轮（127/48）、date-bounds 十三轮（116/52）、date-range 十九轮（170/76），完整 Element 均继续匹配冻结 SDK；target/date-implicit-old-*/trace.json 保留。当前 Python fixture 的 date-mode 另重采到 target/date-implicit-sdk-old-mode/trace.json，与原冻结参考相同。没有覆盖旧参考或浏览器图，也不将这些原生结果当成真实 UI 证明。
+
+三个 producer 文件、两个生产源文件的实际 SHA 与新捕获 metadata 逐一一致，当前这些源码使用 LF，提交前另检查 index/blob 口径，避免上一批 CRLF 文件字节与 Git 文本规范化 SHA 混淆；Rust 二进制 SHA 也已核对。source_commit=7ab18fe 是启动基线，未提交工作区的具体文件由所记 SHA 标识。SDK/Rust 自持服务均 finally terminate/wait，61149/55854/8599 无监听。
+
+代码格式、三个编辑 Rust 文件逐文件 diff、全工作区/all-target Clippy、公开单元与真实 pickers 两项、示例构建通过；既有 MSVC linker stdout warning 保留。完整工作区 342 项通过（335 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称全绿。定向原生门显式/隐式共 22 项通过。日志 target/date-implicit-{red,green,native-unit,sdk-final,clippy-final,pickers,build,workspace,gate,python,server,sdk-ws,date-implicit-ws,date-mode-ws,date-single-ws,date-bounds-ws,date-range-ws,sdk-old-mode,docs}.log。
+
+矩阵只补 st.date_input 本批证据和 limitation，生成 inventory 仍 130 partial；指南仅替换上一批尚未完成的隐式跨模式说明，其他原始字节保持。None/空/部分/多端点公开模型、任意原生类型、错 oneof、禁用/ignore、query binding、表单/跨页和更广组合继续开放，本批没有新浏览器采集。用户 colconfig 及其他已有修改保持，无 PR、合并、发布或部署；M3/M5/M7 与完整 Goal 保持开放。
+本批相同八模块共 1577 项通过（widget 参数 476、temporal 参数 111），新增十一项原生策略门和五项 SDK 验证；文档/配置/矩阵三模块 55 项通过。

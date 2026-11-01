@@ -28,9 +28,10 @@ if st.query_params.get("probe") in ("date-bounds", "date-range"):
     selected_range = st.date_input("Range", value=range_default, key="date_bound_range", on_change=changed, args=("range",), **bounds(True))
     peer = st.checkbox("Peer", key="date_bound_peer", on_change=changed, args=("peer",))
     st.json({"phase": phase, "values": [wire(single), wire(selected_range), peer], "native": [wire(st.session_state.date_bound_single), wire(st.session_state.date_bound_range), st.session_state.date_bound_peer], "calls": st.session_state.date_bound_calls})
-elif st.query_params.get("probe") in ("date-single", "date-mode"):
+elif st.query_params.get("probe") in ("date-single", "date-mode", "date-implicit"):
     from datetime import date
-    mode_probe = st.query_params.get("probe") == "date-mode"
+    mode_probe = st.query_params.get("probe") in ("date-mode", "date-implicit")
+    implicit_bounds = st.query_params.get("probe") == "date-implicit"
     phase = st.query_params.get("phase", "load")
     if "date_single_calls" not in st.session_state:
         st.session_state.date_single_calls = []
@@ -40,7 +41,8 @@ elif st.query_params.get("probe") in ("date-single", "date-mode"):
     default = date(2025, 6, 10) if phase in ("defaults", "fallback", "observe", "recover", "invalid") else date(2025, 3, 15)
     range_mode = mode_probe and phase in ("range", "range-edit", "range-narrow", "range-observe", "range-recover")
     high = date(2025, 3, 31) if mode_probe and phase in ("range-narrow", "range-observe", "range-recover") else date(2025, 3, 15) if mode_probe and phase in ("single-narrow", "single-recover", "single-observe") else date(2025, 12, 31)
-    day = st.date_input("Day", value=(date(2025, 3, 15), date(2025, 3, 20)) if range_mode else default, min_value=date(2025, 1, 1), max_value=high, key="date_single_day", on_change=changed, args=("day",))
+    bounds = {} if implicit_bounds else dict(min_value=date(2025, 1, 1), max_value=high)
+    day = st.date_input("Day", value=(date(2025, 3, 15), date(2025, 3, 20)) if range_mode else default, key="date_single_day", on_change=changed, args=("day",), **bounds)
     peer = st.checkbox("Peer", key="date_single_peer", on_change=changed, args=("peer",))
     st.json({"phase": phase, "values": [wire(day), peer], "native": [wire(st.session_state.date_single_day), st.session_state.date_single_peer], "calls": st.session_state.date_single_calls})
 elif st.query_params.get("probe") in ("datetime-empty", "datetime-bounds"):

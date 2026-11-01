@@ -464,11 +464,8 @@ impl Codec {
             Self::JsonTrigger => value.is_null() || value.is_array(),
             Self::DateInput { range, .. } => {
                 let iso = |item: &Value| item.as_str().is_some_and(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").is_ok());
-                if *range {
-                    value.as_array().is_some_and(|dates| dates.len() == 2 && dates.iter().all(iso))
-                } else {
-                    value.is_null() || iso(value)
-                }
+                // 原生状态可保留上轮单值/完整范围；前端解码仍按当前模式约束。
+                (!*range && value.is_null()) || iso(value) || value.as_array().is_some_and(|dates| dates.len() == 2 && dates.iter().all(iso))
             }
             Self::TimeInput { step } => {
                 let format = if step % 60 != 0 { "%H:%M:%S" } else { "%H:%M" };

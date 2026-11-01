@@ -3159,8 +3159,7 @@ impl<C: AppendChild> InputWidgets for C {
             },
             |value| {
                 let parse = |text: &str| NaiveDate::parse_from_str(text, "%Y-%m-%d").map_err(|_| WidgetError::InvalidValue("date_input expects ISO dates".into()));
-                Ok(if range {
-                    let items = value.as_array().ok_or_else(|| WidgetError::InvalidValue("date_input range expects two dates".into()))?;
+                Ok(if let Some(items) = value.as_array() {
                     DateSelection::Range(parse(items[0].as_str().unwrap_or_default())?, parse(items[1].as_str().unwrap_or_default())?)
                 } else {
                     DateSelection::Single(parse(value.as_str().unwrap_or_default())?)
@@ -4988,7 +4987,7 @@ mod tests {
     }
 
     #[test]
-    fn date_mode_changes_with_explicit_bounds_reset_after_callbacks() -> anyhow::Result<()> {
+    fn date_mode_changes_follow_bound_policy() -> anyhow::Result<()> {
         use chrono::NaiveDate;
 
         let parse = |text: &str| NaiveDate::parse_from_str(text, "%Y-%m-%d").expect("fixture date");
@@ -5006,7 +5005,7 @@ mod tests {
             "single-recover",
             "single-observe",
         ];
-        for bounds in ["both", "minimum", "maximum"] {
+        for bounds in ["both", "minimum", "maximum", "implicit"] {
             let state = SessionState::default();
             let mut date_id = String::new();
             let mut peer_id = String::new();
@@ -5057,10 +5056,10 @@ mod tests {
                 };
                 let mut options = DateInputOptions::new("Day").key("day").on_change(changed("day"));
                 options = if range { options.value_range(parse("2025-03-15"), parse("2025-03-20")) } else { options.value(parse("2025-03-15")) };
-                if bounds != "maximum" {
+                if bounds != "maximum" && bounds != "implicit" {
                     options = options.min(parse("2025-01-01"));
                 }
-                if bounds != "minimum" {
+                if bounds != "minimum" && bounds != "implicit" {
                     let high = if matches!(*phase, "range-narrow" | "range-observe" | "range-recover") {
                         "2025-03-31"
                     } else if matches!(*phase, "single-narrow" | "single-recover" | "single-observe") {
@@ -5070,7 +5069,12 @@ mod tests {
                     };
                     options = options.max(parse(high));
                 }
+                let native_range = if bounds == "implicit" { matches!(*phase, "range-edit" | "single" | "range-recover" | "single-narrow") } else { range };
                 let (start, end) = match *phase {
+                    "range" if bounds == "implicit" => ("2025-04-20", "2025-04-20"),
+                    "single" if bounds == "implicit" => ("2025-05-01", "2025-05-10"),
+                    "range-narrow" | "range-observe" if bounds == "implicit" => ("2025-06-01", "2025-06-01"),
+                    "single-narrow" if bounds == "implicit" => ("2025-03-10", "2025-03-20"),
                     "edit" => ("2025-04-20", "2025-04-20"),
                     "range-edit" => ("2025-05-01", "2025-05-10"),
                     "single-edit" => ("2025-06-01", "2025-06-01"),
@@ -5078,17 +5082,17 @@ mod tests {
                     "single-recover" | "single-observe" => ("2025-03-12", "2025-03-12"),
                     _ => ("2025-03-15", "2025-03-20"),
                 };
-                assert_eq!(st.date_input(options)?, if range { DateSelection::Range(parse(start), parse(end)) } else { DateSelection::Single(parse(start)) }, "{bounds}:{phase}");
+                assert_eq!(st.date_input(options)?, if native_range { DateSelection::Range(parse(start), parse(end)) } else { DateSelection::Single(parse(start)) }, "{bounds}:{phase}");
                 st.checkbox(CheckboxOptions::new("Peer").key("peer").on_change(changed("peer")))?;
 
-                // 2. 显式边界使模式不匹配回本轮默认；ID 保留且只同步一轮。
+                // 2. 显式边界回本轮默认；隐式边界保留实际类型，均不重建 ID。
                 let Some(forward_msg::Type::Delta(proto::Delta {
                     r#type: Some(delta::Type::NewElement(element)), ..
                 })) = wire.try_recv()?.r#type
                 else {
                     panic!()
                 };
-                let sync = matches!(*phase, "range" | "single" | "range-narrow" | "single-narrow");
+                let sync = bounds != "implicit" && matches!(*phase, "range" | "single" | "range-narrow" | "single-narrow");
                 assert_eq!(element.has_one_shot_effect, sync.then_some(true));
                 let Some(element::Type::DateInput(widget)) = element.r#type else { panic!() };
                 let element::Type::Checkbox(peer) = input(&mut wire)? else { panic!() };
@@ -5100,10 +5104,57 @@ mod tests {
                 assert_eq!(widget.is_range, range);
                 assert_eq!(widget.set_value, sync);
                 assert_eq!(widget.value, if sync { if range { vec![start, end] } else { vec![start] } } else { vec![] });
-                let expected = if range { serde_json::json!([start, end]) } else { serde_json::json!(start) };
+                let expected = if native_range { serde_json::json!([start, end]) } else { serde_json::json!(start) };
                 assert_eq!(state.get::<Value>("day")?, Some(expected));
                 assert_eq!(state.get::<Vec<Value>>("mode_calls")?.unwrap_or_default(), expected_calls, "reset must not add callbacks");
                 state.finish_widgets();
+            }
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn implicit_date_bounds_preserve_native_single_and_complete_range_types() -> anyhow::Result<()> {
+        use chrono::NaiveDate;
+
+        let parse = |text: &str| NaiveDate::parse_from_str(text, "%Y-%m-%d").expect("fixture date");
+        for range in [false, true] {
+            for native in [serde_json::json!("2050-02-01"), serde_json::json!(["2050-02-01", "2051-03-01"])] {
+                let state = SessionState::default();
+                let mut id = String::new();
+                for assign in [true, false] {
+                    assert!(state.begin_widgets(Vec::new()).is_empty());
+                    let (st, mut wire) = app(&state);
+                    if assign {
+                        st.session_state().set("day", &native)?;
+                    }
+                    let options = DateInputOptions::new("Day").key("day");
+                    let options = if range { options.value_range(parse("2025-03-15"), parse("2025-03-20")) } else { options.value(parse("2025-03-15")) };
+                    let expected = if native.is_array() {
+                        DateSelection::Range(parse("2050-02-01"), parse("2051-03-01"))
+                    } else {
+                        DateSelection::Single(parse("2050-02-01"))
+                    };
+                    assert_eq!(st.date_input(options)?, expected);
+                    assert_eq!(state.get::<Value>("day")?, Some(native.clone()));
+                    let Some(forward_msg::Type::Delta(proto::Delta {
+                        r#type: Some(delta::Type::NewElement(element)), ..
+                    })) = wire.try_recv()?.r#type
+                    else {
+                        panic!()
+                    };
+                    assert_eq!(element.has_one_shot_effect, assign.then_some(true));
+                    let Some(element::Type::DateInput(widget)) = element.r#type else { panic!() };
+                    if assign {
+                        id = widget.id.clone();
+                    }
+                    assert_eq!(widget.id, id);
+                    assert_eq!(widget.is_range, range);
+                    assert_eq!(widget.set_value, assign);
+                    assert_eq!(widget.value, if assign { if native.is_array() { vec!["2050-02-01", "2051-03-01"] } else { vec!["2050-02-01"] } } else { vec![] });
+                    state.finish_widgets();
+                }
             }
         }
 
