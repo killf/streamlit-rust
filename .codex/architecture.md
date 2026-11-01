@@ -1458,3 +1458,13 @@ streamlit/src/widget_api.rs 的独立修正已完成：重复默认索引合法�
 验证：SDK 八轮原始帧比较重复默认、默认/前端/代码超限、持续错误、修复与重复上限；另以公开 API 验证应用捕获错误后可渲染其他控件，及改变 max_selections 的身份重置不使用旧状态数量。检查 callback 在错误前已执行、下一轮不重放。Rust 错误类型/文字与 SDK 的差异明确列出，不将异常 UI 或所有组合视为完成。按格式/Clippy、单元、原生 WS、相关参考与工作区验证，保留当前两项无关排除。
 
 停止位置：重复默认和零上限的局部修正已独立实现并验证；上述“数量错误后仍完成登记并保留原生状态”的流程例外尚待用户决定。依据用户 AGENTS.md 第 2 条对新增流程和关键取舍的要求，未把完整兼容方向自动当作该登记例外的批准。
+
+## Subtitle Unicode numeric classification proposal (2026-11-01)
+
+现有 SDK 12 个新增冻结用例证实编号采用 isdigit、时间码采用 Unicode 十进制 \d，Rust 当前 ASCII 分类在 counter-arabic 实测失败。不能直接使用 Rust char::is_numeric：分数和罗马数字会被错误接受；也不能把两套 Python 分类合并。33 字节原始 UTF-8 探测及全局不重叠替换规则仍需保留。
+
+1. 推荐：在现有 streamlit/src/elements/media.rs 内冻结 Python Unicode 16.0.0 的两个私有区间表（90/71 区间）并二分查询，按 char 扫描时间码并用字节位置替换逗号。只改现有生产文件、字幕语料和测试/文档；不加依赖、公共接口或运行时 Python。以全部 scalar 的两类分类对照、12 新案及原 22 案完整字节/地址/错误回归验证，之后执行相关媒体和工程检查。数据来源和 Unicode 版本需明确，普通构建不生成数据。
+2. 增加专门 Unicode 分类依赖，由库提供 Digit/Decimal_Number，验证其数据版本与 Python 16.0.0 一致；还需修改 Cargo manifest/lock。减少内嵌数据，但增加依赖及版本对齐成本；当前 Cargo.toml 有用户修改，需要保留并精确整合。验证范围同方案 1。
+3. 暂不接入 Unicode 分类，保留本批冻结参考与 Rust 已复现差异，继续其他兼容性工作；该边界保持未完成，不宣称字幕完整兼容。
+
+此选择独立于先前状态错误 repr 字符数据方案，也不扩大已确认的 rerun Delta-only 策略。用户未选择前不接入表或依赖。

@@ -2987,3 +2987,15 @@ Rust 按语义单元留空并逐段 diff 复查，格式、全工作区/all-targ
 矩阵只追加 st.video 本批证据与限制，inventory 仍 130 partial；指南追加原始字幕字符串规则并保留原字节前缀。非 ASCII 数字、文件/字节/路径与更广输入错误、标签 repr、真实浏览器字幕呈现/选择/播放和资源生命周期等继续开放；日期模型/JSONDecodeError 等其他待决项不变，M3/M5/M7 与完整 Goal 保持开放。用户 colconfig 等已有修改保留，无 PR、合并、部署或发布。
 
 文档/配置/矩阵三模块 55 项通过；提交前再次核对受保护用户文件 SHA、指南原字节前缀，以及 producer 实际/Git 来源、修前基线与修后源码/二进制 SHA 的对应关系。
+
+## Current subtitle Unicode reference validation (2026-11-01)
+
+在已有 subtitle-text/cases.json 追加独立 unicode_cases，原 22 个 cases 保持不变。锁定 SDK 1.66.1 / Python 3.14.7 / Unicode 16.0.0 的 helper 与公开 st.video AppTest 各复验 12 案，八项接受、四项拒绝，保留完整输入、转换字节、摘要 URL 或公开错误；AppTest 地址仍为 /mock/media，不冒充 HTTP 或浏览器证据。原始生成日志 target/subtitle-unicode-oracle.log。
+
+参考将 cue 编号 str.isdigit 与时间码正则 \d 分开：阿拉伯数字和上标 ² 编号接受，分数/罗马数字编号拒绝；四字节数学数字编号因 33 字节前缀截断时间行而拒绝。首个时间码的阿拉伯/全角数字接受，上标拒绝。已识别 SRT 的后续阿拉伯/数学十进制时间码转换逗号，而上标和分数正文保持。Unicode 16.0.0 全 scalar 分类统计：isdigit 888 点、90 区间；isdecimal 760 点、71 区间。区间按紧凑 JSON 序列化的 SHA256 分别为 3891476f1c3608026cb9f4269344e1e09ded3dd40d150efc6d4cef4602f23178 与 813b0301dd8366f257ac91252999b0ed2d9034d032176113fcacadc3c2b7f87c；尚未将分类表接入 Rust。
+
+临时把这 12 案加入现有 Rust 私有字幕测试并去掉 22 案计数断言，实际 cargo test --offline --locked -p streamlit --lib subtitle_strings_match_frozen_sdk_bytes_addresses_and_rejections 退出 101：首个 counter-arabic 被 Rust 拒绝，SDK 接受。日志 target/subtitle-unicode-rust-red.log 保留。初次 --exact 短名过滤命中零项，不计作验证；随后去掉 --exact 确实执行一项并失败。临时源码由 finally 按原始字节恢复，生产实现不变；未把新 Unicode 用例接入默认 Rust 门掩盖或改写既有 22 案结果。
+
+现有 Python 媒体模块扩至 48 项并全部通过（target/subtitle-unicode-python.log）；它证明冻结参考可重放，不代表 Rust Unicode 已修复。完整 Unicode 分类来源涉及数据/依赖选择，方案记录在 architecture，待用户决定；其他已授权工作可继续。未重跑与本参考增补无关的全工作区/真实浏览器，130 partial、M3/M5/M7 与完整目标保持开放。
+
+提交前恢复后的原 22 案 Rust 字节/地址/拒绝回归一项通过（target/subtitle-unicode-existing-rust.log）；文档/配置/矩阵 55 项通过（target/subtitle-unicode-docs.log）。逐文件 diff 复查和 git diff --check 通过，原 oracle 全部既有字段保持；九个受保护用户文件与本批快照 SHA 一致，生产 media.rs 无 diff。本批仅提交参考、重放测试及计划/方案/验收记录。

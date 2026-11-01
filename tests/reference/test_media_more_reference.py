@@ -78,15 +78,16 @@ def test_historical_rust_edges_retain_the_unmeasured_srt_content_gap():
 
 
 SUBTITLE_CASES = read(PYTHON/'subtitle-text/cases.json')['cases']
+UNICODE_SUBTITLE_CASES = read(PYTHON/'subtitle-text/cases.json')['unicode_cases']
 
 
-@pytest.mark.parametrize('case',SUBTITLE_CASES,ids=lambda case:case['name'])
+@pytest.mark.parametrize('case',SUBTITLE_CASES+UNICODE_SUBTITLE_CASES,ids=lambda case:case['name'])
 def test_subtitle_oracle_replays_sdk_helper_and_public_video(case):
     import importlib.metadata
     from streamlit.elements.lib.subtitle_utils import _handle_string_or_path_data
     from streamlit.testing.v1 import AppTest
 
-    assert importlib.metadata.version('streamlit')=='1.66.1' and len(SUBTITLE_CASES)==22
+    assert importlib.metadata.version('streamlit')=='1.66.1' and len(SUBTITLE_CASES)==22 and len(UNICODE_SUBTITLE_CASES)==12
     app=AppTest.from_string('import streamlit as st\nst.video(b"ftyp",subtitles={"en":'+repr(case['input'])+'})').run()
     if case['accepted']:
         body=_handle_string_or_path_data(case['input'])

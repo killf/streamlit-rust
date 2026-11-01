@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 字幕 Unicode 边界：新增 12 个 SDK/helper 与公开 AppTest 冻结用例，八接受/四拒绝；Python 媒体模块 48 项通过，Rust counter-arabic 实测拒绝与参考不符。编号 isdigit 与时间码 Unicode 十进制分类必须分开；完整分类来源三案待决定，生产实现未改。见[验收](acceptance.md#current-subtitle-unicode-reference-validation-2026-11-01)与[方案](architecture.md#subtitle-unicode-numeric-classification-proposal-2026-11-01)。
+
 2026-11-01 原始字幕文本修复：SRT 保留 cue 编号、正确转换全部 ASCII 时间码并保留内部文本/换行；原始 VTT/空文本按 SDK 去首尾空白。22 个 SDK/公开 AppTest oracle 对应 Rust 字节/URL/拒绝单元先红后绿；真实字幕 HTTP 从坏的 45 字节修为 SDK 的 49 字节，修前记录保留。见[验收](acceptance.md#current-subtitle-text-conversion-validation-2026-11-01)。33 字节识别边界按参考保留；非 ASCII 数字、文件输入和浏览器显示等继续开放。
 
 2026-11-01 媒体 HTTP HEAD/字幕资源修复：现有路由接收 GET/HEAD 并使用存储 MIME，修复 HEAD、无后缀 audio/x-wav 和 VTT 的 404；字幕内容地址补 SDK 标签摘要文件名。公开网络回归先红后绿，两端各 48 个原始 TCP 响应的完整 URL/头/正文匹配，HEAD 无正文，修前 36 个 404 原样保留。见[验收](acceptance.md#current-media-head-and-subtitle-resource-validation-2026-11-01)。无公开 API/依赖变化，真实播放/定位/字幕显示、其他头和资源生命周期继续开放。
