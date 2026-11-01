@@ -21,6 +21,65 @@ def read(path):
 
 
 MEDIA_TIME_CASES = read(PYTHON / 'trace.json')['playback_time_cases']
+MEDIA_MIME_CASES = read(PYTHON / 'trace.json')['mime_cases']
+
+
+@pytest.mark.parametrize('case', MEDIA_MIME_CASES, ids=lambda case: case['name'])
+def test_media_mime_replays_sdk_players_storage_and_asgi_get(case):
+    import asyncio
+    import importlib.metadata
+    from starlette.applications import Starlette
+    from streamlit.runtime.memory_media_file_storage import (
+        MemoryMediaFileStorage, MediaFileKind, get_extension_for_mimetype,
+    )
+    from streamlit.testing.v1 import AppTest
+    from streamlit.web.server.starlette.starlette_routes import create_media_routes
+
+    assert importlib.metadata.version('streamlit') == '1.66.1'
+    assert len(MEDIA_MIME_CASES) == 45
+    mime = case['mime']
+    assert get_extension_for_mimetype(mime) == case['extension']
+    digest = hashlib.blake2b(b'4:ftyp' + mime.encode(), digest_size=16).hexdigest()
+    assert case['url'] == '/media/' + digest + case['extension']
+
+    for kind in ('audio', 'video'):
+        app = AppTest.from_string('import streamlit as st\nst.' + kind + '(b"ftyp",format=' + repr(mime) + ')').run()
+        assert not app.exception and len(app.get(kind)) == 1
+        proto = app.get(kind)[0].proto
+        expected = case['players'][kind]
+        assert MessageToDict(proto, preserving_proto_field_name=True) == expected['apptest_fields']
+        assert proto.SerializeToString() == base64.b64decode(expected['apptest_proto_base64'], validate=True)
+        assert proto.url == '/mock' + case['url']
+        proto.url = case['url']
+        assert proto.SerializeToString() == bytes(expected['proto_bytes'])
+
+    storage = MemoryMediaFileStorage('/media')
+    file_id = storage.load_and_get_id(b'ftyp', mime, MediaFileKind.MEDIA)
+    assert storage.get_url(file_id) == case['url']
+    route_app = Starlette(routes=create_media_routes(storage, None))
+    events = []
+
+    async def receive():
+        return {'type': 'http.request', 'body': b'', 'more_body': False}
+
+    async def send(message):
+        events.append(message)
+
+    async def get():
+        await route_app(dict(type='http', http_version='1.1', method='GET', scheme='http',
+                             path=case['url'], raw_path=case['url'].encode(), query_string=b'',
+                             headers=[(b'host', b'localhost')], server=('127.0.0.1', 0),
+                             client=('127.0.0.1', 0)), receive, send)
+
+    asyncio.run(get())
+    starts = [event for event in events if event['type'] == 'http.response.start']
+    assert len(starts) == 1
+    expected = case['sdk_asgi_get']
+    assert starts[0]['status'] == expected['status'] == 200
+    assert {key.decode(): value.decode() for key, value in starts[0]['headers']} == expected['headers']
+    body = b''.join(event['body'] for event in events if event['type'] == 'http.response.body')
+    assert body == bytes(expected['body_bytes']) == b'ftyp'
+    assert hashlib.sha256(body).hexdigest() == expected['body_sha256']
 
 
 @pytest.mark.parametrize('case', MEDIA_TIME_CASES, ids=lambda case: case['name'])

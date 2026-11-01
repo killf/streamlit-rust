@@ -3105,3 +3105,21 @@ DOM 读取与截图不是原子操作：SDK fresh-loop-paused 的 DOM 是 0.7817
 最终视频/文档/配置/矩阵四模块 159 项通过（104 视频、55 文档，target/video-timed-final-gates.log），inventory 仍 130 partial。逐文件 diff/git diff --check 通过，九个受保护用户文件及全部捕获 source/exe SHA 与启动快照一致，库无 diff；只对修改的 example 做实际构建/Clippy，不无故重复全 Cargo。
 
 仅暂存本批八个既有示例/测试/计划/矩阵文件和十七个新证据文件（十五 JPEG、两 trace），不纳入用户 Cargo、colconfig、指南/README 修改。两个现存任务标签已关闭，原 SDK 标签缺失状态保留；自有服务已清理。无 PR、合并、部署或发布，完整目标继续。
+
+
+## Current media MIME case and parameter validation (2026-11-01)
+
+沿用现有十五种媒体类型补齐 45 个固定输入：原样、大写和 `; codecs=test`。锁定 Windows/Python 3.14.7、Streamlit 1.66.1 的公开 AppTest 捕获 90 个完整 Audio/Video protobuf；另以原始 MIME/四字节 `ftyp` 注册 SDK MemoryMediaFileStorage，并调用真实 Starlette ASGI GET 路由，保留 45 个地址、状态、完整语义响应头和正文 SHA。追加于既有 media-params/trace.json，原 17 个顶层字段逐值不变；不是 SDK socket/WS 或浏览器采集，没有新增依赖。
+
+先红后绿：扩展名单元在 `IMAGE/PNG` 返回 None 而参考要求 png；真实 WS 回归只生成 30 个播放器而参考要求 90 个（target/media-mime-red.log、target/media-mime-runtime-red.log）。仅修改既有内部 media::extension：支持表按 ASCII 不区分大小写查找，已支持类型的参数形式使用无后缀地址，audio/wave 与 audio/x-wav 均无后缀。原 MIME 仍参与 BLAKE2b 内容地址并原样存储/用于响应头；没有修改下载后缀、公开 API、服务发送流程或依赖。
+
+新增原生集成从公开 audio/video API 的真实 WS 帧取得全部 45 个 URL，实际 TCP GET，并比较 90 个完整播放器 protobuf、状态、content-type/length/accept-ranges、正文及无下载 disposition。捕获返回结果（含返回错误或超时）后先停止/等待自有服务，再做结果比较；捕获有十五秒上限。SDK 测试重放 45 个 helper/公开播放器/ASGI 三层参考，原始 mock URL protobuf 与规范 URL protobuf 分别核对，摘要保持原 MIME。
+
+代码检查先行：两份 Rust 文件按语义单元留空行，rustfmt 与逐段 diff 复查。首次 Clippy 指出新增测试 chunks_exact 的写法，改用 as_chunks 后 workspace/all-targets Clippy -D warnings 通过；保留既有 MSVC linker_messages 告警。9 项媒体单元、13 项媒体运行集成通过（target/media-mime-unit.log、target/media-mime-runtime.log），112 项 media-params Python 重放通过（target/media-mime-python.log）。
+
+范围仅是既有十五类的大小写/参数与 audio/wave 后缀。四字节数据只验证传输和协议，不验证播放解码；未知普通 MIME、完整平台 MIME 数据库、下载命名和完整资源生命周期仍开放。矩阵 st.audio/st.video 保持 partial；M3/M5/M7 与完整目标不关闭，未实施待决 Unicode/repr 或 Navigation/PageConfig/toast 扩展。
+
+
+最终工作区 355 项通过（348 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference；target/media-mime-workspace.log，不称完整工作区全绿。相关六个 Python/文档模块共 260 项通过（112 media-params、68 media-more、25 media-contract、55 文档/配置/矩阵，target/media-mime-python.log、target/media-mime-related.log）；最终文档修改后另复验 55 项通过（target/media-mime-final-docs.log）。
+
+生成清单仍 130 partial。新边界文字明确平台数据库，现有关键词分类器将 st.audio 另标为需环境，故该桶从 12 到 13；这是边界标签补记，不是新增/删减目标或兼容完成数。九个受保护用户文件 SHA 与本批启动快照相同，旧参考字段未变；仅暂存本批九个既有代码/测试/参考/计划/矩阵文件，不包含 Cargo、colconfig、指南和 README 用户修改。无 PR、合并、发布或部署，完整目标继续。

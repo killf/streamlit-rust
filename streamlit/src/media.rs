@@ -125,18 +125,19 @@ pub(crate) fn stored_file(id: &str) -> Option<StoredFile> {
     FILES.get(id).map(|entry| entry.value().clone())
 }
 
-/// The extension of the measured media content types. The URL extension is
-/// how the reference names stored media files. `audio/x-wav` is known but
-/// measured to carry NO extension (frozen media-params reference), unlike
-/// `audio/wav`/`audio/wave` — an empty extension means a bare address.
+/// The measured media suffixes use case-insensitive MIME lookup. Parameters
+/// and the `audio/wave`/`audio/x-wav` aliases carry a bare address in the pinned
+/// reference. The caller still stores and hashes the original MIME string.
 pub fn extension(mime: &str) -> Option<&'static str> {
-    Some(match mime {
+    let lowercase = mime.to_ascii_lowercase();
+    let (base, parameters) = lowercase.split_once(';').map_or((lowercase.as_str(), false), |(base, _)| (base, true));
+    let extension = match base {
         "image/png" => "png",
         "image/jpeg" => "jpg",
         "image/webp" => "webp",
         "image/gif" => "gif",
-        "audio/wav" | "audio/wave" => "wav",
-        "audio/x-wav" => "",
+        "audio/wav" => "wav",
+        "audio/wave" | "audio/x-wav" => "",
         "audio/mpeg" => "mp3",
         "audio/ogg" => "ogg",
         "audio/flac" => "flac",
@@ -146,7 +147,9 @@ pub fn extension(mime: &str) -> Option<&'static str> {
         "video/ogg" => "ogv",
         "text/vtt" => "vtt",
         _ => return None,
-    })
+    };
+
+    Some(if parameters { "" } else { extension })
 }
 
 /// A parsed single byte range, including open-ended and suffix requests.
@@ -329,6 +332,21 @@ impl RgbaImage {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn mime_extensions_match_frozen_sdk_case_and_parameter_variants() -> anyhow::Result<()> {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../tests/reference/reference-browser/media-params/trace.json"))?;
+        let cases = reference["mime_cases"].as_array().ok_or_else(|| anyhow::anyhow!("missing MIME cases"))?;
+        assert_eq!(cases.len(), 45);
+
+        for case in cases {
+            let mime = case["mime"].as_str().ok_or_else(|| anyhow::anyhow!("missing MIME"))?;
+            let suffix = case["extension"].as_str().ok_or_else(|| anyhow::anyhow!("missing extension"))?;
+            assert_eq!(extension(mime), Some(suffix.strip_prefix('.').unwrap_or(suffix)), "{mime}");
+        }
+
+        Ok(())
+    }
 
     #[test]
     fn put_is_content_addressed_and_get_round_trips() {

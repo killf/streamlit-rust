@@ -8,6 +8,76 @@ use super::*;
 use crate::InputWidgets;
 use crate::{DeltaColor, MetricOptions, RgbaImage};
 
+fn media_mime_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/media-params/trace.json")).expect("frozen MIME reference");
+
+        for case in reference["mime_cases"].as_array().expect("MIME cases") {
+            let mime = case["mime"].as_str().expect("MIME");
+            st.audio(crate::AudioOptions::new(b"ftyp".to_vec(), mime));
+            st.video(crate::VideoOptions::new(b"ftyp".to_vec(), mime));
+        }
+    })
+}
+
+#[actix_web::test]
+async fn media_mime_players_and_http_match_frozen_sdk() -> TestResult {
+    let (address, handle, task, mut socket) = start_media_server(media_mime_entry).await?;
+    let captured = tokio::time::timeout(Duration::from_secs(15), async {
+        // 1. 通过公开播放器生成真实 WS 帧，按实际地址读取资源。
+        let wires = run_once(&mut socket, &mut String::new()).await?;
+        let mut responses = std::collections::BTreeMap::new();
+
+        for element in &wires.elements {
+            let url = match element.r#type.as_ref() {
+                Some(element::Type::Audio(audio)) => &audio.url,
+                Some(element::Type::Video(video)) => &video.url,
+                _ => return Err("MIME input must render a player".into()),
+            };
+            if !responses.contains_key(url) {
+                responses.insert(url.clone(), http_request(address, url, "GET", &[]).await?);
+            }
+        }
+
+        Ok::<_, Box<dyn std::error::Error>>((wires, responses))
+    })
+    .await;
+    // 2. 先清理服务，再比较完整 protobuf、原始 MIME 响应头和正文。
+    drop(socket);
+    handle.stop(false).await;
+    task.await??;
+    let (wires, responses) = captured??;
+    let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/media-params/trace.json"))?;
+    let cases = reference["mime_cases"].as_array().ok_or("missing MIME cases")?;
+    assert_eq!(cases.len(), 45);
+    assert_eq!(wires.elements.len(), 90);
+    assert_eq!(responses.len(), 45);
+
+    for (elements, case) in wires.elements.as_chunks::<2>().0.iter().zip(cases) {
+        for (element, kind) in elements.iter().zip(["audio", "video"]) {
+            let bytes = serde_json::from_value::<Vec<u8>>(case["players"][kind]["proto_bytes"].clone())?;
+            match element.r#type.as_ref() {
+                Some(element::Type::Audio(audio)) if kind == "audio" => assert_eq!(*audio, crate::proto::Audio::decode(bytes.as_slice())?, "{}", case["name"]),
+                Some(element::Type::Video(video)) if kind == "video" => assert_eq!(*video, crate::proto::Video::decode(bytes.as_slice())?, "{}", case["name"]),
+                _ => return Err(format!("{}: expected {kind} player", case["name"]).into()),
+            }
+        }
+
+        let url = case["url"].as_str().ok_or("missing URL")?;
+        let (status, headers, body) = responses.get(url).ok_or("missing actual media GET")?;
+        let expected = &case["sdk_asgi_get"];
+        assert_eq!(Some(u64::from(*status)), expected["status"].as_u64(), "{url}");
+        let headers: std::collections::BTreeMap<_, _> = headers.iter().cloned().collect();
+        for (name, value) in expected["headers"].as_object().ok_or("missing SDK headers")? {
+            assert_eq!(headers.get(name).map(String::as_str), value.as_str(), "{url}: {name}");
+        }
+        assert!(!headers.contains_key("content-disposition"));
+        assert_eq!(*body, serde_json::from_value::<Vec<u8>>(expected["body_bytes"].clone())?, "{url}");
+    }
+
+    Ok(())
+}
+
 fn metric_string_delta_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
         for (mode, color) in [("normal", DeltaColor::Normal), ("inverse", DeltaColor::Inverse), ("off", DeltaColor::Off)] {

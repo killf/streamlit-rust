@@ -4,6 +4,8 @@ Streamlit runtime compatibility is pinned to 1.66.1. The historical API matrix c
 
 ## Long-term documentation scope
 
+2026-11-01 媒体 MIME 实证：锁定 Windows/Python 3.14.7 SDK 1.66.1，十五类 × 原样/大写/参数共 45 案，公开 AppTest 90 个播放器与真实 SDK ASGI GET 参考通过重放，Rust 实际 WS/HTTP 对照通过。原始 MIME 仍参与地址和响应头，参数及 audio/wave 无后缀；仅内部后缀实现调整。ASGI 不算 SDK socket/浏览器，四字节传输不算播放验证，完整 MIME 注册表、其他平台和下载命名未关闭。见[验收](acceptance.md#current-media-mime-case-and-parameter-validation-2026-11-01)。
+
 2026-10-27 用户确认长期完整实现目标，并明确功能范围来自官方用户文档，不能从 Python API 导出构造分母。按文档中的功能、子能力、参数行为、配置及使用场景组织工作；Rust 接口和实现可以不同。源码、协议和参考运行只用于核实行为和实现线索。
 
 官方入口包括 [API reference](https://docs.streamlit.io/develop/api-reference)、[开发概念](https://docs.streamlit.io/develop/concepts)和[部署概念](https://docs.streamlit.io/deploy/concepts)。历史目录未覆盖的主题、测试与部署说明也需盘点；每页根据用户可获得的能力归类，不把导航页、概念页或 Python 符号各算成一个待实现接口。托管平台操作与 Rust 应用本身的职责分开判断。
