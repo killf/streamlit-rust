@@ -13,6 +13,44 @@ PYTHON = Path(__file__).parent / "reference-browser/temporal-params"
 RUST = Path(__file__).parents[1] / "browser/rust-temporal-params"
 
 
+@pytest.mark.parametrize('target',('Single','Range'))
+@pytest.mark.parametrize('text',('bad','2025-04-10','日期🧊'))
+@pytest.mark.parametrize('peer_first',(False,True))
+def test_sdk_disabled_date_strings_run_peer_then_fail_registration_and_recover(target,text,peer_first):
+    from streamlit.testing.v1 import AppTest
+    from streamlit.proto.WidgetStates_pb2 import WidgetStates
+
+    app=AppTest.from_file(str(Path(__file__).parent/'widget_params_app.py'))
+    app.query_params.update(probe='date-disabled',phase='disabled-assign');app.run()
+    assert not app.exception
+    identities={widget.label:widget.id for widget in (*app.date_input,*app.checkbox)}
+    values=['2025-03-15' if target=='Single' else '2025-10-01', ['2025-03-15','2025-03-20'] if target=='Range' else ['2025-10-10','2025-10-20'],True]
+    calls=[['peer',*values]]
+    incoming=WidgetStates()
+    for label in (('Peer',target) if peer_first else (target,'Peer')):
+        widget=incoming.widgets.add(id=identities[label])
+        if label=='Peer':widget.bool_value=True
+        else:widget.string_value=text
+    app.query_params['phase']='disabled-load';app._run(incoming)
+    assert [error.message for error in app.exception]==['bad argument type for built-in operation']
+    assert app.session_state['date_bound_calls']==calls
+    for attempt in ('recovery','enable','edit'):
+        incoming=WidgetStates();peer=attempt=='enable'
+        if attempt!='recovery':
+            dates=['2025-08-01'] if target=='Single' else ['2025-08-10','2025-08-20']
+            if attempt=='edit':dates=['2025-11-01'] if target=='Single' else ['2025-11-10','2025-11-20']
+            incoming.widgets.add(id=identities[target]).string_array_value.data[:]=dates
+            values[0 if target=='Single' else 1]=dates[0] if target=='Single' else dates
+            app.query_params['phase']='enabled-joint'
+        values[2]=peer;incoming.widgets.add(id=identities['Peer']).bool_value=peer
+        calls += [[source,*values] for source in ((target.lower(),'peer') if attempt=='edit' else ('peer',))]
+        app._run(incoming)
+        assert not app.exception
+        assert json.loads(app.json[0].value)=={'phase':'disabled-load' if attempt=='recovery' else 'enabled-joint','values':values,'native':values,'calls':calls}
+        assert {widget.label:widget.id for widget in (*app.date_input,*app.checkbox)}==identities
+        assert all(not widget.proto.set_value for widget in app.date_input)
+
+
 @pytest.mark.parametrize("kind,value,error", (("bool_value",True,"'bool' object is not iterable"), ("bool_value",False,"'bool' object is not iterable"),
     ("trigger_value",True,"'bool' object is not iterable"), ("trigger_value",False,"'bool' object is not iterable"), ("int_value",7,"'int' object is not iterable"),
     ("double_value",1.5,"'float' object is not iterable"), ("int_array_value",[7],"strptime() argument 1 must be str, not int"),

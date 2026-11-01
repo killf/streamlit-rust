@@ -42,6 +42,7 @@ parser.add_argument('--date-single', action='store_true', help='single-date defa
 parser.add_argument('--date-bounds', action='store_true', help='single/complete-range native bounds, callback/reset order and code assignments')
 parser.add_argument('--date-implicit', action='store_true', help='implicit-bound single/range mode retention and callback recovery')
 parser.add_argument('--date-mode', action='store_true', help='explicit-bound single/range mode resets and callback recovery')
+parser.add_argument('--date-strings', action='store_true', help='disabled date string errors after peer callbacks and subsequent recovery')
 parser.add_argument('--date-errors', action='store_true', help='isolated disabled date early-type-error and blocked recovery sessions')
 parser.add_argument('--date-disabled', action='store_true', help='disabled date callback exposure, restoration and enabled transitions')
 parser.add_argument('--date-range', action='store_true', help='range missing/legacy/invalid/bounded inputs and registered-default callbacks')
@@ -66,7 +67,7 @@ parser.add_argument('--resume-after-stop', action='store_true', help='append nor
 parser.add_argument('--stop-lifecycle', action='store_true', help='button and URL-bound text around early stop and normal cleanup')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
-assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy, args.radio_identity, args.select_empty, args.multi_empty, args.multi_limits, args.format_collisions, args.radio_duplicates, args.group_width, args.group_policy, args.group_state, args.group_defaults, args.feedback_identity, args.feedback_empty, args.text_empty, args.number_empty, args.time_empty, args.datetime_empty, args.datetime_bounds, args.date_single, args.date_bounds, args.date_range, args.date_mode, args.date_implicit, args.date_disabled, args.date_errors)) <= 1
+assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy, args.radio_identity, args.select_empty, args.multi_empty, args.multi_limits, args.format_collisions, args.radio_duplicates, args.group_width, args.group_policy, args.group_state, args.group_defaults, args.feedback_identity, args.feedback_empty, args.text_empty, args.number_empty, args.time_empty, args.datetime_empty, args.datetime_bounds, args.date_single, args.date_bounds, args.date_range, args.date_mode, args.date_implicit, args.date_disabled, args.date_errors, args.date_strings)) <= 1
 assert not args.number_float or args.number_sequence
 assert not args.select_unkeyed or args.select_policy
 assert not args.radio_empty or args.radio_identity
@@ -93,7 +94,7 @@ TRACE = {'schema_version': 1, 'runtime': 'rust' if args.url else 'python', 'refe
          'scope': 'Element wire of widget creation-parameter edges over one native WS; no browser/UI claim.',
          'server_command': COMMAND, 'server_cleanup': 'caller-owned' if COMMAND is None else 'collector-owned',
          'url': URL, 'frames': [], 'elements': [], 'finishes': []}
-if args.color or args.color_unkeyed or args.bool_width or args.select_policy or args.radio_identity or args.select_empty or args.multi_empty or args.multi_limits or args.format_collisions or args.radio_duplicates or args.group_width or args.group_policy or args.group_state or args.group_defaults or args.feedback_identity or args.feedback_empty or args.text_empty or args.number_empty or args.time_empty or args.datetime_empty or args.datetime_bounds or args.date_single or args.date_bounds or args.date_range or args.date_mode or args.date_implicit or args.date_disabled or args.date_errors:
+if args.color or args.color_unkeyed or args.bool_width or args.select_policy or args.radio_identity or args.select_empty or args.multi_empty or args.multi_limits or args.format_collisions or args.radio_duplicates or args.group_width or args.group_policy or args.group_state or args.group_defaults or args.feedback_identity or args.feedback_empty or args.text_empty or args.number_empty or args.time_empty or args.datetime_empty or args.datetime_bounds or args.date_single or args.date_bounds or args.date_range or args.date_mode or args.date_implicit or args.date_disabled or args.date_errors or args.date_strings:
     TRACE['scope'] = 'Color defaults/widths and fifteen callback/state reruns on one native WS; no browser/UI claim.'
     TRACE['producer_sources_sha256'] = {path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest() for path in (
         'streamlit/examples/widget_params.rs', 'tests/reference/widget_params_app.py', 'tests/browser/widget_params_capture.py')}
@@ -150,6 +151,8 @@ if args.date_implicit:
     TRACE['scope'] = 'Twelve keyed single/range implicit-bound native-type retention and callback runs on one native WS; no None/partial/browser claim.'
 if args.date_mode:
     TRACE['scope'] = 'Twelve keyed single/range explicit-bound mode reset and callback runs on one native WS; no implicit/empty/partial/browser claim.'
+if args.date_strings:
+    TRACE['scope'] = 'Twelve isolated disabled date nonempty string error sessions with peer callbacks, recovery, reenable and edit; no trigger/None/browser claim.'
 if args.date_errors:
     TRACE['scope'] = 'Thirty-six isolated disabled date protobuf-type-error sessions, load/error/blocked recovery; no JSON/string/empty-container/browser claim.'
 if args.date_disabled:
@@ -316,6 +319,10 @@ try:
                                              ('int_value',7),('double_value',1.5),('int_array_value',[7]),('double_array_value',[1.5]),('bytes_value','eA=='))
                           for peer_first in (False,True)]
         steps = [(attempt,None) for case in TRACE['cases'] for attempt in ('load','malformed','recovery')]
+    if args.date_strings:
+        TRACE['cases'] = [{'target':target,'value':text,'peer_first':peer_first} for target in ('Single','Range')
+                          for text in ('bad','2025-04-10','日期🧊') for peer_first in (False,True)]
+        steps = [(attempt,None) for case in TRACE['cases'] for attempt in ('seed','malformed','recovery','enable','edit')]
     feedback_ids = {}
     group_ids = {}
     empty_select_ids = {}
@@ -324,20 +331,24 @@ try:
     color_id = None
     for step_index, (phase, submitted) in enumerate(steps):
         request = BackMsg()
-        if args.date_errors:
-            case_index, attempt = divmod(step_index,3)
+        if args.date_errors or args.date_strings:
+            case_index, attempt = divmod(step_index,5 if args.date_strings else 3)
             case = TRACE['cases'][case_index]
             if attempt == 0 and case_index:
                 WS.close()
                 WS = connect(URL.replace('http','ws')+'/_stcore/stream',origin=URL,subprotocols=['streamlit'],proxy=None,
                              open_timeout=10,close_timeout=5,max_size=None,legacy=True)
                 date_bounds_ids.clear()
-            request.rerun_script.query_string = 'probe=date-disabled&phase=disabled-load&case='+str(case_index)+'&attempt='+phase
+            fixture_phase = ('disabled-assign' if attempt == 0 else 'disabled-load' if attempt < 3 else 'enabled-joint') if args.date_strings else 'disabled-load'
+            request.rerun_script.query_string = 'probe=date-disabled&phase='+fixture_phase+'&case='+str(case_index)+'&attempt='+phase
             if attempt:
-                order = ('Peer',case['target']) if case['peer_first'] else (case['target'],'Peer')
+                order = ('Peer',) if args.date_strings and attempt == 2 else ('Peer',case['target']) if case['peer_first'] and (not args.date_strings or attempt == 1) else (case['target'],'Peer')
                 for label in order:
                     widget = request.rerun_script.widget_states.widgets.add(id=date_bounds_ids[label])
-                    if label == 'Peer':widget.bool_value = attempt == 1
+                    if label == 'Peer':widget.bool_value = attempt in (1,3)
+                    elif args.date_strings:
+                        if attempt == 1:widget.string_value = case['value']
+                        else:widget.string_array_value.data[:] = (['2025-08-01'] if label == 'Single' else ['2025-08-10','2025-08-20']) if attempt == 3 else (['2025-11-01'] if label == 'Single' else ['2025-11-10','2025-11-20'])
                     elif attempt == 2:widget.string_array_value.data[:] = ['2025-04-10'] if label == 'Single' else ['2025-04-10','2025-04-20']
                     elif case['kind'].endswith('array_value'):getattr(widget,case['kind']).data[:] = case['value']
                     elif case['kind'] == 'bytes_value':widget.bytes_value = base64.b64decode(case['value'],validate=True)
@@ -614,7 +625,7 @@ try:
                         datetime_empty_ids[view.label] = view.id
                     if (args.date_single or args.date_mode or args.date_implicit) and element_kind in ('date_input', 'checkbox'):
                         date_single_ids[view.label] = view.id
-                    if (args.date_bounds or args.date_range or args.date_disabled or args.date_errors) and element_kind in ('date_input', 'checkbox'):
+                    if (args.date_bounds or args.date_range or args.date_disabled or args.date_errors or args.date_strings) and element_kind in ('date_input', 'checkbox'):
                         date_bounds_ids[view.label] = view.id
                     if args.number_empty and element_kind in ('number_input', 'checkbox'):
                         number_empty_ids[view.label] = view.id

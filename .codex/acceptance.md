@@ -2840,3 +2840,24 @@ Rust 编辑文件逐段 diff、格式检查、全工作区/all-target Clippy 通
 
 矩阵只补 st.date_input 的本批错误证据与 limitation，生成 inventory 仍 130 partial；指南追加已测错误类型与持续状态，并明确尚无完整 Rust 异常栈。JSON/字符串/空容器及其他 message 类型、多个坏控件混合、启用控件错误、None/空/部分/多端点公开模型、真实错误 UI、绑定/表单/跨页与其他组合继续开放。用户现有 colconfig 等修改保留，无 PR、合并、发布或部署；M3/M5/M7 与完整 Goal 保持开放。
 文档/配置/矩阵三模块 55 项通过；提交前确认原指南字节前缀、受保护用户文件 SHA 和新捕获来源/index blob 口径一致。
+
+
+## Current disabled date string error recovery validation (2026-11-01)
+
+继续用户已选的 Python 错误/callback/恢复兼容方案，生产仅修改 widgets.rs：禁用日期的非空普通 string_value 逐字符解析失败后，先通过已有 empty_input/before_input 暴露声明默认给 Peer callback，再将原错误包留待日期登记时报 TypeError: bad argument type for built-in operation。复用原 registration_error/Stop 呈现与保留机制，没有新增字段、依赖、公开 API 或发送流程。正常 string_array/ID-only 和提前 persistent input_error 分支保持。恢复后保存默认，不复活错误前 October 原生值；重新启用接受新值但日期 callback 仍按上轮禁用策略抑制，下一次正常编辑恢复日期再 Peer 的回调顺序。
+
+新增 Rust registry 单元覆盖单值/范围、bad/ISO/中文 emoji 三个非空字符串、两种输入顺序共十二组合，真实先红于原生值仍为 October 而非声明 March 默认，修后通过；十二个锁定 SDK AppTest 核对同伴 callback 的实际读值、错误文字和 recovery/enable/edit 的完整状态历史。普通字符串不能与 string_trigger_value 合并：SDK 后者首次 Peer 也看到默认，随后 trigger 清理将状态重置为 None，恢复时 fixture 回调访问 None 再失败；这依赖尚待选择的公开日期模型。本批不处理空串、trigger/None、JSON 或空容器。
+
+[SDK](../tests/reference/reference-browser/widget-params/date-strings/trace.json) 与 [Rust](../tests/browser/rust-widget-params/date-strings/trace.json) 各保留十二个独立原生 WS 会话、60 轮、498 帧、210 完整 Element、十二个预期 TypeError。采集器新增 date-strings 选项，复用现有 date-disabled fixture/example，不改其源码。每例 seed(代码赋值 October)→malformed→recovery(只提交 Peer)→enable→edit。Single 错误时仅异常；Range 错误前已呈现 Single，不因后续异常撤销该元素。异常路径分别 [0,0]/[0,1]，全部脚本 finish=0。
+
+十一项严格原生门核对 raw base64/长度/MessageToDict/Element 投影、完整帧和 running 顺序、query/case/attempt/history、每例同一 session/跨例隔离、60 个 run、输入目标/顺序/oneof/payload、稳定 ID、默认/边界/format/布局/disabled/value/set_value/one-shot、原生和返回值及全部 callback。八种 coherent 负例同步改 raw/message/元素投影并确认一帧实际变化，拒绝错误文案、恢复错误、Peer 读旧 October、Range 异常位置错、过期输入 ID、合法日期冒充错误字符串、跨例 session 泄漏和漏掉初始同步。
+
+SDK 原始异常栈非空，Rust 框架仍空栈；只在语义比较时排除 exception.stack_trace，完整成功 Element 和其余异常字段匹配，不删除实际 Python 栈也不伪造 Rust 栈。Rust error_semantics_match=true、semantic_match=false，不宣称异常 Element/字节或真实错误 UI 完整兼容。本批无浏览器操作。
+
+同一当前二进制重放早期错误 36 会话/108 轮/720 帧与旧正常禁用十二轮/107 帧：前者去栈后的语义和后者完整 Element 均匹配冻结 SDK。新捕获三个 producer、widgets/widget_api 实际 SHA 与二进制 SHA 均已核对；source_commit=8254d52 为启动基线，工作区内容由 SHA 标识。SDK 服务与自持 Rust Popen 均 terminate/wait，动态 SDK 端口及 8599 无监听。
+
+编辑 Rust 格式和逐段 diff、全工作区/all-target Clippy、widgets 二十项、真实 pickers 两项及示例构建通过，既有 MSVC linker stdout warning 保留。工作区 345 项通过（338 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称全绿。日志 target/date-string-{red,green,sdk,clippy,clippy-final,widgets,pickers,build,sdk-ws,server,gate,workspace,python,docs}.log。
+
+矩阵仅补 st.date_input 本批证据与 limitation，生成 inventory 仍 130 partial；指南只追加兼容边界，原字节前缀和受保护用户 colconfig 等文件 SHA 保持。空串、trigger/None、JSON/容器、空/部分/多端点公开返回模型、真实错误 UI、表单/绑定/跨页和其他组合继续开放；M3/M5/M7 与完整 Goal 未关闭。用户再次选定 rerun 仅丢弃未发 Delta、保留已发帧和 URL，已实现边界不变；config/toast 队列差异仍待独立决定。本批未创建 PR、合并、部署或发布。
+
+相关八个 Python 模块共 1669 项通过，其中 widget 参数模块 520 项、temporal 159 项；文档/配置/矩阵三模块 55 项通过。提交前再次核对完整受保护用户文件 SHA、指南原字节前缀及两个新捕获的实际 producer/Rust 来源与暂存 blob 一致。

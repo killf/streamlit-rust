@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 禁用日期非空普通字符串：Peer callback 先看到声明默认，登记时再报 TypeError；恢复保留默认，重新启用与下一次正常编辑恢复既有 callback 策略。十二 SDK/注册组合先红后绿，两端各十二独立会话、60 轮、498 帧、210 Element；栈差异保留，error_semantics_match=true、semantic_match=false。见[验收](acceptance.md#current-disabled-date-string-error-recovery-validation-2026-11-01)。空串、trigger/None、JSON/容器及公开返回模型仍开放。
+
 2026-11-01 禁用日期提前类型错误：bool/trigger、数字、非空数字数组/bytes 复用 input_error，callback 分派前报错且持续阻止恢复。36 个 SDK/注册组合先红后绿；两端原生 36 独立会话、108 轮、720 帧、72 TypeError 的类型/文字/位置/流程匹配，栈信息差异原样保留（error_semantics_match=true、semantic_match=false）。旧正常禁用日期复验通过。见[验收](acceptance.md#current-disabled-date-early-type-error-validation-2026-11-01)。JSON/字符串/空容器、部分范围模型及真实错误 UI 等继续开放，完整目标不变。
 
 2026-11-01 禁用日期 callback 时序：单日期/完整范围的归一化提交先供同伴 callback 读取，日期自身按上轮禁用策略抑制，登记再恢复旧值；代码赋值优先。公开 API 十二阶段先红后绿，两端原生十二轮、107 帧、48 Element、14 条 callback 匹配，禁用/启用同轮切换及旧五组日期协议复验通过。见[验收](acceptance.md#current-disabled-date-callback-exposure-validation-2026-11-01)。无公共 API 改动，错误 oneof、部分范围返回模型及真实范围日历失败仍开放，完整目标不变。
