@@ -2731,3 +2731,24 @@ widgets.rs 删除单值/范围重复解析，共用现有单日期 ISO/legacy �
 
 仅 st.date_input 矩阵新增原生证据键和本批 limitation，生成 inventory 仍 130 partial。合法空/部分/多端点公开返回模型仍待用户选择；本批没有新浏览器证据，模式/类型不匹配、禁用/ignore、query binding、表单/跨页及更广组合仍开放。用户 colconfig 及其他已有修改独立保留，无 PR、合并、发布或部署；M3/M5/M7 和完整 Goal 保持开放。
 本批相关八模块实测 1541 项通过：test_widget_params_reference、test_temporal_params_reference、test_pickers_contract、test_temporal_contract、test_datetime_contract、test_inputs_contract、test_refcore、test_capture_checks。文档/配置/矩阵三模块 55 项通过。增加完整消息次序断言后另重跑日期范围十一项；不将不同选择的八模块计数与上一批 817 项直接作增量比较。
+
+## Current date explicit-bound mode reset validation (2026-11-01)
+
+锁定 SDK 1.66.1 的 _validate_date_value 及当前 AppTest 显示：有 key 的 date_input 在单日期与完整范围模式间切换时 ID 保持；只要本轮显式声明 min 或 max，旧原生状态与新模式不匹配就恢复本轮默认。原 Rust 在既有 codec.valid 阶段直接报 value does not match date_input，未到返回转换或发出 Element。本批没有更改公开 DateSelection 或新增依赖。
+
+生产改动仅 widgets.rs 登记重置匹配中的一个分支：显式边界且非 Null 时，范围模式的非数组/空数组，或单日期模式的非字符串，回本轮默认并进入现有 range_reset 提交。沿用返回/keyed state/value/set_value/one-shot 一次同步，重置不额外 callback；其余日期解析、前端 oneof/列表长度校验、默认缓存和现有边界规则保持。Null、合法部分/多端点范围与无显式边界的跨模式返回仍有公开模型/转换边界，未据本切片扩大兼容声明。
+
+公开 API 单元真实先红于单值编辑后切换范围：target/date-mode-red.log 的 InvalidValue(value does not match date_input)；修后双边界、仅 min、仅 max 各十二阶段通过。阶段 load/edit/range/range-edit/single/single-edit/range-narrow/range-observe/range-recover/single-narrow/single-recover/single-observe。模式切换重置为单值 3/15 或范围 3/15..3/20；上轮模式解析输入，callback 先读整批日期和 Peer，登记后重置，不增加 callback。观察不重复同步，恢复正常输入仍可继续。另公开 API 验证两种模式各布尔 false、整数 7、空数组原生赋值，用显式 min 回默认并同步；这些是代码赋值，不称前端错 oneof。
+
+对应 SDK AppTest 三组十二阶段和六个原生形状赋值共九项通过。调用内部 _run 注入实际 WidgetStates，观察轮用空 WidgetStates，避免 AppTest 旧前端 serde 掩盖状态变化；不是正常浏览器输入。
+
+[SDK](../tests/reference/reference-browser/widget-params/date-mode/trace.json) 与 [Rust](../tests/browser/rust-widget-params/date-mode/trace.json) 首次原生采集各十二轮、95 帧、36 完整 Element、十条有序 callback，一条连接/session、十二个 run、两个稳定 ID。Single-edit 发送两个合法日期并验证上轮单值 serde 只返回首项；四次切换时 default/value/set_value/one-shot 和本轮模式一致，其他轮没有同步。完整 Element 只规范化 opaque ID 和 JSON body 后逐字段相等，严格门通过后才设 Rust semantic_match=true。原始首次成功记录未覆盖。
+
+严格门从 raw base64 重解析 protobuf，核对 bytes/message/元素投影、全部消息和 running 状态顺序、旧输入 ID/string_array/bool oneof/原始日期列表/history、session/run/路径、模式/default/min/max/format/布局/策略/同步与返回/原生/callback 类型和值。新增十一项至 widget 参数模块 465 项；八类 coherent 负例各确认实际改动一帧，并同步 raw/message/元素投影，拒绝缺同步、返回旧类型、观察重复同步、callback 旧日期、错误模式、过期提交 ID、截短 surplus 请求、更换输出 ID。
+
+当前二进制同一自持服务重放 date-single 十六轮（127 帧/48 Element）、date-bounds 十三轮（116/52）、date-range 十九轮（170/76），完整 Element 继续匹配冻结 SDK，结果保留在 target/date-mode-old-*/trace.json。当前 Python fixture 另重采旧 date-single 十六轮至 target/date-mode-sdk-old-single/trace.json，也与冻结 SDK 逐字段一致；既有原始参考和浏览器图不改。本批三份 producer、两份生产源文件及实际二进制 SHA 与新原生 capture metadata 匹配。所有自持服务 finally terminate/wait，58863/55169/8599 无监听。
+
+格式、三个编辑 Rust 文件的逐文件 diff、全工作区/all-target Clippy、示例构建通过；既有 MSVC linker stdout warning 保留。公开单元两项、真实 pickers 集成两项通过；最初定向命令 server::tests::runtime::pickers 未命中（0 项），已改为 server::tests::pickers:: 并确认两项实际通过，日志分开保留。最终工作区 341 项通过（334 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称全绿。日志 target/date-mode-{red,green,shapes,sdk,clippy-final,build,pickers,pickers-corrected,workspace,gate,python,server,sdk-ws,date-mode-ws,date-single-ws,date-bounds-ws,date-range-ws,sdk-old-single,docs}.log。
+
+矩阵只更新 st.date_input 的本批证据和 limitation，生成 inventory 仍 130 partial；指南追加显式边界模式切换语义并保留原 CRLF 字节前缀。本批无新浏览器采集；隐式边界跨模式、None/部分/多端点公开模型、前端错 oneof、禁用/ignore、query binding、表单/跨页及其他组合继续开放。用户 colconfig 及其他已有修改保留，无 PR、合并、发布或部署；M3/M5/M7 和完整 Goal 保持开放。
+本批相关八模块 1561 项通过（widget 参数 465、temporal 参数 106），文档/配置/矩阵三模块 55 项通过；命令范围与上一批 1541 项一致，新增十一项原生门和九项 SDK 验证。

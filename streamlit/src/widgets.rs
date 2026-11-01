@@ -1049,6 +1049,9 @@ impl SessionState {
                 (default.clone(), true)
             }
 
+            // 显式边界同时校验单值/范围模式；先回本轮默认，再检查返回类型。
+            (Codec::DateInput { range, default, reset_native: true, .. }, _) if !value.is_null() && (if *range { !value.is_array() || value.as_array().is_some_and(Vec::is_empty) } else { !value.is_string() }) => (default.clone(), true),
+
             (
                 Codec::DateInput {
                     range: false,

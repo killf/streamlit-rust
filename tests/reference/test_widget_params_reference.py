@@ -3838,6 +3838,122 @@ DATE_SINGLE_UI_STAGE_RUN = (0, 0, 0, 1, 2, 2, 2, 2, 2, 3, 4)
 DATE_SINGLE_UI_CALLS = [["day", "2025-04-20", False], ["peer", "2025-04-20", True], ["day", "2025-04-21", True], ["peer", "2025-04-21", False]]
 
 
+DATE_MODE_PHASES = ("load", "edit", "range", "range-edit", "single", "single-edit", "range-narrow", "range-observe", "range-recover", "single-narrow", "single-recover", "single-observe")
+DATE_MODE_RANGES = (False, False, True, True, False, False, True, True, True, False, False, False)
+DATE_MODE_VALUES = (["2025-03-15",False], ["2025-04-20",True], [["2025-03-15","2025-03-20"],True], [["2025-05-01","2025-05-10"],False],
+    ["2025-03-15",False], ["2025-06-01",True], [["2025-03-15","2025-03-20"],True], [["2025-03-15","2025-03-20"],True],
+    [["2025-03-10","2025-03-20"],False], ["2025-03-15",False], ["2025-03-12",True], ["2025-03-12",True])
+DATE_MODE_INPUTS = {1: (["2025-04-20"],True), 3: (["2025-05-01","2025-05-10"],False), 5: (["2025-06-01","2025-06-10"],True), 8: (["2025-03-10","2025-03-20"],False), 10: (["2025-03-12"],True)}
+DATE_MODE_COUNTS = (0,2,2,4,4,6,6,6,8,8,10,10)
+DATE_MODE_CALLS = [[source,*DATE_MODE_VALUES[index]] for index in (1,3,5,8,10) for source in ("day","peer")]
+
+
+def check_date_mode(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 12
+    assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 95 and len(capture["elements"]) == 36
+    kinds = [(message.WhichOneof("type"),message.session_status_changed.script_is_running) if message.WhichOneof("type") == "session_status_changed" else message.WhichOneof("type") for message in frames(capture)]
+    expected_kinds = []
+    for index in range(12):
+        expected_kinds += ["rerun_script"] + ([("session_status_changed",False)] if index else [])
+        expected_kinds += ["new_session",("session_status_changed",True)] + ["delta"] * 3 + ["script_finished"]
+    assert kinds == expected_kinds
+    runs = color_runs(capture,("date_input","checkbox","json"))
+    normalized, sessions, run_ids, ids = [], set(), set(), None
+    for index, (phase, run) in enumerate(zip(DATE_MODE_PHASES,runs,strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=date-mode&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id);run_ids.add(session.script_run_id)
+        assert [entry[0] for entry in run["entries"]] == ["date_input","checkbox","json"]
+        current = []
+        for position, (kind, widget, element) in enumerate(run["entries"][:2]):
+            assert widget.label == ("Day","Peer")[position] and widget.id.endswith("-date_single_" + ("day","peer")[position])
+            assert not widget.disabled and not widget.ignore_rerun and not widget.form_id and not widget.help and widget.label_visibility.value == 0
+            sync = position == 0 and index in (2,4,6,9)
+            assert widget.set_value is sync and element.HasField("has_one_shot_effect") is sync and element.has_one_shot_effect is sync
+            if kind == "date_input":
+                assert element.width_config.use_stretch and widget.is_range is DATE_MODE_RANGES[index] and not widget.query_param_key and widget.format == "YYYY/MM/DD"
+                high = "2025-03-31" if index in (6,7,8) else "2025-03-15" if index >= 9 else "2025-12-31"
+                assert (widget.min,widget.max) == ("2025-01-01",high)
+                default = ["2025-03-15","2025-03-20"] if DATE_MODE_RANGES[index] else ["2025-03-15"]
+                assert list(widget.default) == default and list(widget.value) == (default if sync else [])
+            else:
+                assert not widget.default and not widget.value and element.width_config.use_content
+            current.append(widget.id)
+        assert len(set(current)) == 2
+        if ids is None: ids = current
+        else: assert current == ids
+        incoming = request.widget_states.widgets
+        if index in DATE_MODE_INPUTS:
+            dates, peer = DATE_MODE_INPUTS[index]
+            assert len(incoming) == 2 and [widget.id for widget in incoming] == ids
+            assert [widget.WhichOneof("value") for widget in incoming] == ["string_array_value","bool_value"]
+            assert list(incoming[0].string_array_value.data) == dates and incoming[1].bool_value is peer
+        else: assert not incoming
+        report = json.loads(run["entries"][-1][1].body)
+        assert report == {"phase":phase,"values":DATE_MODE_VALUES[index],"native":DATE_MODE_VALUES[index],"calls":DATE_MODE_CALLS[:DATE_MODE_COUNTS[index]]}
+        for projection in (report["values"],report["native"],*(call[1:] for call in report["calls"])):
+            assert (type(projection[0]) is str or type(projection[0]) is list and len(projection[0]) == 2 and all(type(date) is str for date in projection[0])) and type(projection[1]) is bool
+        assert [entry["delta_path"] for entry in capture["elements"][index * 3:index * 3 + 3]] == [[0,i] for i in range(3)]
+        fields = []
+        for kind, _, element in run["entries"]:
+            view = MessageToDict(element,preserving_proto_field_name=True)
+            if kind == "json": view[kind]["body"] = json.loads(view[kind]["body"])
+            else: view[kind].pop("id")
+            fields.append(view)
+        normalized.append(fields)
+    assert len(sessions) == 1 and len(run_ids) == 12
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON,RUST), ids=("python","rust"))
+def test_date_mode_explicit_bounds_reset_and_callback_recovery(root):
+    check_date_mode(read(root / "date-mode/trace.json"))
+
+
+def test_date_mode_complete_elements_match_reference():
+    captures = [read(root / "date-mode/trace.json") for root in (PYTHON,RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_date_mode(captures[0]) == check_date_mode(captures[1])
+
+
+@pytest.mark.parametrize("mutation", ("missing-sync","old-native","repeat-sync","callback-old","wrong-mode","old-id","surplus-input","changed-id"))
+def test_date_mode_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "date-mode/trace.json")
+    target = {"missing-sync":2,"old-native":4,"repeat-sync":7,"callback-old":3,"wrong-mode":2,"old-id":8,"surplus-input":5,"changed-id":2}[mutation]
+    run, changed = -1, 0
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client: run += 1
+        if run != target: continue
+        message = BackMsg() if client else ForwardMsg();message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "old-id": message.rerun_script.widget_states.widgets[0].id = "$$ID-stale-date_single_day"
+        elif client and mutation == "surplus-input": message.rerun_script.widget_states.widgets[0].string_array_value.data.pop()
+        elif not client and message.WhichOneof("type") == "delta":
+            element = message.delta.new_element;kind = element.WhichOneof("type")
+            if kind == "date_input" and mutation in ("missing-sync","repeat-sync","wrong-mode","changed-id"):
+                if mutation == "missing-sync": element.date_input.set_value=False;element.date_input.ClearField("value");element.ClearField("has_one_shot_effect")
+                elif mutation == "repeat-sync": element.date_input.set_value=True;element.date_input.value[:]=["2025-03-15","2025-03-20"];element.has_one_shot_effect=True
+                elif mutation == "wrong-mode": element.date_input.is_range=False
+                else: element.date_input.id="$$ID-new-date_single_day"
+            elif kind == "json" and mutation in ("old-native","callback-old"):
+                report=json.loads(element.json.body)
+                if mutation == "old-native": report["values"][0]=report["native"][0]=["2025-05-01","2025-05-10"]
+                else: report["calls"][-2][1]="2025-03-15"
+                element.json.body=json.dumps(report)
+            else: continue
+        else: continue
+        changed += 1
+        raw=message.SerializeToString();frame.update(base64=base64.b64encode(raw).decode(),bytes=len(raw),message=MessageToDict(message,preserving_proto_field_name=True))
+    assert changed == 1
+    capture["elements"]=[{"kind":m.delta.new_element.WhichOneof("type"),"fields":MessageToDict(getattr(m.delta.new_element,m.delta.new_element.WhichOneof("type")),preserving_proto_field_name=True),"delta_path":list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m,ForwardMsg) and m.WhichOneof("type")=="delta"]
+    with pytest.raises(AssertionError): check_date_mode(capture)
+
+
 DATE_RANGE_PHASES = ("load", "range-edit", "range-missing", "range-legacy", "range-bad-start", "range-bad-end", "range-low", "range-high",
     "range-minmax", "range-equal", "range-reverse", "range-mixed", "range-invalid-one", "range-invalid-many", "range-defaults",
     "range-fallback", "range-observe", "range-recover", "range-invalid-final")

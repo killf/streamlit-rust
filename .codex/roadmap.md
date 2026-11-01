@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 日期显式边界模式重置：单值/范围切换保留 key 身份，旧类型回本轮默认并同步一次，无额外 callback；双边/单边界十二阶段与原生十二轮、95 帧、36 完整 Element、10 条 callback 匹配。布尔/整数/空 tuple 原生值补 SDK 与 Rust 验证，旧三组日期协议复验通过。见[验收](acceptance.md#current-date-explicit-bound-mode-reset-validation-2026-11-01)。无公共 API 改动，隐式边界跨模式和 None/部分范围模型及浏览器等继续开放。
+
 2026-11-01 日期范围异常输入原生证据：首次 SDK/Rust 各十九轮、170 帧、76 完整 Element、33 条 callback 严格匹配；涵盖缺省、legacy/混合、非法/越界、相等/反向及新默认回退，八类协议反例拒绝。当前二进制旧日期边界和单日期复验通过。无生产改动或新浏览器证据，合法空/部分/多端点模型仍待选。见[验收](acceptance.md#current-date-range-native-frontend-validation-2026-11-01)，完整目标保持开放。
 
 2026-11-01 完整日期范围前端归一化：复用单日期解析，范围缺省/非法/越界在 callback 前回登记默认，支持 legacy/混合格式及相等/反向端点保序。公开单元先红后绿，SDK AppTest 十二案匹配；合法 0/1/3 项的 SDK-only 形状与 Rust 未实现 guard 保留，模型仍待选。当前二进制旧十三轮边界和十六轮单日期原生复验通过，但新增异常范围路径仍待 WS/浏览器补证。见[验收](acceptance.md#current-complete-date-range-frontend-normalization-2026-11-01)。无公共 API 变更，完整目标保持开放。

@@ -13,6 +13,71 @@ PYTHON = Path(__file__).parent / "reference-browser/temporal-params"
 RUST = Path(__file__).parents[1] / "browser/rust-temporal-params"
 
 
+@pytest.mark.parametrize("bounds", ("both", "minimum", "maximum"))
+def test_sdk_date_mode_changes_with_explicit_bounds_reset_after_callbacks(bounds):
+    from streamlit.testing.v1 import AppTest
+    from streamlit.proto.WidgetStates_pb2 import WidgetStates
+
+    app = AppTest.from_string('''
+import streamlit as st
+from datetime import date
+phase=st.session_state.get('phase','load')
+range_mode=phase in ('range','range-edit','range-narrow','range-observe','range-recover')
+high='2025-03-31' if phase in ('range-narrow','range-observe','range-recover') else '2025-03-15' if phase in ('single-narrow','single-recover','single-observe') else '2025-12-31'
+kwargs={}
+if ''' + repr(bounds) + '''!='maximum':kwargs['min_value']=date(2025,1,1)
+if ''' + repr(bounds) + '''!='minimum':kwargs['max_value']=date.fromisoformat(high)
+def wire(v):return [d.isoformat() for d in v] if isinstance(v,tuple) else v.isoformat()
+if 'calls' not in st.session_state:st.session_state.calls=[]
+def changed(source):st.session_state.calls.append([source,wire(st.session_state.day),st.session_state.peer])
+v=st.date_input('Day',value=(date(2025,3,15),date(2025,3,20)) if range_mode else date(2025,3,15),key='day',on_change=changed,args=('day',),**kwargs)
+st.checkbox('Peer',key='peer',on_change=changed,args=('peer',))
+st.json([wire(v),wire(st.session_state.day),st.session_state.calls])
+''').run()
+    assert not app.exception
+    identity, peer_id = app.date_input[0].id, app.checkbox[0].id
+    calls = []
+    steps = [('load',None), ('edit',(['2025-04-20'],True)), ('range',None), ('range-edit',(['2025-05-01','2025-05-10'],False)),
+        ('single',None), ('single-edit',(['2025-06-01','2025-06-10'],True)), ('range-narrow',None), ('range-observe',None),
+        ('range-recover',(['2025-03-10','2025-03-20'],False)), ('single-narrow',None), ('single-recover',(['2025-03-12'],True)), ('single-observe',None)]
+    for index, (phase, submitted) in enumerate(steps):
+        range_mode = phase in ('range','range-edit','range-narrow','range-observe','range-recover')
+        if index:
+            incoming = WidgetStates()
+            if submitted:
+                incoming.widgets.add(id=identity).string_array_value.data[:] = submitted[0]
+                incoming.widgets.add(id=peer_id).bool_value = submitted[1]
+                value = submitted[0] if range_mode else submitted[0][0]
+                calls += [[source,value,submitted[1]] for source in ('day','peer')]
+            app.session_state['phase'] = phase
+            app._run(incoming)
+        assert not app.exception
+        value = ['2025-05-01','2025-05-10'] if phase=='range-edit' else ['2025-03-10','2025-03-20'] if phase=='range-recover' else ['2025-03-15','2025-03-20'] if range_mode else '2025-04-20' if phase=='edit' else '2025-06-01' if phase=='single-edit' else '2025-03-12' if phase in ('single-recover','single-observe') else '2025-03-15'
+        assert json.loads(app.json[0].value) == [value,value,calls]
+        widget = app.date_input[0].proto
+        sync = phase in ('range','single','range-narrow','single-narrow')
+        assert widget.id == identity and widget.is_range is range_mode and widget.set_value is sync
+        assert list(widget.value) == ([] if not sync else value if range_mode else [value])
+
+
+@pytest.mark.parametrize("range_mode,assigned", ((False, False), (True, False), (False, 7), (True, 7), (False, ()), (True, ())))
+def test_sdk_explicit_date_bounds_reset_non_date_native_shapes(range_mode, assigned):
+    from streamlit.testing.v1 import AppTest
+
+    app = AppTest.from_string('''
+import streamlit as st
+from datetime import date
+st.session_state.day=''' + repr(assigned) + '''
+value=st.date_input('Day',value=''' + ('(date(2025,3,15),date(2025,3,20))' if range_mode else 'date(2025,3,15)') + ''',min_value=date(2025,1,1),key='day')
+def wire(v):return [d.isoformat() for d in v] if isinstance(v,tuple) else v.isoformat()
+st.json([wire(value),wire(st.session_state.day)])
+''').run()
+    assert not app.exception
+    expected = ['2025-03-15','2025-03-20'] if range_mode else '2025-03-15'
+    assert json.loads(app.json[0].value) == [expected,expected]
+    assert app.date_input[0].proto.set_value and list(app.date_input[0].proto.value) == (expected if range_mode else [expected])
+
+
 @pytest.mark.parametrize("raw,expected", (
     (None, ['2025-03-15','2025-03-20']), (['2025/05/01','2025/05/10'], ['2025-05-01','2025-05-10']),
     (['bad','2025-05-10'], ['2025-03-15','2025-03-20']), (['2025-05-01','bad'], ['2025-03-15','2025-03-20']),

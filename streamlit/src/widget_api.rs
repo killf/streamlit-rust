@@ -4988,6 +4988,162 @@ mod tests {
     }
 
     #[test]
+    fn date_mode_changes_with_explicit_bounds_reset_after_callbacks() -> anyhow::Result<()> {
+        use chrono::NaiveDate;
+
+        let parse = |text: &str| NaiveDate::parse_from_str(text, "%Y-%m-%d").expect("fixture date");
+        let phases = [
+            "load",
+            "edit",
+            "range",
+            "range-edit",
+            "single",
+            "single-edit",
+            "range-narrow",
+            "range-observe",
+            "range-recover",
+            "single-narrow",
+            "single-recover",
+            "single-observe",
+        ];
+        for bounds in ["both", "minimum", "maximum"] {
+            let state = SessionState::default();
+            let mut date_id = String::new();
+            let mut peer_id = String::new();
+            let mut expected_calls = Vec::<Value>::new();
+            for (index, phase) in phases.iter().enumerate() {
+                let range = matches!(*phase, "range" | "range-edit" | "range-narrow" | "range-observe" | "range-recover");
+                let submitted = match *phase {
+                    "edit" => Some((vec!["2025-04-20"], true)),
+                    "range-edit" => Some((vec!["2025-05-01", "2025-05-10"], false)),
+                    "single-edit" => Some((vec!["2025-06-01", "2025-06-10"], true)),
+                    "range-recover" => Some((vec!["2025-03-10", "2025-03-20"], false)),
+                    "single-recover" => Some((vec!["2025-03-12"], true)),
+                    _ => None,
+                };
+                let incoming = submitted.as_ref().map_or_else(Vec::new, |(dates, peer)| {
+                    vec![
+                        WidgetState {
+                            id: date_id.clone(),
+                            value: Some(widget_state::Value::StringArrayValue(proto::StringArray {
+                                data: dates.iter().map(|date| (*date).to_owned()).collect(),
+                            })),
+                        },
+                        WidgetState {
+                            id: peer_id.clone(),
+                            value: Some(widget_state::Value::BoolValue(*peer)),
+                        },
+                    ]
+                });
+                let callbacks = state.begin_widgets(incoming);
+                assert_eq!(callbacks.len(), if submitted.is_some() { 2 } else { 0 }, "{bounds}:{phase}");
+                let (st, mut wire) = app(&state);
+                for callback in callbacks {
+                    callback(&st);
+                }
+
+                // 1. 输入由上轮模式解码；callback 先读取整批值，模式重置随后登记。
+                if let Some((dates, peer)) = submitted {
+                    let value = if range { serde_json::json!(dates) } else { serde_json::json!(dates[0]) };
+                    expected_calls.extend([serde_json::json!(["day", value, peer]), serde_json::json!(["peer", value, peer])]);
+                }
+                let changed = |source: &'static str| {
+                    move |st: &Streamlit| {
+                        let state = st.session_state();
+                        let mut calls = state.get::<Vec<Value>>("mode_calls").expect("calls").unwrap_or_default();
+                        calls.push(serde_json::json!([source, state.get::<Value>("day").expect("day"), state.get::<bool>("peer").expect("peer")]));
+                        state.set("mode_calls", calls).expect("callback write");
+                    }
+                };
+                let mut options = DateInputOptions::new("Day").key("day").on_change(changed("day"));
+                options = if range { options.value_range(parse("2025-03-15"), parse("2025-03-20")) } else { options.value(parse("2025-03-15")) };
+                if bounds != "maximum" {
+                    options = options.min(parse("2025-01-01"));
+                }
+                if bounds != "minimum" {
+                    let high = if matches!(*phase, "range-narrow" | "range-observe" | "range-recover") {
+                        "2025-03-31"
+                    } else if matches!(*phase, "single-narrow" | "single-recover" | "single-observe") {
+                        "2025-03-15"
+                    } else {
+                        "2025-12-31"
+                    };
+                    options = options.max(parse(high));
+                }
+                let (start, end) = match *phase {
+                    "edit" => ("2025-04-20", "2025-04-20"),
+                    "range-edit" => ("2025-05-01", "2025-05-10"),
+                    "single-edit" => ("2025-06-01", "2025-06-01"),
+                    "range-recover" => ("2025-03-10", "2025-03-20"),
+                    "single-recover" | "single-observe" => ("2025-03-12", "2025-03-12"),
+                    _ => ("2025-03-15", "2025-03-20"),
+                };
+                assert_eq!(st.date_input(options)?, if range { DateSelection::Range(parse(start), parse(end)) } else { DateSelection::Single(parse(start)) }, "{bounds}:{phase}");
+                st.checkbox(CheckboxOptions::new("Peer").key("peer").on_change(changed("peer")))?;
+
+                // 2. 显式边界使模式不匹配回本轮默认；ID 保留且只同步一轮。
+                let Some(forward_msg::Type::Delta(proto::Delta {
+                    r#type: Some(delta::Type::NewElement(element)), ..
+                })) = wire.try_recv()?.r#type
+                else {
+                    panic!()
+                };
+                let sync = matches!(*phase, "range" | "single" | "range-narrow" | "single-narrow");
+                assert_eq!(element.has_one_shot_effect, sync.then_some(true));
+                let Some(element::Type::DateInput(widget)) = element.r#type else { panic!() };
+                let element::Type::Checkbox(peer) = input(&mut wire)? else { panic!() };
+                if index == 0 {
+                    date_id = widget.id.clone();
+                    peer_id = peer.id.clone();
+                }
+                assert_eq!((&widget.id, &peer.id), (&date_id, &peer_id));
+                assert_eq!(widget.is_range, range);
+                assert_eq!(widget.set_value, sync);
+                assert_eq!(widget.value, if sync { if range { vec![start, end] } else { vec![start] } } else { vec![] });
+                let expected = if range { serde_json::json!([start, end]) } else { serde_json::json!(start) };
+                assert_eq!(state.get::<Value>("day")?, Some(expected));
+                assert_eq!(state.get::<Vec<Value>>("mode_calls")?.unwrap_or_default(), expected_calls, "reset must not add callbacks");
+                state.finish_widgets();
+            }
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn explicit_date_bounds_reset_non_date_native_shapes() -> anyhow::Result<()> {
+        use chrono::NaiveDate;
+
+        let start = NaiveDate::from_ymd_opt(2025, 3, 15).expect("fixture date");
+        let end = NaiveDate::from_ymd_opt(2025, 3, 20).expect("fixture date");
+        for range in [false, true] {
+            for native in [Value::Bool(false), Value::from(7), Value::Array(Vec::new())] {
+                let state = SessionState::default();
+                state.begin_widgets(Vec::new());
+                let (st, mut wire) = app(&state);
+                st.session_state().set("day", native)?;
+                let options = DateInputOptions::new("Day").key("day").min(NaiveDate::from_ymd_opt(2025, 1, 1).expect("fixture date"));
+                let options = if range { options.value_range(start, end) } else { options.value(start) };
+                assert_eq!(st.date_input(options)?, if range { DateSelection::Range(start, end) } else { DateSelection::Single(start) });
+                let Some(forward_msg::Type::Delta(proto::Delta {
+                    r#type: Some(delta::Type::NewElement(element)), ..
+                })) = wire.try_recv()?.r#type
+                else {
+                    panic!()
+                };
+                assert_eq!(element.has_one_shot_effect, Some(true));
+                let Some(element::Type::DateInput(widget)) = element.r#type else { panic!() };
+                assert!(widget.set_value);
+                assert_eq!(widget.value, if range { vec!["2025-03-15", "2025-03-20"] } else { vec!["2025-03-15"] });
+                assert_eq!(state.get::<Value>("day")?, Some(if range { serde_json::json!(["2025-03-15", "2025-03-20"]) } else { serde_json::json!("2025-03-15") }));
+                state.finish_widgets();
+            }
+        }
+
+        Ok(())
+    }
+
+    #[test]
     fn complete_date_range_input_falls_back_and_normalizes_before_callbacks() -> anyhow::Result<()> {
         use chrono::NaiveDate;
 
