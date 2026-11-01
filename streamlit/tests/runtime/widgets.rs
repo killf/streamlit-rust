@@ -235,8 +235,19 @@ async fn temporal_lexical_values_and_callbacks_match_sdk_over_real_ws() -> TestR
 }
 
 fn bool_coercion_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    bool_entry(st, false)
+}
+
+fn bool_disabled_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    bool_entry(st, true)
+}
+
+fn bool_entry(st: &Streamlit, lifecycle: bool) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
         let result: TestResult = async {
+            let phase = st.session_state().get::<String>("peer")?.unwrap_or_else(|| "base".into());
+            let disabled = lifecycle && !matches!(phase.as_str(), "enable" | "edit" | "recover");
+            let flipped = lifecycle && !matches!(phase.as_str(), "base" | "submit" | "recover");
             let changed = |source: &'static str| {
                 move |st: &Streamlit| {
                     let state = st.session_state();
@@ -251,10 +262,11 @@ fn bool_coercion_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>>
             };
             let mut values = Vec::new();
             for (key, default, toggle) in [("cb0", false, false), ("cb1", true, false), ("tg0", false, true), ("tg1", true, true)] {
+                let default = if flipped { !default } else { default };
                 let value = if toggle {
-                    st.toggle(crate::ToggleOptions::new(key).value(default).key(key).on_change(changed(key)))?
+                    st.toggle(crate::ToggleOptions::new(key).value(default).key(key).disabled(disabled).on_change(changed(key)))?
                 } else {
-                    st.checkbox(CheckboxOptions::new(key).value(default).key(key).on_change(changed(key)))?
+                    st.checkbox(CheckboxOptions::new(key).value(default).key(key).disabled(disabled).on_change(changed(key)))?
                 };
                 values.push(Value::Bool(value));
             }
@@ -271,11 +283,28 @@ fn bool_coercion_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>>
 
 #[actix_web::test]
 async fn boolean_wire_coercion_callbacks_and_recovery_match_sdk_over_ws() -> TestResult {
+    assert_boolean_reference(false).await
+}
+
+#[actix_web::test]
+async fn disabled_boolean_callbacks_and_lifecycle_match_sdk_over_ws() -> TestResult {
+    assert_boolean_reference(true).await
+}
+
+async fn assert_boolean_reference(lifecycle: bool) -> TestResult {
     let reference: Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/widget-params/trace.json"))?;
-    let cases = reference["bool_coercion_reference"]["cases"].as_array().ok_or("bool cases")?;
+    let reference = &reference[if lifecycle { "bool_disabled_reference" } else { "bool_coercion_reference" }];
+    let cases = reference["cases"].as_array().ok_or("bool cases")?;
+    let phases = if lifecycle {
+        reference["phases"].as_array().ok_or("phases")?.iter().map(|phase| phase.as_str().ok_or("phase")).collect::<Result<Vec<_>, _>>()?
+    } else {
+        vec!["submit", "missing", "recover"]
+    };
+    assert_eq!(phases.len(), if lifecycle { 7 } else { 3 });
     let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
     let address = listener.local_addr()?;
-    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(bool_coercion_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+    let entry = if lifecycle { bool_disabled_entry } else { bool_coercion_entry };
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(entry, "127.0.0.1".into(), 0))).configure(configure_routes))
         .workers(1)
         .listen(listener)?
         .run();
@@ -288,20 +317,26 @@ async fn boolean_wire_coercion_callbacks_and_recovery_match_sdk_over_ws() -> Tes
             let initial = rerun(&mut socket, vec![]).await?;
             let key = case["key"].as_str().ok_or("key")?;
             let mut reports = Vec::new();
-            for phase in ["submit", "missing", "recover"] {
+            for &phase in &phases {
                 let mut target = WidgetState { id: initial.inputs[key].clone(), value: None };
-                if phase == "submit" {
+                if matches!(phase, "submit" | "disabled-again") {
                     let bytes = serde_json::from_value::<Vec<u8>>(case["input_bytes"].clone())?;
                     target = WidgetState::decode(bytes.as_slice())?;
                     target.id = initial.inputs[key].clone();
-                } else if phase == "recover" {
-                    target.value = Some(widget_state::Value::BoolValue(key.ends_with('0')));
+                } else if matches!(phase, "edit" | "recover") {
+                    target.value = Some(widget_state::Value::BoolValue(key.ends_with(if !lifecycle || phase == "edit" { '0' } else { '1' })));
                 }
                 let peer = WidgetState {
                     id: initial.inputs["peer"].clone(),
                     value: Some(widget_state::Value::StringValue(phase.into())),
                 };
-                let incoming = if phase == "missing" { vec![peer, target] } else { vec![target, peer] };
+                let incoming = if matches!(phase, "changed" | "enable") {
+                    vec![peer]
+                } else if phase == "missing" {
+                    vec![peer, target]
+                } else {
+                    vec![target, peer]
+                };
                 reports.push(rerun(&mut socket, incoming).await?);
             }
             sessions::disconnect(socket).await;

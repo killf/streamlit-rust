@@ -4,6 +4,8 @@ Streamlit runtime compatibility is pinned to 1.66.1. The historical API matrix c
 
 ## Long-term documentation scope
 
+2026-11-01 禁用 checkbox/toggle：自身 callback 被抑制，同批 callback 可读临时输入，登记时恢复旧 native 值；重新启用/禁用按上轮 metadata 分派 callback。SDK 176 案/1408 轮与原生 WS 对照覆盖默认改变和 ID-only 恢复，其他 callback 赋值/JSON/浏览器等继续开放。见[验收](acceptance.md#current-disabled-boolean-lifecycle-validation-2026-11-01)。
+
 2026-11-01 布尔输入：启用 checkbox/toggle 的 176 案覆盖所有 oneof 字段及缺省值，SDK AppTest 704 轮验证真值转换、callback 和恢复；原生 Bool codec/WS 对照补齐此前整批拒绝的已测输入。JSON null/ID-only 回声明默认；空 protobuf 消息仍为真。非法或非有限 JSON、禁用/ignore、跨页和浏览器等继续开放，见[验收](acceptance.md#current-checkbox-and-toggle-wire-coercion-validation-2026-11-01)。
 
 2026-11-01 日期/时间输入文本按已测 SDK 字段规则解析，`01: 2` 等非法文本回默认，小写 t 和 legacy 必需空白得到支持；75 案保存直接 serde、公开 AppTest/callback 与原生 WS 检查。仅 ASCII 数字和指定空白边界，不构成全部 Unicode、浏览器或日期范围模型兼容。见[验收](acceptance.md#current-temporal-lexical-input-validation-2026-11-01)。

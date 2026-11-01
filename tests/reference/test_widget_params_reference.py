@@ -16,6 +16,43 @@ RUST = Path(__file__).parents[1] / "browser/rust-widget-params"
 
 
 BOOL_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['bool_coercion_reference']
+BOOL_DISABLED_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['bool_disabled_reference']
+
+
+@pytest.mark.parametrize('case', BOOL_DISABLED_REFERENCE['cases'], ids=lambda case: case['name'])
+def test_sdk_disabled_bool_transient_callbacks_defaults_and_lifecycle(case):
+    import importlib.metadata
+    from streamlit.proto.WidgetStates_pb2 import WidgetState, WidgetStates
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version('streamlit') == BOOL_DISABLED_REFERENCE['reference_version'] == '1.66.1'
+    assert len(BOOL_DISABLED_REFERENCE['cases']) == 176
+    phases = BOOL_DISABLED_REFERENCE['phases']
+    assert phases == ['submit', 'changed', 'missing', 'enable', 'edit', 'disabled-again', 'recover']
+    wire = WidgetState()
+    wire.ParseFromString(bytes(case['input_bytes']))
+    assert not wire.id and wire.WhichOneof('value') == case['field']
+    app = AppTest.from_string(BOOL_DISABLED_REFERENCE['source']).run()
+    assert not app.exception
+    identities = {element.label: element.id for kind in ('checkbox', 'toggle', 'text_input') for element in app.get(kind)}
+    assert set(identities) == {'cb0', 'cb1', 'tg0', 'tg1', 'peer'}
+    assert len(case['expected']) == len(phases)
+    for phase, expected in zip(phases, case['expected']):
+        target = WidgetState(id=identities[case['key']])
+        if phase in ('submit', 'disabled-again'):
+            target.CopyFrom(wire)
+            target.id = identities[case['key']]
+        elif phase in ('edit', 'recover'):
+            target.bool_value = case['key'].endswith('0' if phase == 'edit' else '1')
+        peer = WidgetState(id=identities['peer'], string_value=phase)
+        raw = WidgetStates()
+        widgets = [peer] if phase in ('changed', 'enable') else ([peer, target] if phase == 'missing' else [target, peer])
+        for widget in widgets:
+            raw.widgets.add().CopyFrom(widget)
+        app._run(raw)
+        assert not app.exception
+        assert json.loads(app.json[0].value) == expected
+        assert {element.label: element.id for kind in ('checkbox', 'toggle', 'text_input') for element in app.get(kind)} == identities
 
 
 @pytest.mark.parametrize('case', BOOL_REFERENCE['cases'], ids=lambda case: case['name'])

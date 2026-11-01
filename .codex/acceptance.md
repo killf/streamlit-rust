@@ -3196,3 +3196,22 @@ SDK 新增 176 项回放全部 704 轮通过（target/bool-coercion-python.log�
 最终 24 项控件单元和 6 项真实 WS 控件集成通过（target/bool-coercion-unit.log、target/bool-coercion-runtime.log）；新增集成完整执行 176 独立会话/704 轮并核对三阶段累计 callback 报告。工作区 361 项通过（354 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿（target/bool-coercion-workspace.log）。相关 SDK/文档共 231 项通过：176 新场景、55 文档/配置/矩阵（target/bool-coercion-python.log、target/bool-coercion-docs.log）；不是整个 widget-params Python 模块的新全量重跑。
 
 原 widget-params 捕获十五字段逐值保留，九个用户文件 SHA 不变；矩阵只补 checkbox/toggle 和生成清单，仍 130 partial。新增明确边界使 toggle 从无显式缺口标记转入未测参数桶（98/29），不改变能力分母或兼容状态。其他 JSON 数值/解析边界不在这 44 例中，不从标准 JSON 的有限样本宣称整个 JSON 域完成。逐文件 diff/git diff --check 通过；只暂存本批九个既有代码/测试/参考/计划/矩阵文件，无 PR、合并、发布或部署，完整目标继续。
+
+
+## Current disabled boolean lifecycle validation (2026-11-01)
+
+上一轮启用态转换通过后，继续核实禁用和默认值变化。公开 SDK 小探测确认：禁用 Flag 默认 true 时提交 false/int 0/空字符串，Flag 自身不 callback，同批 Peer callback 却读到临时 false；main 再登记 Flag 返回/保存旧 true。Rust 原来不暴露禁用 Bool 输入，Peer callback 只读旧值。新的真实红单元在 cb0-bool_value-2 的 callback 前状态为 false，而参考快照为 true（target/bool-disabled-red.log），未改原参考或忽略差异。
+
+既有 widget-params/trace.json 追加 bool_disabled_reference：复用前批 44 种固定合法 WidgetState，四个 checkbox/toggle 默认组合，共 176 个 SDK AppTest 场景。每案八轮：load→禁用 submit→仅 Peer 改声明默认→禁用 ID-only→仅 Peer 启用→启用正常 edit→再次禁用并提交原包→正常恢复。先前 metadata 的 disabled 决定 callback，不能按本轮 main 尚未执行的声明提前抑制；同一 key 改声明默认不重置 native 值，但会改变随后缺省输入的 serde 默认。完整五控件返回值、累计 callback 来源/顺序/全值快照和输入原始字节保存，所有 ID 始终稳定。
+
+生产仅在 widgets.rs 三行已有分支扩展：禁用 DateInput 的临时值处理同时接收 Bool；Bool 反序列化后先暂存 before_input 并暴露给同批 callback，不分派自身 callback，也不进入日期字符串的登记错误分支。既有 register_widget 在禁用登记时恢复旧值、启用时接收输入，并继续维护默认缓存；日期错误逻辑与其他 codec 不变，无新增公开 API、依赖、模块或进程流程。
+
+单元逐案直接检查 callback 数量、Peer 分派前的临时 native 值和登记后的返回/状态恢复。真实 WS 在既有 bool 测试中共用 fixture/报告比较器，两个 fn-pointer 适配入口分别表示纯启用与禁用生命周期；不是新增产品抽象。测试从冻结字节注入同样阶段并比较返回值/callback/ID，捕获返回后先停服务并等待，再做报告断言，总捕获限 45 秒。复用的启用场景也需重新通过，避免共享测试重构掩盖回归。
+
+SDK 新增 176 项重放通过，共 1408 轮公开 AppTest（target/bool-disabled-python.log）。这是内部 _run protobuf 注入，不是 SDK socket/原生 WS 或浏览器；Rust 的网络证据来自真实服务回归。两份 Rust 按语义单元留空行并逐段审查 diff；workspace/all-targets Clippy -D warnings 通过，保留既有 MSVC linker_messages 告警（target/bool-disabled-clippy.log）。
+
+范围仍限这 44 个合法包和读状态型 callback；非法/非有限/任意 JSON 边界、callback 中赋值、其他禁用控件、ignore/URL/表单/跨页和浏览器 UI 继续开放。全量 protobuf 也非本报告断言范围。已选完整错误/callback/恢复方向不变；MIME、Unicode/repr、非 Delta 队列等待独立选择，M3/M5/M7 和完整 Goal 不关闭。
+
+最终 25 项控件单元、7 项真实 WS 控件集成通过（target/bool-disabled-unit.log、target/bool-disabled-runtime.log）。新增禁用集成执行 176 独立会话/1408 轮，原启用 176 会话/704 轮在同一批共享帮助器回归中也通过。工作区 363 项通过（356 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿（target/bool-disabled-workspace.log）。相关 SDK/文档共 231 项：176 新生命周期、55 文档/配置/矩阵（target/bool-disabled-python.log、target/bool-disabled-docs.log），不是整个 widget-params Python 模块的新全量重跑。
+
+原参考十六字段（含旧启用数据）逐值未变，九个用户文件 SHA 不变；矩阵仅补 checkbox/toggle 及生成清单，仍 130 partial。逐文件 diff/git diff --check 通过；只暂存本批九个既有代码/测试/参考/计划/矩阵文件，不纳入用户 Cargo、colconfig、指南/README 修改。无 PR、合并、发布或部署，完整目标与 M3/M5/M7 继续开放。

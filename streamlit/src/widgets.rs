@@ -983,10 +983,10 @@ impl SessionState {
                 continue;
             }
 
-            // 禁用日期先暴露解码值；正常包登记恢复旧值，错误字符串留待登记报错。
+            // 禁用日期/布尔先暴露解码值；登记恢复旧值，不分派自身 callback。
             if let Some(record) = registry.records.get_mut(&widget.id)
                 && record.disabled
-                && matches!(record.codec, Codec::DateInput { .. })
+                && matches!(record.codec, Codec::DateInput { .. } | Codec::Bool)
                 && let Some(value) = record.codec.decode_state(&widget, record.empty_input.as_ref()).filter(|value| record.codec.valid(value))
             {
                 record.before_input = Some(record.value.clone());
@@ -994,7 +994,7 @@ impl SessionState {
                 if let Some(key) = &record.key {
                     values.insert(key.clone(), value);
                 }
-                if !matches!(widget.value.as_ref(), Some(widget_state::Value::StringValue(_))) {
+                if matches!(record.codec, Codec::Bool) || !matches!(widget.value.as_ref(), Some(widget_state::Value::StringValue(_))) {
                     continue;
                 }
             }
@@ -1415,6 +1415,69 @@ impl SessionState {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn disabled_bool_exposes_transient_value_then_restores_at_registration() -> anyhow::Result<()> {
+        use prost::Message;
+        let reference: Value = serde_json::from_str(include_str!("../../tests/reference/reference-browser/widget-params/trace.json"))?;
+        let cases = reference["bool_disabled_reference"]["cases"].as_array().ok_or_else(|| anyhow::anyhow!("missing disabled bool cases"))?;
+        assert_eq!(cases.len(), 176);
+
+        for case in cases {
+            let key = case["key"].as_str().ok_or_else(|| anyhow::anyhow!("key"))?;
+            let index = ["cb0", "cb1", "tg0", "tg1"].iter().position(|candidate| *candidate == key).ok_or_else(|| anyhow::anyhow!("target"))?;
+            let state = SessionState::default();
+            let default = Value::Bool(key.ends_with('1'));
+            let register = || {
+                state.register_widget(
+                    WidgetSpec {
+                        kind: if key.starts_with("cb") { "checkbox" } else { "toggle" },
+                        key: Some(key),
+                        disabled: true,
+                        query: None,
+                        identity: "stable",
+                        default: default.clone(),
+                        codec: Codec::Bool,
+                        callback: Some(Arc::new(|_| {})),
+                    },
+                    |value| Ok(value.clone()),
+                )
+            };
+            let target_id = register()?.0;
+            let peer_id = state
+                .register_widget(
+                    WidgetSpec {
+                        kind: "text_input",
+                        key: Some("peer"),
+                        disabled: false,
+                        query: None,
+                        identity: "stable",
+                        default: Value::String("base".into()),
+                        codec: Codec::Text { max_chars: None },
+                        callback: Some(Arc::new(|_| {})),
+                    },
+                    |value| Ok(value.clone()),
+                )?
+                .0;
+            state.finish_widgets();
+            let bytes = serde_json::from_value::<Vec<u8>>(case["input_bytes"].clone())?;
+            let mut target = WidgetState::decode(bytes.as_slice())?;
+            target.id = target_id;
+            let callbacks = state.begin_widgets(vec![
+                target,
+                WidgetState {
+                    id: peer_id,
+                    value: Some(widget_state::Value::StringValue("submit".into())),
+                },
+            ]);
+            assert_eq!(callbacks.len(), 1, "{}", case["name"]);
+            assert_eq!(state.get::<Value>(key)?.as_ref(), Some(&case["expected"][0]["calls"][0][index + 1]), "{}: before peer callback", case["name"]);
+            assert_eq!(register()?.1, default, "{}: returned value", case["name"]);
+            assert_eq!(state.get::<Value>(key)?, Some(default), "{}: restored native value", case["name"]);
+            state.finish_widgets();
+        }
+        Ok(())
+    }
+
     #[test]
     fn checkbox_and_toggle_coercion_matches_frozen_sdk() -> anyhow::Result<()> {
         use prost::Message;

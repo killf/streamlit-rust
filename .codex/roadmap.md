@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 禁用布尔生命周期：SDK 176 案/1408 轮证实禁用 Bool 的提交值需先暴露给 Peer callback，再在登记恢复旧值。现有临时状态分支扩展到 Bool，覆盖声明默认翻转、ID-only、启用编辑、再次禁用和恢复，控件 ID 稳定；其他 codec/异常/浏览器组合继续开放。见[验收](acceptance.md#current-disabled-boolean-lifecycle-validation-2026-11-01)，完整目标不缩减。
+
 2026-11-01 checkbox/toggle 前端类型：44 个完整 WidgetState × 四个布尔控件默认共 176 案，SDK 704 轮公开 AppTest 确认真值转换、同批 callback、ID-only 回声明默认和正常恢复。Bool codec 接通已测拆箱/default 缓存，新增原生 WS 同场景报告对照；非法 JSON、禁用及 UI 等组合继续开放。见[验收](acceptance.md#current-checkbox-and-toggle-wire-coercion-validation-2026-11-01)，完整目标不缩减。
 
 2026-11-01 时间文本边界：75 个固定 SDK 输入重放公开返回值/callback，修复 Chrono 对分钟空白等字段的宽松接收，补齐小写 t 和 legacy 空白规则。私有解析保留默认、边界与公共模型；原生真实 WS 每案独立会话检查值/callback/ID/其他控件。见[验收](acceptance.md#current-temporal-lexical-input-validation-2026-11-01)，Unicode 数字、浏览器与日期模型继续开放。
