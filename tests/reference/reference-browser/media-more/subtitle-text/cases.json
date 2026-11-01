@@ -1544,5 +1544,116 @@
       "apptest_url": "/mock/media/aed2bdf52b8af3c4ff8e889d058ca5d2.vtt",
       "url": "/media/aed2bdf52b8af3c4ff8e889d058ca5d2.vtt"
     }
+  ],
+  "label_scope": "12 SDK public st.video AppTest errors: quote selection, ASCII escaping, printable Chinese/emoji. Full Unicode printability and native/browser error-stack equivalence remain open.",
+  "label_cases": [
+    {
+      "name": "label-empty",
+      "label": "",
+      "input": "not a subtitle",
+      "accepted": false,
+      "helper_error_type": "StreamlitValueError",
+      "error_type": "streamlit.errors.StreamlitAPIException",
+      "error": "Failed to process the provided subtitle '': Invalid `subtitles` value. Supported values: VTT-formatted text, SRT-formatted text."
+    },
+    {
+      "name": "label-simple",
+      "label": "en",
+      "input": "not a subtitle",
+      "accepted": false,
+      "helper_error_type": "StreamlitValueError",
+      "error_type": "streamlit.errors.StreamlitAPIException",
+      "error": "Failed to process the provided subtitle 'en': Invalid `subtitles` value. Supported values: VTT-formatted text, SRT-formatted text."
+    },
+    {
+      "name": "label-apostrophe",
+      "label": "O'Brien",
+      "input": "not a subtitle",
+      "accepted": false,
+      "helper_error_type": "StreamlitValueError",
+      "error_type": "streamlit.errors.StreamlitAPIException",
+      "error": "Failed to process the provided subtitle \"O'Brien\": Invalid `subtitles` value. Supported values: VTT-formatted text, SRT-formatted text."
+    },
+    {
+      "name": "label-double-quote",
+      "label": "say \"hi\"",
+      "input": "not a subtitle",
+      "accepted": false,
+      "helper_error_type": "StreamlitValueError",
+      "error_type": "streamlit.errors.StreamlitAPIException",
+      "error": "Failed to process the provided subtitle 'say \"hi\"': Invalid `subtitles` value. Supported values: VTT-formatted text, SRT-formatted text."
+    },
+    {
+      "name": "label-both-quotes",
+      "label": "'\"",
+      "input": "not a subtitle",
+      "accepted": false,
+      "helper_error_type": "StreamlitValueError",
+      "error_type": "streamlit.errors.StreamlitAPIException",
+      "error": "Failed to process the provided subtitle '\\'\"': Invalid `subtitles` value. Supported values: VTT-formatted text, SRT-formatted text."
+    },
+    {
+      "name": "label-backslash",
+      "label": "en\\track",
+      "input": "not a subtitle",
+      "accepted": false,
+      "helper_error_type": "StreamlitValueError",
+      "error_type": "streamlit.errors.StreamlitAPIException",
+      "error": "Failed to process the provided subtitle 'en\\\\track': Invalid `subtitles` value. Supported values: VTT-formatted text, SRT-formatted text."
+    },
+    {
+      "name": "label-linefeed",
+      "label": "en\ntrack",
+      "input": "not a subtitle",
+      "accepted": false,
+      "helper_error_type": "StreamlitValueError",
+      "error_type": "streamlit.errors.StreamlitAPIException",
+      "error": "Failed to process the provided subtitle 'en\\ntrack': Invalid `subtitles` value. Supported values: VTT-formatted text, SRT-formatted text."
+    },
+    {
+      "name": "label-tab-cr",
+      "label": "en\t\rtrack",
+      "input": "not a subtitle",
+      "accepted": false,
+      "helper_error_type": "StreamlitValueError",
+      "error_type": "streamlit.errors.StreamlitAPIException",
+      "error": "Failed to process the provided subtitle 'en\\t\\rtrack': Invalid `subtitles` value. Supported values: VTT-formatted text, SRT-formatted text."
+    },
+    {
+      "name": "label-null",
+      "label": "en\u0000track",
+      "input": "not a subtitle",
+      "accepted": false,
+      "helper_error_type": "StreamlitValueError",
+      "error_type": "streamlit.errors.StreamlitAPIException",
+      "error": "Failed to process the provided subtitle 'en\\x00track': Invalid `subtitles` value. Supported values: VTT-formatted text, SRT-formatted text."
+    },
+    {
+      "name": "label-ascii-controls",
+      "label": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f",
+      "input": "not a subtitle",
+      "accepted": false,
+      "helper_error_type": "StreamlitValueError",
+      "error_type": "streamlit.errors.StreamlitAPIException",
+      "error": "Failed to process the provided subtitle '\\x00\\x01\\x02\\x03\\x04\\x05\\x06\\x07\\x08\\t\\n\\x0b\\x0c\\r\\x0e\\x0f\\x10\\x11\\x12\\x13\\x14\\x15\\x16\\x17\\x18\\x19\\x1a\\x1b\\x1c\\x1d\\x1e\\x1f\\x7f': Invalid `subtitles` value. Supported values: VTT-formatted text, SRT-formatted text."
+    },
+    {
+      "name": "label-chinese",
+      "label": "中文字幕",
+      "input": "not a subtitle",
+      "accepted": false,
+      "helper_error_type": "StreamlitValueError",
+      "error_type": "streamlit.errors.StreamlitAPIException",
+      "error": "Failed to process the provided subtitle '中文字幕': Invalid `subtitles` value. Supported values: VTT-formatted text, SRT-formatted text."
+    },
+    {
+      "name": "label-emoji",
+      "label": "🧊 captions",
+      "input": "not a subtitle",
+      "accepted": false,
+      "helper_error_type": "StreamlitValueError",
+      "error_type": "streamlit.errors.StreamlitAPIException",
+      "error": "Failed to process the provided subtitle '🧊 captions': Invalid `subtitles` value. Supported values: VTT-formatted text, SRT-formatted text."
+    }
   ]
 }

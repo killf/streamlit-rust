@@ -1,5 +1,32 @@
 pub mod hash;
 
+/// Error string values follow Python quoting and ASCII escapes. Unicode
+/// printability still needs the pinned Python character data; keep those
+/// characters unchanged rather than using Rust's different debug repertoire.
+pub(crate) fn python_error_value(value: &str) -> String {
+    let quote = if value.contains('\'') && !value.contains('"') { '"' } else { '\'' };
+    let mut output = String::new();
+    output.push(quote);
+
+    for character in value.chars() {
+        match character {
+            '\\' => output.push_str("\\\\"),
+            '\n' => output.push_str("\\n"),
+            '\r' => output.push_str("\\r"),
+            '\t' => output.push_str("\\t"),
+            character if character == quote => {
+                output.push('\\');
+                output.push(character);
+            }
+            '\0'..='\u{1f}' | '\u{7f}' => output.push_str(&format!("\\x{:02x}", character as u32)),
+            character => output.push(character),
+        }
+    }
+
+    output.push(quote);
+    output
+}
+
 pub(crate) fn python_whitespace(character: char) -> bool {
     character.is_whitespace() || matches!(character, '\u{1c}'..='\u{1f}')
 }

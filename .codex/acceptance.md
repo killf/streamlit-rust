@@ -2999,3 +2999,19 @@ Rust 按语义单元留空并逐段 diff 复查，格式、全工作区/all-targ
 现有 Python 媒体模块扩至 48 项并全部通过（target/subtitle-unicode-python.log）；它证明冻结参考可重放，不代表 Rust Unicode 已修复。完整 Unicode 分类来源涉及数据/依赖选择，方案记录在 architecture，待用户决定；其他已授权工作可继续。未重跑与本参考增补无关的全工作区/真实浏览器，130 partial、M3/M5/M7 与完整目标保持开放。
 
 提交前恢复后的原 22 案 Rust 字节/地址/拒绝回归一项通过（target/subtitle-unicode-existing-rust.log）；文档/配置/矩阵 55 项通过（target/subtitle-unicode-docs.log）。逐文件 diff 复查和 git diff --check 通过，原 oracle 全部既有字段保持；九个受保护用户文件与本批快照 SHA 一致，生产 media.rs 无 diff。本批仅提交参考、重放测试及计划/方案/验收记录。
+
+## Current subtitle label error quoting validation (2026-11-01)
+
+在已有 subtitle-text/cases.json 增补 label_cases 十二项：空/普通标签、单引号、双引号、两类引号、反斜杠、换行、Tab/CR、NUL/全部 ASCII 控制字符、可打印中文和 emoji。每案从锁定 SDK 1.66.1 的公开 st.video AppTest 记录真实异常类型和完整文字，均无 video；不将 AppTest 当作浏览器或 SDK 网络捕获。原 22 个文本案和 12 个待决 Unicode 数字案保持，日志 target/subtitle-label-sdk.log。Python 重放现已使用冻结 label，而非硬编码 en。
+
+修前新增 Rust helper 单元和真实公共 API WebSocket 两项均执行并失败在 label-apostrophe：原输出 'O'Brien'，参考要求双引号定界。target/subtitle-label-red.log 保留真实 red。修复将原 status.rs 的 width_error_value 按职责移到既有 utils/mod.rs，改名为私有 python_error_value，算法未变；api.rs 的状态宽度和 media.rs 的字幕标签复用同一逻辑，不复制字符串转义实现。无新增文件、依赖、公共接口或运行时 Python。Unicode 非打印字符的数据方案未接入；不把该局部修复称作完整 Python repr。
+
+修后两项均通过（target/subtitle-label-green.log）。公共 WS 回归在本机临时端口启动一 worker、逐个以公开 VideoOptions.subtitle 发射十二个错误、解析完整 Exception type/message/Markdown 标记并确认无 video；先关闭连接和自有服务器、等待任务退出再断言。Rust 本来将错误渲染为元素，SDK AppTest 每案独立抛错，不能据本测试声称脚本错误中止/恢复或 stack/UI 完整兼容。
+
+相关 Python 媒体模块 60 项通过（target/subtitle-label-python.log），状态 width_repr 七项通过（target/subtitle-label-width-python.log）。workspace/all-targets Clippy -D warnings 通过，保留原有 MSVC linker_messages 告警（target/subtitle-label-clippy.log）。Rust 按 max_width=256 格式化并逐文件复查语义空行/diff。
+
+检查 SDK 源码时另发现当前 Rust native URL 分支提前返回，忽略字幕验证/附加；这是独立已知差异，本轮未改该流程，也未请求/访问远程视频。Unicode 数字分类方案和 rerun 非 Delta 消息策略仍待独立决定；完整目标、M3/M5/M7 保持开放。
+
+最终工作区回归 351 项通过（344 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference；日志 target/subtitle-label-workspace.log，不称完整全绿。文档/配置/矩阵三模块 55 项及媒体契约 25 项共 80 项通过（target/subtitle-label-docs.log），inventory 再生成后仍 130 partial。Python 参考重放额外核对 SDK Exception 的 Markdown/Streamlit 标记。
+
+提交前逐文件 diff 与 git diff --check 通过；移动后的 helper 函数体与 HEAD 原函数体仅名称改变，原始 oracle 的全部既有字段保持，九个受保护用户文件与本批 SHA 快照一致。本批没有新文件、真实浏览器操作或远程视频获取，真实 WS 自有服务器已停止；未创建 PR、合并、发布或部署。

@@ -462,7 +462,12 @@ pub(crate) fn media_url(bytes: &[u8], mime: &str) -> Result<String, StreamlitErr
 /// media-params): raw text is stripped; empty/VTT text is stored, and
 /// detected SRT retains cue identifiers while converting timestamp commas.
 pub(crate) fn subtitle_track(label: &str, text: &str) -> Result<crate::proto::SubtitleTrack, String> {
-    let invalid = || format!("Failed to process the provided subtitle '{label}': Invalid `subtitles` value. Supported values: VTT-formatted text, SRT-formatted text.");
+    let invalid = || {
+        format!(
+            "Failed to process the provided subtitle {}: Invalid `subtitles` value. Supported values: VTT-formatted text, SRT-formatted text.",
+            crate::utils::python_error_value(label)
+        )
+    };
     let text = subtitle_trim(text);
     let content = if text.is_empty() || text.starts_with("WEBVTT") {
         text.as_bytes().to_vec()
@@ -540,6 +545,20 @@ mod metric_tests {
 #[cfg(test)]
 mod subtitle_tests {
     use super::*;
+
+    #[test]
+    fn subtitle_label_errors_match_frozen_public_sdk_messages() -> Result<(), Box<dyn std::error::Error>> {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/media-more/subtitle-text/cases.json"))?;
+        let cases = reference["label_cases"].as_array().ok_or("missing subtitle label cases")?;
+        assert_eq!(cases.len(), 12);
+
+        for case in cases {
+            let result = subtitle_track(case["label"].as_str().ok_or("missing label")?, case["input"].as_str().ok_or("missing input")?);
+            assert_eq!(result.err().as_deref(), case["error"].as_str(), "{}", case["name"]);
+        }
+
+        Ok(())
+    }
 
     #[test]
     fn subtitle_strings_match_frozen_sdk_bytes_addresses_and_rejections() -> Result<(), Box<dyn std::error::Error>> {

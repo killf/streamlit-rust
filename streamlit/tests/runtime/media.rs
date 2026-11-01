@@ -757,3 +757,38 @@ async fn media_get_head_range_and_subtitle_urls_match_frozen_public_requests() -
     }
     Ok(())
 }
+
+fn subtitle_label_errors_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/media-more/subtitle-text/cases.json")).expect("frozen subtitle reference");
+
+        for case in reference["label_cases"].as_array().expect("subtitle label cases") {
+            st.video(crate::VideoOptions::new(b"ftyp".to_vec(), "video/mp4").subtitle(case["label"].as_str().expect("label"), case["input"].as_str().expect("invalid subtitle")));
+        }
+    })
+}
+
+#[actix_web::test]
+async fn subtitle_label_errors_match_frozen_sdk_over_websocket() -> TestResult {
+    let (_, handle, task, mut stream) = start_media_server(subtitle_label_errors_entry).await?;
+    let mut session = String::new();
+    let result = run_once(&mut stream, &mut session).await;
+    drop(stream);
+    handle.stop(false).await;
+    task.await??;
+    let wires = result?;
+    let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/media-more/subtitle-text/cases.json"))?;
+    let cases = reference["label_cases"].as_array().ok_or("missing label cases")?;
+    assert_eq!(wires.elements.len(), cases.len());
+
+    for (element, case) in wires.elements.iter().zip(cases) {
+        let Some(element::Type::Exception(exception)) = element.r#type.as_ref() else {
+            return Err("invalid subtitle must emit an exception, not a video".into());
+        };
+        assert_eq!(exception.r#type, case["error_type"].as_str().ok_or("missing error type")?);
+        assert_eq!(exception.message, case["error"].as_str().ok_or("missing error message")?, "{}", case["name"]);
+        assert!(exception.message_is_markdown && exception.is_streamlit_exception);
+    }
+
+    Ok(())
+}

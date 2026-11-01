@@ -79,16 +79,18 @@ def test_historical_rust_edges_retain_the_unmeasured_srt_content_gap():
 
 SUBTITLE_CASES = read(PYTHON/'subtitle-text/cases.json')['cases']
 UNICODE_SUBTITLE_CASES = read(PYTHON/'subtitle-text/cases.json')['unicode_cases']
+LABEL_SUBTITLE_CASES = read(PYTHON/'subtitle-text/cases.json')['label_cases']
 
 
-@pytest.mark.parametrize('case',SUBTITLE_CASES+UNICODE_SUBTITLE_CASES,ids=lambda case:case['name'])
+@pytest.mark.parametrize('case',SUBTITLE_CASES+UNICODE_SUBTITLE_CASES+LABEL_SUBTITLE_CASES,ids=lambda case:case['name'])
 def test_subtitle_oracle_replays_sdk_helper_and_public_video(case):
     import importlib.metadata
     from streamlit.elements.lib.subtitle_utils import _handle_string_or_path_data
     from streamlit.testing.v1 import AppTest
 
     assert importlib.metadata.version('streamlit')=='1.66.1' and len(SUBTITLE_CASES)==22 and len(UNICODE_SUBTITLE_CASES)==12
-    app=AppTest.from_string('import streamlit as st\nst.video(b"ftyp",subtitles={"en":'+repr(case['input'])+'})').run()
+    assert len(LABEL_SUBTITLE_CASES)==12
+    app=AppTest.from_string('import streamlit as st\nst.video(b"ftyp",subtitles={'+repr(case['label'])+':'+repr(case['input'])+'})').run()
     if case['accepted']:
         body=_handle_string_or_path_data(case['input'])
         assert body==bytes(case['content_bytes'])==base64.b64decode(case['content_base64'],validate=True)
@@ -100,6 +102,7 @@ def test_subtitle_oracle_replays_sdk_helper_and_public_video(case):
         with pytest.raises(Exception) as error:_handle_string_or_path_data(case['input'])
         assert type(error.value).__name__==case['helper_error_type']
         assert [(e.proto.type,e.message) for e in app.exception]==[(case['error_type'],case['error'])]
+        assert all(e.proto.message_is_markdown and e.proto.is_streamlit_exception for e in app.exception)
 
 
 def check_subtitle_http(capture, *, before=False):

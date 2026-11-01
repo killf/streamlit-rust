@@ -22,33 +22,6 @@ fn emoji_len(value: &str) -> Option<usize> {
     is_single_emoji(cluster).then_some(cluster.len())
 }
 
-/// Width error values follow Python quoting and ASCII escapes. Unicode
-/// printability still needs the pinned Python character data; keep those
-/// characters unchanged rather than using Rust's different debug repertoire.
-pub(crate) fn width_error_value(value: &str) -> String {
-    let quote = if value.contains('\'') && !value.contains('"') { '"' } else { '\'' };
-    let mut output = String::new();
-    output.push(quote);
-
-    for character in value.chars() {
-        match character {
-            '\\' => output.push_str("\\\\"),
-            '\n' => output.push_str("\\n"),
-            '\r' => output.push_str("\\r"),
-            '\t' => output.push_str("\\t"),
-            character if character == quote => {
-                output.push('\\');
-                output.push(character);
-            }
-            '\0'..='\u{1f}' | '\u{7f}' => output.push_str(&format!("\\x{:02x}", character as u32)),
-            character => output.push(character),
-        }
-    }
-
-    output.push(quote);
-    output
-}
-
 pub(crate) fn invalid_icon_message(value: &str) -> String {
     const HINT: &str = "Please use a single emoji or a Material icon shortcode like `:material\u{200b}/thumb_up:`.";
     let shortcode = value.strip_prefix(':').and_then(|rest| rest.strip_suffix(':'));
@@ -151,7 +124,7 @@ mod tests {
                 continue;
             }
             let value = inputs["error_cases"][index]["width"].as_str().ok_or_else(|| anyhow::anyhow!("missing width"))?;
-            let error = crate::StatusError::InvalidWidth(super::width_error_value(value));
+            let error = crate::StatusError::InvalidWidth(crate::utils::python_error_value(value));
             assert_eq!(error.to_string(), report["message"].as_str().ok_or_else(|| anyhow::anyhow!("missing error message"))?);
             checked += 1;
         }

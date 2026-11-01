@@ -456,3 +456,7 @@ stop 后下一轮按钮回到 false，未运行到的文本仍保留；普通隐
 赋值的来源优先级、保留用户 key 的重复同步，以及删除默认 URL→恢复旧值的
 两个通知尚未对齐。SDK 原始参考和 Rust 派生失败投影均保留；架构文档有三条
 实现路径待用户选择，生产未改，不能把参考门通过当作原生匹配。
+
+### Subtitle label error quoting (2026-11-01)
+
+Invalid raw subtitle text now renders the SDK label repr for measured ASCII quote/escape boundaries and printable Chinese/emoji. Twelve frozen public st.video AppTest errors match native public WebSocket Exception type/message and Markdown flags after a red/green regression. The existing status-width ASCII quoting helper is shared through private utils without changing its behavior. Full Unicode printability, exception stack/browser display and script-abort equivalence remain open; twelve Unicode numeric reference cases still need the selected data-source implementation. Direct-URL videos currently bypass subtitle processing in Rust and remain a separate known gap.
