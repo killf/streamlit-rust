@@ -1,8 +1,9 @@
 """Emit widget creation-wire parameter variants for the M3 differential."""
 import streamlit as st
 
-if st.query_params.get("probe") == "date-bounds":
+if st.query_params.get("probe") in ("date-bounds", "date-range"):
     from datetime import date
+    range_probe = st.query_params.get("probe") == "date-range"
     phase = st.query_params.get("phase", "load")
     parse = date.fromisoformat
     def wire(value):
@@ -23,7 +24,8 @@ if st.query_params.get("probe") == "date-bounds":
         high = "2025-04-10" if phase in ("narrow", "observe", "joint", "assign") else ("2025-05-20" if range_mode else "2025-04-20") if phase == "maximum" else "2025-12-31"
         return dict(min_value=parse(low), max_value=parse(high))
     single = st.date_input("Single", value=parse("2025-03-15"), key="date_bound_single", on_change=changed, args=("single",), **bounds(False))
-    selected_range = st.date_input("Range", value=(parse("2025-03-15"), parse("2025-03-20")), key="date_bound_range", on_change=changed, args=("range",), **bounds(True))
+    range_default = (parse("2025-06-10"), parse("2025-06-20")) if range_probe and phase in ("range-defaults", "range-fallback", "range-observe", "range-recover", "range-invalid-final") else (parse("2025-03-15"), parse("2025-03-20"))
+    selected_range = st.date_input("Range", value=range_default, key="date_bound_range", on_change=changed, args=("range",), **bounds(True))
     peer = st.checkbox("Peer", key="date_bound_peer", on_change=changed, args=("peer",))
     st.json({"phase": phase, "values": [wire(single), wire(selected_range), peer], "native": [wire(st.session_state.date_bound_single), wire(st.session_state.date_bound_range), st.session_state.date_bound_peer], "calls": st.session_state.date_bound_calls})
 elif st.query_params.get("probe") == "date-single":

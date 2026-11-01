@@ -2714,3 +2714,20 @@ widgets.rs 删除单值/范围重复解析，共用现有单日期 ISO/legacy �
 编辑 Rust 的格式、逐文件 diff 和全工作区/all-target Clippy 通过，既有 MSVC linker stdout warning 保留。最终工作区 339 项通过（332 库、1 ledger、2 宏、4 rustdoc），仍只排除原 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称全绿。相关八模块共 817 项通过，包含 SDK-only 未实现形状证据；参数参考模块 443 项未增加，temporal 参考模块新增十五项至 97 项。日志 target/date-range-{red,green,sdk,clippy,pickers,build,server,date-bounds,date-single,workspace,python,docs}.log。
 
 当前源码/二进制 SHA 与两份重放 metadata 一致；自持 Rust Popen 在 finally terminate/wait，8599 已核实无监听，未启动新的 SDK 服务。指南仅追加完整范围默认回退，原 CRLF 字节前缀保留；矩阵与生成 inventory 仍 130 partial。新增范围 malformed/legacy 的原生 WS/浏览器、合法空/部分/多端点公开模型、模式与类型不匹配、禁用/ignore、URL/表单/跨页及其他组合仍开放。用户 colconfig 与其他现有修改独立保留，无 PR、合并、发布或部署；M3/M5/M7 与完整 Goal 未关闭。
+
+## Current date range native frontend validation (2026-11-01)
+
+补上一批范围归一化的原生 WebSocket 证据；没有生产实现改动。复用 widget_params 两端示例和采集器的 opt-in date-range 模式，新增两份首次冻结记录：[SDK](../tests/reference/reference-browser/widget-params/date-range/trace.json)、[Rust](../tests/browser/rust-widget-params/date-range/trace.json)。各十九轮、170 原始帧、76 完整 Element、33 条有序 callback，同一连接/session、十九个不同 run、三个稳定控件 ID。
+
+每轮保留 Single、Range、Peer 和完整返回/原生值/回调 JSON。先改值，再提交 ID-only；覆盖 legacy/ISO 混合、非法首/末项、首项低于 min/末项高于 max、恰好 min/max、相等/反向端点保序、非法单项/三项数组。非法列表回完整已登记默认，不裁剪、排序或截断；这里不包含全合法的空/部分/多端点范围。默认由 3/15..3/20 改为 6/10..6/20 时保留当前值，不额外 callback 或同步；下一轮缺省恢复新默认，观察不重复，恢复正常输入后再以非法输入回新默认。全部 callback 先读到整批归一化后的日期和 Peer 值。
+
+严格门重解析原始 base64/protobuf、bytes/message 双投影和元素汇总，核对全部消息/status 次序、旧 ID、输入 oneof/原始非法或 legacy 数组、history 标志、session/run、路径，以及 default/min/max/format/is_range/布局/策略/no-value/no-set_value/no-one-shot。完整 Element 仅规范化 opaque widget ID 和 JSON body，逐字段相等后才设置 Rust semantic_match=true。两份原始成功捕获没有覆盖；metadata 的三份 producer、两份生产源码及实际二进制 SHA 与当前文件逐一匹配。
+
+参数模块增加十一项至 454 项。八类同时改写 raw bytes/message/元素投影的负例分别拒绝：把 ID-only 改成空数组 oneof、legacy 原生值不归一化、非法末项直接返回、超过 max 仍接受、反向端点排序、三项非法请求被改为合法双项、callback 读到旧 Peer、默认更新后仍回旧默认。每个负例先确认确实改动一帧，避免空操作导致误通过。
+
+同一当前二进制重放旧 date-bounds 十三轮 116 帧/52 Element 和 date-single 十六轮 127 帧/48 Element，与冻结 SDK 的完整 Element 继续一致；target/date-range-ws-old-{date-bounds,date-single}/trace.json 保留，不覆盖原始参考。SDK 自持服务与所有 Rust Popen 均 finally terminate/wait，51944/8599 已核实无监听；collector 的 caller-owned 清理信息只在进程退出后确认。
+
+编辑 Rust 示例格式和逐文件 diff、全工作区/all-target Clippy、示例构建均通过，既有 MSVC linker stdout warning 保留。没有生产代码变化，本批未重复完整 Cargo 测试；上批 339 项及两个既有排除仍属上批证据。日志 target/date-range-ws-{clippy,build,sdk,rust,server,replay-server,old-date-bounds,old-date-single,python,docs}.log。
+
+仅 st.date_input 矩阵新增原生证据键和本批 limitation，生成 inventory 仍 130 partial。合法空/部分/多端点公开返回模型仍待用户选择；本批没有新浏览器证据，模式/类型不匹配、禁用/ignore、query binding、表单/跨页及更广组合仍开放。用户 colconfig 及其他已有修改独立保留，无 PR、合并、发布或部署；M3/M5/M7 和完整 Goal 保持开放。
+本批相关八模块实测 1541 项通过：test_widget_params_reference、test_temporal_params_reference、test_pickers_contract、test_temporal_contract、test_datetime_contract、test_inputs_contract、test_refcore、test_capture_checks。文档/配置/矩阵三模块 55 项通过。增加完整消息次序断言后另重跑日期范围十一项；不将不同选择的八模块计数与上一批 817 项直接作增量比较。

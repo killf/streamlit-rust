@@ -3838,6 +3838,136 @@ DATE_SINGLE_UI_STAGE_RUN = (0, 0, 0, 1, 2, 2, 2, 2, 2, 3, 4)
 DATE_SINGLE_UI_CALLS = [["day", "2025-04-20", False], ["peer", "2025-04-20", True], ["day", "2025-04-21", True], ["peer", "2025-04-21", False]]
 
 
+DATE_RANGE_PHASES = ("load", "range-edit", "range-missing", "range-legacy", "range-bad-start", "range-bad-end", "range-low", "range-high",
+    "range-minmax", "range-equal", "range-reverse", "range-mixed", "range-invalid-one", "range-invalid-many", "range-defaults",
+    "range-fallback", "range-observe", "range-recover", "range-invalid-final")
+DATE_RANGE_DEFAULT = ["2025-03-15", "2025-03-20"]
+DATE_RANGE_UPDATED = ["2025-06-10", "2025-06-20"]
+DATE_RANGE_INPUTS = (None, ("2025-04-01", ["2025-04-10", "2025-04-20"], True), (None, None, False),
+    ("2025-04-01", ["2025/05/01", "2025/05/10"], True), ("2025-04-01", ["bad", "2025-05-10"], False),
+    ("2025-04-01", ["2025-05-01", "bad"], True), ("2025-04-01", ["2024-12-31", "2025-05-10"], False),
+    ("2025-04-01", ["2025-05-01", "2026-01-01"], True), ("2025-04-01", ["2025-01-01", "2025-12-31"], False),
+    ("2025-04-01", ["2025-05-01", "2025-05-01"], True), ("2025-04-01", ["2025-05-10", "2025-05-01"], False),
+    ("2025-04-01", ["2025-05-01", "2025/05/10"], True), ("2025-04-01", ["bad"], False),
+    ("2025-04-01", ["2025-05-01", "bad", "2025-05-10"], True), None, (None, None, False), None,
+    ("2025-04-01", ["2025-07-01", "2025-07-10"], True), ("2025-04-01", ["bad", "2025-07-10"], False))
+DATE_RANGE_VALUES = (["2025-03-15", DATE_RANGE_DEFAULT, False], ["2025-04-01", ["2025-04-10", "2025-04-20"], True],
+    ["2025-03-15", DATE_RANGE_DEFAULT, False], ["2025-04-01", ["2025-05-01", "2025-05-10"], True],
+    ["2025-04-01", DATE_RANGE_DEFAULT, False], ["2025-04-01", DATE_RANGE_DEFAULT, True],
+    ["2025-04-01", DATE_RANGE_DEFAULT, False], ["2025-04-01", DATE_RANGE_DEFAULT, True],
+    ["2025-04-01", ["2025-01-01", "2025-12-31"], False], ["2025-04-01", ["2025-05-01", "2025-05-01"], True],
+    ["2025-04-01", ["2025-05-10", "2025-05-01"], False], ["2025-04-01", ["2025-05-01", "2025-05-10"], True],
+    ["2025-04-01", DATE_RANGE_DEFAULT, False], ["2025-04-01", DATE_RANGE_DEFAULT, True], ["2025-04-01", DATE_RANGE_DEFAULT, True],
+    ["2025-03-15", DATE_RANGE_UPDATED, False], ["2025-03-15", DATE_RANGE_UPDATED, False],
+    ["2025-04-01", ["2025-07-01", "2025-07-10"], True], ["2025-04-01", DATE_RANGE_UPDATED, False])
+DATE_RANGE_COUNTS = (0, 3, 6, 9, 11, 12, 13, 14, 16, 18, 20, 22, 24, 25, 25, 28, 28, 31, 33)
+DATE_RANGE_CALLS = [[source, *DATE_RANGE_VALUES[index]] for index, sources in enumerate(((), ("single", "range", "peer"),
+    ("single", "range", "peer"), ("single", "range", "peer"), ("range", "peer"), ("peer",), ("peer",), ("peer",),
+    ("range", "peer"), ("range", "peer"), ("range", "peer"), ("range", "peer"), ("range", "peer"), ("peer",), (),
+    ("single", "range", "peer"), (), ("single", "range", "peer"), ("range", "peer"))) for source in sources]
+
+
+def check_date_range(capture):
+    assert capture["successful"] and "producer_error" not in capture and capture["reference_version"] == "1.66.1"
+    assert capture["runtime"] in ("python", "rust") and capture["finishes"] == [0] * 19
+    assert capture["cleanup"]["websocket_closed"] and capture["cleanup"]["server_stopped" if capture["runtime"] == "python" else "caller_server_stopped"]
+    assert len(capture["frames"]) == 170 and len(capture["elements"]) == 76
+    kinds = [(message.WhichOneof("type"), message.session_status_changed.script_is_running) if message.WhichOneof("type") == "session_status_changed" else message.WhichOneof("type") for message in frames(capture)]
+    expected_kinds = []
+    for index in range(19):
+        expected_kinds += ["rerun_script"] + ([("session_status_changed", False)] if index else [])
+        expected_kinds += ["new_session", ("session_status_changed", True)] + ["delta"] * 4 + ["script_finished"]
+    assert kinds == expected_kinds
+    runs = color_runs(capture, ("date_input", "checkbox", "json"))
+    normalized, sessions, run_ids, ids = [], set(), set(), None
+    for index, (phase, run) in enumerate(zip(DATE_RANGE_PHASES, runs, strict=True)):
+        request = run["request"]
+        assert request.query_string == "probe=date-range&phase=" + phase and not request.is_history_navigation
+        assert len(run["sessions"]) == 1 and run["finishes"] == [0]
+        session = run["sessions"][0]
+        assert session.initialize.environment_info.streamlit_version == "1.66.1"
+        sessions.add(session.initialize.session_id);run_ids.add(session.script_run_id)
+        assert [entry[0] for entry in run["entries"]] == ["date_input", "date_input", "checkbox", "json"]
+        current = []
+        for position, (kind, widget, element) in enumerate(run["entries"][:3]):
+            assert widget.label == ("Single", "Range", "Peer")[position] and widget.id.endswith("-date_bound_" + ("single", "range", "peer")[position])
+            assert not widget.disabled and not widget.ignore_rerun and not widget.form_id and not widget.help and widget.label_visibility.value == 0
+            assert not widget.set_value and not widget.value and not element.HasField("has_one_shot_effect")
+            if kind == "checkbox":
+                assert not widget.default and element.width_config.use_content
+            else:
+                assert element.width_config.use_stretch and widget.is_range is (position == 1) and not widget.query_param_key and widget.format == "YYYY/MM/DD"
+                assert (widget.min, widget.max) == ("2025-01-01", "2025-12-31")
+                assert list(widget.default) == (["2025-03-15"] if position == 0 else DATE_RANGE_DEFAULT if index < 14 else DATE_RANGE_UPDATED)
+            current.append(widget.id)
+        assert len(set(current)) == 3
+        if ids is None: ids = current
+        else: assert current == ids
+        incoming, submitted = request.widget_states.widgets, DATE_RANGE_INPUTS[index]
+        if submitted is None:
+            assert not incoming
+        else:
+            single, selected_range, peer = submitted
+            assert len(incoming) == 3 and [widget.id for widget in incoming] == ids
+            assert [widget.WhichOneof("value") for widget in incoming] == [None if single is None else "string_array_value", None if selected_range is None else "string_array_value", "bool_value"]
+            assert list(incoming[0].string_array_value.data) == ([] if single is None else [single])
+            assert list(incoming[1].string_array_value.data) == ([] if selected_range is None else selected_range)
+            assert incoming[2].bool_value is peer
+        report = json.loads(run["entries"][-1][1].body)
+        assert report == {"phase": phase, "values": DATE_RANGE_VALUES[index], "native": DATE_RANGE_VALUES[index], "calls": DATE_RANGE_CALLS[:DATE_RANGE_COUNTS[index]]}
+        for projection in (report["values"], report["native"], *(call[1:] for call in report["calls"])):
+            assert type(projection[0]) is str and type(projection[1]) is list and len(projection[1]) == 2 and all(type(value) is str for value in projection[1]) and type(projection[2]) is bool
+        assert [entry["delta_path"] for entry in capture["elements"][index * 4:index * 4 + 4]] == [[0, i] for i in range(4)]
+        fields = []
+        for kind, _, element in run["entries"]:
+            view = MessageToDict(element, preserving_proto_field_name=True)
+            if kind == "json": view[kind]["body"] = json.loads(view[kind]["body"])
+            else: view[kind].pop("id")
+            fields.append(view)
+        normalized.append(fields)
+    assert len(sessions) == 1 and len(run_ids) == 19
+    return normalized
+
+
+@pytest.mark.parametrize("root", (PYTHON, RUST), ids=("python", "rust"))
+def test_date_range_native_frontend_normalization(root):
+    check_date_range(read(root / "date-range/trace.json"))
+
+
+def test_date_range_complete_elements_match_reference():
+    captures = [read(root / "date-range/trace.json") for root in (PYTHON, RUST)]
+    assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert check_date_range(captures[0]) == check_date_range(captures[1])
+
+
+@pytest.mark.parametrize("mutation", ("missing-oneof", "legacy-native", "invalid-tail", "upper-bound", "sorted-reverse", "many-input", "callback-peer", "old-default"))
+def test_date_range_gate_rejects_coherent_wrong_wire(mutation):
+    capture = read(PYTHON / "date-range/trace.json")
+    target = {"missing-oneof": 15, "legacy-native": 3, "invalid-tail": 5, "upper-bound": 7, "sorted-reverse": 10, "many-input": 13, "callback-peer": 3, "old-default": 15}[mutation]
+    run, changed = -1, 0
+    for frame in capture["frames"]:
+        client = frame["direction"] == "client->server"
+        if client: run += 1
+        if run != target: continue
+        message = BackMsg() if client else ForwardMsg();message.ParseFromString(base64.b64decode(frame["base64"]))
+        if client and mutation == "missing-oneof": message.rerun_script.widget_states.widgets[1].string_array_value.SetInParent()
+        elif client and mutation == "many-input": message.rerun_script.widget_states.widgets[1].string_array_value.data[:] = ["2025-05-01", "2025-05-10"]
+        elif not client and message.WhichOneof("type") == "delta" and message.delta.new_element.WhichOneof("type") == "json" and mutation not in ("missing-oneof", "many-input"):
+            element = message.delta.new_element;report = json.loads(element.json.body)
+            if mutation == "callback-peer": report["calls"][-3][-1] = False
+            else:
+                selected = {"legacy-native": ["2025/05/01", "2025/05/10"], "invalid-tail": ["2025-05-01", "bad"], "upper-bound": ["2025-05-01", "2026-01-01"], "sorted-reverse": ["2025-05-01", "2025-05-10"], "old-default": DATE_RANGE_DEFAULT}[mutation]
+                report["values"][1] = report["native"][1] = selected
+            element.json.body = json.dumps(report)
+        else: continue
+        changed += 1
+        raw = message.SerializeToString();frame.update(base64=base64.b64encode(raw).decode(), bytes=len(raw), message=MessageToDict(message, preserving_proto_field_name=True))
+    assert changed == 1
+    capture["elements"] = [{"kind": m.delta.new_element.WhichOneof("type"), "fields": MessageToDict(getattr(m.delta.new_element, m.delta.new_element.WhichOneof("type")), preserving_proto_field_name=True),
+                            "delta_path": list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m, ForwardMsg) and m.WhichOneof("type") == "delta"]
+    with pytest.raises(AssertionError): check_date_range(capture)
+
+
 def date_single_ui_text(day, peer, calls):
     flag = str(peer).lower()
     rows = ''.join(f'{i}:[0:"{source}"1:"{value}"2:{str(checked).lower()}]' for i, (source, value, checked) in enumerate(calls))
