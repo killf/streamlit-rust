@@ -43,6 +43,7 @@ parser.add_argument('--date-bounds', action='store_true', help='single/complete-
 parser.add_argument('--date-implicit', action='store_true', help='implicit-bound single/range mode retention and callback recovery')
 parser.add_argument('--date-mode', action='store_true', help='explicit-bound single/range mode resets and callback recovery')
 parser.add_argument('--date-strings', action='store_true', help='disabled date string errors after peer callbacks and subsequent recovery')
+parser.add_argument('--date-json-errors', action='store_true', help='isolated disabled date parsed JSON scalar/array early type errors')
 parser.add_argument('--date-errors', action='store_true', help='isolated disabled date early-type-error and blocked recovery sessions')
 parser.add_argument('--date-disabled', action='store_true', help='disabled date callback exposure, restoration and enabled transitions')
 parser.add_argument('--date-range', action='store_true', help='range missing/legacy/invalid/bounded inputs and registered-default callbacks')
@@ -67,6 +68,7 @@ parser.add_argument('--resume-after-stop', action='store_true', help='append nor
 parser.add_argument('--stop-lifecycle', action='store_true', help='button and URL-bound text around early stop and normal cleanup')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
+args.date_errors = args.date_errors or args.date_json_errors
 assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy, args.radio_identity, args.select_empty, args.multi_empty, args.multi_limits, args.format_collisions, args.radio_duplicates, args.group_width, args.group_policy, args.group_state, args.group_defaults, args.feedback_identity, args.feedback_empty, args.text_empty, args.number_empty, args.time_empty, args.datetime_empty, args.datetime_bounds, args.date_single, args.date_bounds, args.date_range, args.date_mode, args.date_implicit, args.date_disabled, args.date_errors, args.date_strings)) <= 1
 assert not args.number_float or args.number_sequence
 assert not args.select_unkeyed or args.select_policy
@@ -155,6 +157,8 @@ if args.date_strings:
     TRACE['scope'] = 'Twelve isolated disabled date nonempty string error sessions with peer callbacks, recovery, reenable and edit; no trigger/None/browser claim.'
 if args.date_errors:
     TRACE['scope'] = 'Thirty-six isolated disabled date protobuf-type-error sessions, load/error/blocked recovery; no JSON/string/empty-container/browser claim.'
+if args.date_json_errors:
+    TRACE['scope'] = 'Forty-eight isolated disabled date parsed JSON scalar/array type-error sessions, load/error/blocked recovery; no arbitrary precision, JSON parse error, empty/container success or browser claim.'
 if args.date_disabled:
     TRACE['scope'] = 'Twelve single/complete-range disabled callback exposure, restore, code-assignment and recovery runs on one native WS; no wrong-oneof/partial/browser claim.'
 if args.date_range:
@@ -313,11 +317,11 @@ try:
                  ('disabled-legacy', ('2025/08/01', ['2025/08/10','2025/08/20'], False)), ('disabled-assign', ('2025-09-01', ['2025-09-10','2025-09-20'], True)),
                  ('disabled-final', None), ('enabled-return', None), ('enabled-recover', ('2025-11-01', ['2025-11-10','2025-11-20'], False))]
     if args.date_errors:
+        error_inputs = [('json_value', 'true'), ('json_value', 'false'), ('json_value', '7'), ('json_value', '1.5'), ('json_value', '[7]'), ('json_value', '[1.5]'), ('json_value', '[true]'), ('json_value', '[null]'), ('json_value', '[[]]'), ('json_value', '[{}]'), ('json_value', '["2025-04-10",7]'), ('json_value', '["2025-04-10",true]')] if args.date_json_errors else (
+            ('bool_value',True),('bool_value',False),('trigger_value',True),('trigger_value',False),('int_value',7),
+            ('double_value',1.5),('int_array_value',[7]),('double_array_value',[1.5]),('bytes_value','eA=='))
         TRACE['cases'] = [{'target':target,'kind':kind,'value':value,'peer_first':peer_first}
-                          for target in ('Single','Range')
-                          for kind,value in (('bool_value',True),('bool_value',False),('trigger_value',True),('trigger_value',False),
-                                             ('int_value',7),('double_value',1.5),('int_array_value',[7]),('double_array_value',[1.5]),('bytes_value','eA=='))
-                          for peer_first in (False,True)]
+                          for target in ('Single','Range') for kind,value in error_inputs for peer_first in (False,True)]
         steps = [(attempt,None) for case in TRACE['cases'] for attempt in ('load','malformed','recovery')]
     if args.date_strings:
         TRACE['cases'] = [{'target':target,'value':text,'peer_first':peer_first} for target in ('Single','Range')

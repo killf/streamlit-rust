@@ -833,6 +833,36 @@ impl SessionState {
                         Some(widget_state::Value::IntArrayValue(array)) if !array.data.is_empty() => Some("strptime() argument 1 must be str, not int"),
                         Some(widget_state::Value::DoubleArrayValue(array)) if !array.data.is_empty() => Some("strptime() argument 1 must be str, not float"),
                         Some(widget_state::Value::BytesValue(bytes)) if !bytes.is_empty() => Some("strptime() argument 1 must be str, not int"),
+                        Some(widget_state::Value::JsonValue(text)) => serde_json::from_str::<Value>(text).ok().and_then(|value| match value {
+                            Value::Bool(_) => Some("'bool' object is not iterable"),
+                            Value::Number(number) if number.is_i64() || number.is_u64() => Some("'int' object is not iterable"),
+                            Value::Number(_) => Some("'float' object is not iterable"),
+
+                            Value::Array(items) => {
+                                // 逐项解析：前面的非法日期先回默认，后项类型错误不再发生。
+                                for item in items {
+                                    let error = match item {
+                                        Value::String(text) => {
+                                            if NaiveDate::parse_from_str(&text, "%Y-%m-%d").or_else(|_| NaiveDate::parse_from_str(&text, "%Y/%m/%d")).is_err() {
+                                                break;
+                                            }
+                                            continue;
+                                        }
+
+                                        Value::Bool(_) => "strptime() argument 1 must be str, not bool",
+                                        Value::Number(number) if number.is_i64() || number.is_u64() => "strptime() argument 1 must be str, not int",
+                                        Value::Number(_) => "strptime() argument 1 must be str, not float",
+                                        Value::Null => "strptime() argument 1 must be str, not None",
+                                        Value::Array(_) => "strptime() argument 1 must be str, not list",
+                                        Value::Object(_) => "strptime() argument 1 must be str, not dict",
+                                    };
+                                    return Some(error);
+                                }
+                                None
+                            }
+
+                            _ => None,
+                        }),
                         _ => None,
                     };
                     if let Some(error) = error {
@@ -1372,6 +1402,46 @@ mod tests {
     }
 
     #[test]
+    fn disabled_date_json_invalid_prefix_stops_before_later_type_errors() -> anyhow::Result<()> {
+        for range in [false, true] {
+            for text in [r#"["bad",7]"#, r#"["2025-02-30",true]"#, r#"["2025-04-10","bad",{}]"#, r#"["2025/04/10","bad",[]]"#] {
+                let state = SessionState::default();
+                let default = if range { serde_json::json!(["2025-03-15", "2025-03-20"]) } else { serde_json::json!("2025-03-15") };
+                let (id, _, _) = state.register_widget(
+                    WidgetSpec {
+                        kind: "date_input",
+                        key: Some("day"),
+                        disabled: true,
+                        query: None,
+                        identity: "stable",
+                        default: default.clone(),
+                        codec: Codec::DateInput {
+                            range,
+                            min: NaiveDate::from_ymd_opt(2025, 1, 1).expect("fixture date"),
+                            max: NaiveDate::from_ymd_opt(2025, 12, 31).expect("fixture date"),
+                            reset_native: true,
+                            default,
+                        },
+                        callback: None,
+                    },
+                    |value| Ok(value.clone()),
+                )?;
+                state.finish_widgets();
+                assert!(
+                    state
+                        .begin_widgets(vec![WidgetState {
+                            id,
+                            value: Some(widget_state::Value::JsonValue(text.into()))
+                        }])
+                        .is_empty()
+                );
+                assert!(state.widget_input_error().is_none(), "{text}");
+            }
+        }
+        Ok(())
+    }
+
+    #[test]
     fn disabled_date_type_errors_suppress_callbacks_and_block_recovery() -> anyhow::Result<()> {
         let min = NaiveDate::from_ymd_opt(2025, 1, 1).expect("fixture date");
         let max = NaiveDate::from_ymd_opt(2025, 12, 31).expect("fixture date");
@@ -1385,6 +1455,18 @@ mod tests {
             (widget_state::Value::IntArrayValue(crate::proto::SInt64Array { data: vec![7] }), "strptime() argument 1 must be str, not int"),
             (widget_state::Value::DoubleArrayValue(crate::proto::DoubleArray { data: vec![1.5] }), "strptime() argument 1 must be str, not float"),
             (widget_state::Value::BytesValue(vec![b'x']), "strptime() argument 1 must be str, not int"),
+            (widget_state::Value::JsonValue("true".into()), "'bool' object is not iterable"),
+            (widget_state::Value::JsonValue("false".into()), "'bool' object is not iterable"),
+            (widget_state::Value::JsonValue("7".into()), "'int' object is not iterable"),
+            (widget_state::Value::JsonValue("1.5".into()), "'float' object is not iterable"),
+            (widget_state::Value::JsonValue("[7]".into()), "strptime() argument 1 must be str, not int"),
+            (widget_state::Value::JsonValue("[1.5]".into()), "strptime() argument 1 must be str, not float"),
+            (widget_state::Value::JsonValue("[true]".into()), "strptime() argument 1 must be str, not bool"),
+            (widget_state::Value::JsonValue("[null]".into()), "strptime() argument 1 must be str, not None"),
+            (widget_state::Value::JsonValue("[[]]".into()), "strptime() argument 1 must be str, not list"),
+            (widget_state::Value::JsonValue("[{}]".into()), "strptime() argument 1 must be str, not dict"),
+            (widget_state::Value::JsonValue("[\"2025-04-10\",7]".into()), "strptime() argument 1 must be str, not int"),
+            (widget_state::Value::JsonValue("[\"2025-04-10\",true]".into()), "strptime() argument 1 must be str, not bool"),
         ] {
             for range in [false, true] {
                 for peer_first in [false, true] {

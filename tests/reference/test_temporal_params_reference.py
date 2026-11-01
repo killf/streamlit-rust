@@ -54,7 +54,19 @@ def test_sdk_disabled_date_strings_run_peer_then_fail_registration_and_recover(t
 @pytest.mark.parametrize("kind,value,error", (("bool_value",True,"'bool' object is not iterable"), ("bool_value",False,"'bool' object is not iterable"),
     ("trigger_value",True,"'bool' object is not iterable"), ("trigger_value",False,"'bool' object is not iterable"), ("int_value",7,"'int' object is not iterable"),
     ("double_value",1.5,"'float' object is not iterable"), ("int_array_value",[7],"strptime() argument 1 must be str, not int"),
-    ("double_array_value",[1.5],"strptime() argument 1 must be str, not float"), ("bytes_value",b'x',"strptime() argument 1 must be str, not int")))
+    ("double_array_value",[1.5],"strptime() argument 1 must be str, not float"), ("bytes_value",b'x',"strptime() argument 1 must be str, not int"),
+    ('json_value', 'true', "'bool' object is not iterable"),
+    ('json_value', 'false', "'bool' object is not iterable"),
+    ('json_value', '7', "'int' object is not iterable"),
+    ('json_value', '1.5', "'float' object is not iterable"),
+    ('json_value', '[7]', 'strptime() argument 1 must be str, not int'),
+    ('json_value', '[1.5]', 'strptime() argument 1 must be str, not float'),
+    ('json_value', '[true]', 'strptime() argument 1 must be str, not bool'),
+    ('json_value', '[null]', 'strptime() argument 1 must be str, not None'),
+    ('json_value', '[[]]', 'strptime() argument 1 must be str, not list'),
+    ('json_value', '[{}]', 'strptime() argument 1 must be str, not dict'),
+    ('json_value', '["2025-04-10",7]', 'strptime() argument 1 must be str, not int'),
+    ('json_value', '["2025-04-10",true]', 'strptime() argument 1 must be str, not bool')))
 @pytest.mark.parametrize("range_mode", (False,True))
 @pytest.mark.parametrize("peer_first", (False,True))
 def test_sdk_disabled_date_type_errors_precede_callbacks_and_block_recovery(kind,value,error,range_mode,peer_first):
@@ -996,3 +1008,28 @@ def test_datetime_precision_gate_rejects_wrong_wire(mutation):
     capture["elements"] = [{"kind": kind, "fields": fields, "delta_path": path} for kind, fields, path in emitted]
     with pytest.raises(AssertionError):
         check_datetime_precision(capture)
+
+
+@pytest.mark.parametrize('text',('["bad",7]','["2025-02-30",true]','["2025-04-10","bad",{}]','["2025/04/10","bad",[]]'))
+@pytest.mark.parametrize('target',('Single','Range'))
+@pytest.mark.parametrize('peer_first',(False,True))
+def test_sdk_disabled_date_json_invalid_prefix_prevents_later_type_error(text,target,peer_first):
+    from streamlit.testing.v1 import AppTest
+    from streamlit.proto.WidgetStates_pb2 import WidgetStates
+
+    app=AppTest.from_file(str(Path(__file__).parent/'widget_params_app.py'))
+    app.query_params.update(probe='date-disabled',phase='disabled-load');app.run()
+    ids={w.label:w.id for w in (*app.date_input,*app.checkbox)}
+    incoming=WidgetStates()
+    for label in (('Peer',target) if peer_first else (target,'Peer')):
+        widget=incoming.widgets.add(id=ids[label])
+        if label=='Peer':widget.bool_value=True
+        else:widget.json_value=text
+    app._run(incoming)
+    assert not app.exception
+    values=['2025-03-15',['2025-03-15','2025-03-20'],True]
+    assert json.loads(app.json[0].value)=={'phase':'disabled-load','values':values,'native':values,'calls':[['peer',*values]]}
+    recovery=WidgetStates();recovery.widgets.add(id=ids['Peer']).bool_value=False;app._run(recovery)
+    assert not app.exception
+    values[2]=False
+    assert json.loads(app.json[0].value)=={'phase':'disabled-load','values':values,'native':values,'calls':[['peer',*values[:2],True],['peer',*values]]}
