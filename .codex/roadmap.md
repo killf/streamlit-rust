@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 分段字幕/循环：?subtitles=timed 在两端实际核对两条 cue 与两处空档，四个定位时间及对应字幕区域一致；跨多个片长后仍播放，暂停保持的 cue 与时间区间匹配。保留十五张原图、首次瞬态/标签失效/视口变化，104 项视频检查通过；不宣称逐帧精度或完整长稳态。见[验收](acceptance.md#current-timed-caption-and-loop-ui-validation-2026-11-01)。
+
 2026-11-01 字幕真实 UI：现有视频 fixture/example 增加 ?subtitles=1，两端均实际显示英文 SRT、原生菜单切换中文 VTT、关闭字幕并恢复默认无字幕场景。六阶段/十二张原图、四个字幕 GET 与字幕区域 RGB 对照一致；75 项视频检查通过。仅测试示例和证据，库/API/依赖未改；动态 cue 与其他边界仍开放。见[验收](acceptance.md#current-real-subtitle-ui-validation-2026-11-01)。
 
 2026-11-01 默认视频真实播放：同一真实 MP4 在 SDK/Rust Chrome 各完成七阶段（加载、播放、暂停保持、恢复、结束、中点定位），保留八张原始图与实际时间，48 项视频检查通过。两端最终端口关闭，未改生产/fixture/viewport；字幕、其他参数/设备及完整生命周期仍开放。见[验收](acceptance.md#current-real-video-playback-ui-validation-2026-11-01)。

@@ -395,3 +395,145 @@ def test_subtitle_ui_gate_rejects_damaged_evidence(root, fault):
     elif fault == "cleanup": record["server_cleanup"]["port_closed_final"] = False
     with pytest.raises(AssertionError):
         check_subtitle_ui(record)
+
+
+TIMED_UI_ROOTS = (HERE / "reference-browser/video/timed-ui", HERE.parent / "browser/rust-video/timed-ui")
+TIMED_SEEKS = {"first-cue": (0.15, 0.25), "between-cues": (0.45, 0.55), "second-cue": (0.7, 0.8), "after-cues": (0.93, 0.99)}
+
+
+def timed_loop_stages(record):
+    names = ("fresh-play-start", "fresh-loop-observed", "fresh-loop-paused", "fresh-loop-held") if record["runtime"] == "python" else ("play-start", "loop-observed", "loop-paused", "loop-held")
+    stages = {s["name"]: s for s in record["stages"]}
+    return [stages[n] for n in names]
+
+
+def check_timed_ui(record):
+    import base64
+    from datetime import datetime
+    from io import BytesIO
+    from urllib.parse import urlsplit
+    from PIL import Image
+
+    # 1. 核对实际定位和所有原图；视口变化不强改为同一高度。
+    assert record["reference_version"] == "1.66.1" and record["sdk_distribution"]["streamlit"] == "1.66.1"
+    assert record["tab_closed"] and record["server_cleanup"]["stopped"] and record["server_cleanup"]["port_closed_final"]
+    assert record["browser"]["viewport_override"] is False
+    stages = {s["name"]: s for s in record["stages"]}
+    assert stages["loaded"]["dom"]["videos"][0]["currentTime"] == 0
+    regions = {}
+    for stage in record["stages"]:
+        dom = stage["dom"]
+        assert not dom["exceptions"] and len(dom["videos"]) == 1
+        video = dom["videos"][0]
+        assert video["error"] is None and video["readyState"] >= 2 and video["duration"] == 1
+        assert (video["videoWidth"], video["videoHeight"]) == (64, 48)
+        assert urlsplit(video["src"]).path == VIDEO_URL
+        if stage["name"] in TIMED_SEEKS:
+            low, high = TIMED_SEEKS[stage["name"]]
+            assert video["paused"] and low <= video["currentTime"] <= high
+        if "screenshot" not in stage:
+            continue
+        shot = stage["screenshot"]
+        body = (HERE.parents[1] / shot["path"]).read_bytes()
+        assert hashlib.sha256(body).hexdigest() == shot["sha256"] and len(body) == shot["bytes"]
+        with Image.open(BytesIO(body)) as image:
+            assert image.format == "JPEG" and image.mode == "RGB"
+            assert image.size == (dom["viewport"]["width"], dom["viewport"]["height"])
+            if "caption_region" in stage:
+                pixels = image.tobytes()
+                width, height = image.size
+                left, top, right, bottom = stage["caption_region"]["bounds"]
+                assert (left, top, right, bottom) == (650, 510, 805, 556)
+                region = b"".join(pixels[(y * width + left) * 3:(y * width + right) * 3] for y in range(top, bottom))
+                regions[stage["name"]] = hashlib.sha256(region).hexdigest()
+                assert regions[stage["name"]] == stage["caption_region"]["rgb_sha256"]
+    assert all("screenshot" in stages[n] and n in regions for n in TIMED_SEEKS)
+    assert len({regions[n] for n in ("first-cue", "between-cues", "second-cue")}) == 3
+
+    # 2. 跨片长后仍播放、已覆盖全片，随后暂停保持且显示对应 cue。
+    start, observed, paused, held = timed_loop_stages(record)
+    elapsed = (datetime.fromisoformat(observed["at"]) - datetime.fromisoformat(start["at"])).total_seconds()
+    assert elapsed >= 3
+    for stage in (start, observed):
+        video = stage["dom"]["videos"][0]
+        assert not video["paused"] and not video["ended"] and 0 <= video["currentTime"] < 1
+    for stage in (observed, held):
+        assert any(a <= 0.001 and b >= 0.999 for a, b in stage["dom"]["videos"][0]["played"])
+    position = paused["dom"]["videos"][0]["currentTime"]
+    assert paused["dom"]["videos"][0]["paused"] and held["dom"]["videos"][0]["paused"]
+    assert held["dom"]["videos"][0]["currentTime"] == position
+    assert (datetime.fromisoformat(held["at"]) - datetime.fromisoformat(paused["at"])).total_seconds() >= 1
+    expected_cue = "first-cue" if position < 0.4 else "second-cue" if 0.6 <= position < 0.9 else "between-cues"
+    assert regions[held["name"]] == regions[expected_cue]
+
+    # 3. 完整 VTT 原文和 SDK 地址绑定，不能用同名轨道替代定时内容。
+    assert len(record["track_http"]) == 2
+    tracks = stages["loaded"]["dom"]["videos"][0]["tracks"]
+    assert [t["label"] for t in tracks] == ["English", "中文"] and [t["default"] for t in tracks] == [True, False]
+    expected = base64.b64decode(record["sdk_apptest"]["timed_vtt_base64"], validate=True)
+    assert expected == b"WEBVTT\n\n1\n00:00:00.000 --> 00:00:00.400\nFirst cue\n\n2\n00:00:00.600 --> 00:00:00.900\nSecond cue"
+    bodies = [expected, "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\n中文字幕".encode()]
+    for track, response, body, sdk in zip(tracks, record["track_http"], bodies, record["sdk_apptest"]["timed"]["subtitles"]):
+        assert bytes(response["body_bytes"]) == base64.b64decode(response["body_base64"], validate=True) == body
+        assert hashlib.sha256(body).hexdigest() == response["body_sha256"]
+        filename = hashlib.blake2b(track["label"].encode(), digest_size=16).hexdigest() + ".vtt"
+        path = "/media/" + hashlib.blake2b(str(len(body)).encode() + b":" + body + b"text/vtt" + filename.encode(), digest_size=16).hexdigest() + ".vtt"
+        assert response["url"] == track["src"] and urlsplit(response["url"]).path == path and sdk["url"] == "/mock" + path
+        assert response["status"] == 200 and response["headers"]["content-type"] == "text/vtt; charset=utf-8"
+        assert response["headers"]["content-length"] == str(len(body))
+    return {name: regions[name] for name in TIMED_SEEKS}
+
+
+@pytest.mark.parametrize("root", TIMED_UI_ROOTS, ids=("python", "rust"))
+def test_real_timed_cues_gaps_and_looped_playback(root):
+    check_timed_ui(read_playback_ui(root))
+
+
+def test_native_and_sdk_timed_caption_pixels_match_with_actual_viewports_retained():
+    sdk, native = [read_playback_ui(root) for root in TIMED_UI_ROOTS]
+    assert check_timed_ui(sdk) == check_timed_ui(native)
+    assert sdk["source_sha256"] == native["source_sha256"]
+
+
+def test_timed_video_fixture_replays_pinned_sdk():
+    from google.protobuf.json_format import MessageToDict
+    from streamlit.testing.v1 import AppTest
+
+    app = AppTest.from_file(str(HERE / "video_app.py"))
+    app.query_params["subtitles"] = "timed"
+    app.run()
+    assert not app.exception and len(app.get("video")) == 1
+    assert MessageToDict(app.get("video")[0].proto, preserving_proto_field_name=True) == read_playback_ui(TIMED_UI_ROOTS[0])["sdk_apptest"]["timed"]
+
+
+def test_sdk_transients_and_lost_tab_are_preserved_instead_of_rewritten():
+    sdk = read_playback_ui(TIMED_UI_ROOTS[0])
+    stages = {s["name"]: s for s in sdk["stages"]}
+    assert sdk["original_tab_missing"] and sdk["recovery_tab_closed"] and sdk["recovery_tab_id"] != sdk["tab_id"]
+    assert stages["play-start"]["dom"]["videos"][0]["ended"]
+    assert stages["play-start"]["dom"]["videos"][0]["paused"]
+    assert "image_alignment" in stages["fresh-loop-paused"] and "caption_region" not in stages["fresh-loop-paused"]
+    assert stages["tail-play-observed"]["dom"]["viewport"]["height"] != stages["loaded"]["dom"]["viewport"]["height"]
+
+
+@pytest.mark.parametrize("root", TIMED_UI_ROOTS, ids=("python", "rust"))
+@pytest.mark.parametrize("fault", ("first-time", "gap-time", "second-time", "tail-time", "region-hash", "loop-stopped", "loop-ended", "short-observation", "played-incomplete", "pause-drift", "vtt-body", "cleanup"))
+def test_timed_ui_gate_rejects_incomplete_or_damaged_evidence(root, fault):
+    record = copy.deepcopy(read_playback_ui(root))
+    stages = {s["name"]: s for s in record["stages"]}
+    player = lambda name: stages[name]["dom"]["videos"][0]
+    start, observed, paused, held = timed_loop_stages(record)
+    if fault == "first-time": player("first-cue")["currentTime"] = 0.5
+    elif fault == "gap-time": player("between-cues")["currentTime"] = 0.2
+    elif fault == "second-time": player("second-cue")["currentTime"] = 0.5
+    elif fault == "tail-time": player("after-cues")["currentTime"] = 0.75
+    elif fault == "region-hash": stages["first-cue"]["caption_region"]["rgb_sha256"] = "0" * 64
+    elif fault == "loop-stopped": observed["dom"]["videos"][0]["paused"] = True
+    elif fault == "loop-ended": observed["dom"]["videos"][0]["ended"] = True
+    elif fault == "short-observation": observed["at"] = start["at"]
+    elif fault == "played-incomplete": observed["dom"]["videos"][0]["played"] = [[0, 0.3]]
+    elif fault == "pause-drift": held["dom"]["videos"][0]["currentTime"] += 0.1
+    elif fault == "vtt-body": record["track_http"][0]["body_bytes"][0] ^= 1
+    elif fault == "cleanup": record["server_cleanup"]["port_closed_final"] = False
+    with pytest.raises(AssertionError):
+        check_timed_ui(record)

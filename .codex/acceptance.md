@@ -3085,3 +3085,23 @@ example Clippy -D warnings 通过（target/video-subtitle-clippy.log），保留
 最终视频/文档/配置/矩阵四模块 130 项通过（75 视频、55 文档，target/video-subtitle-final-gates.log），inventory 仍 130 partial。逐文件 diff 与 git diff --check 通过，九个用户保护文件及捕获 source/exe SHA 与启动快照一致；production library 无 diff。当前两份测试示例已实际编译/SDK AppTest 与浏览器验证，未无故扩大重跑全 Cargo。
 
 仅暂存本批八个既有示例/测试/计划/矩阵文件及十四个新原始证据文件（十二 JPEG、两 trace），不纳入用户 Cargo、colconfig、指南/README 改动。两标签和自有服务已清理，无 PR、合并、部署或发布，完整 Goal 保持开放。
+
+## Current timed caption and loop UI validation (2026-11-01)
+
+现有 video.rs/video_app.py 增加仅测试的 ?subtitles=timed，沿用真实一秒 MP4、muted/loop 和中文对照轨；英文 SRT 改为 0..0.4 的 First cue、0.6..0.9 的 Second cue，保留中间与末尾空档。原默认/双语模式不变。先 offline/locked 构建，再 SDK 1.66.1 AppTest 核对三模式与转换后 93 字节 VTT；example Clippy -D warnings 通过，保留既有 MSVC linker_messages 告警。日志 target/video-timed-build.log、video-timed-sdk-apptest.log、video-timed-clippy.log。库、公开 API、依赖未改。
+
+真实 Chrome 原生进度条在两端均定位至 0.194588、0.499134、0.753679、0.956709，暂停图像依次为 First cue、无字幕、Second cue、无字幕；每个相同时间点的字幕 RGB 区域跨端一致。完整原图不编辑，区域只读 RGB 分析、不做 OCR；文字由实际查看原图确认。不同时间的背景图像会变化，不能把两处空档强制为相同像素。SDK 原始样本有 780/724 高度变化，Rust 为 724，高度/尺寸分别保留；字幕区域同坐标可直接比较，未覆盖视口或归一化原图。
+
+SDK 首次尾部 Space 后记录 paused/ended=true，后来又读到播放状态；两个时刻均保留，不据早期读数判最终停止或推断原因。原任务标签失效后，清单确认它不存在，仅创建新 SDK 标签，未重启服务。新标签首帧明确启动与后续观察相隔 224.676 秒，Rust 对应为 80.512 秒；观察时两端均 paused=false/ended=false/currentTime 在一秒片长内部、played 覆盖 0..1。之后真实暂停/保持：SDK t=0.7817 显示 Second cue，Rust t=0.1377 显示 First cue；两者区域像素与各自静态定位的对应 cue 一致。该证据支持本样例循环及播放后 cue 选择，不提供精确循环次数、全程无停顿、掉帧或逐帧边界指标。只读 loop/loop_attribute 均 false，原值保留，不从属性推断运行机制。
+
+DOM 读取与截图不是原子操作：SDK fresh-loop-paused 的 DOM 是 0.7817/paused=true，而即时原图仍显示 First cue/播放图标；原图和数据保留并标记，不纳入字幕时间一致性门。后续 fresh-loop-held 时间保持同值、原图已显示正确 Second cue，作为稳定样本。最终 SDK 12 阶段/9 张 JPEG、Rust 9 阶段/6 张 JPEG，共十五张原图均已查看；独立 trace 位于 reference-browser/video/timed-ui 和 rust-video/timed-ui，不改此前捕获。原标签丢失、SDK 首次瞬态、视口变化及非原子图均由专门门检查仍存在，不能改写为整齐统一成功。
+
+四次 DOM track.src 实际 GET（两端各 English/中文）均 200/VTT MIME/正确长度，英文 93、中文 50 字节；完整原文、Base64、SHA 和内容地址与 SDK AppTest/helper 对应，字幕标签文件名参与摘要。自有 79075 父任务约 1205 秒，含二十分钟上限及关闭确认；任务标签显式关闭，旧 SDK 标签缺失状态另记。服务 terminate/wait 后 SDK 首次连接检查成功、后续 10061，Rust 10061，最终父任务退出 0；没有因为一次失效/观察时间长而重启服务。
+
+视频模块新增 29 项，合计 104 项通过（target/video-timed-gates.log）：两端回放、同时间像素对照、timed SDK 实际 AppTest、原始瞬态保留，以及十二种损坏各两端（四个定位时间错、区域 SHA、循环停止/ended、观察时长不足、played 不完整、暂停漂移、VTT 字节、未清理）。初版回放门错误地要求不同时间的两个无字幕背景像素相同，导致两端及对照三项失败；这是测试假设错误，不是产品差异。原失败保留 target/video-timed-gates-first-red.log；删除该错误假设，按同一时间跨端比较，全部正例与负例重新通过，原数据未改。
+
+更精确 cue 边界/连续逐帧切换、更多媒体/参数/编码/设备、全屏、完整资源生命周期和多小时稳态继续开放；不把二十分钟采集器寿命或端点观察当作 M5 完成。未实施待决 Unicode/repr/rerun 扩展，st.video、M3/M5/M7 和完整 Goal 保持开放。
+
+最终视频/文档/配置/矩阵四模块 159 项通过（104 视频、55 文档，target/video-timed-final-gates.log），inventory 仍 130 partial。逐文件 diff/git diff --check 通过，九个受保护用户文件及全部捕获 source/exe SHA 与启动快照一致，库无 diff；只对修改的 example 做实际构建/Clippy，不无故重复全 Cargo。
+
+仅暂存本批八个既有示例/测试/计划/矩阵文件和十七个新证据文件（十五 JPEG、两 trace），不纳入用户 Cargo、colconfig、指南/README 修改。两个现存任务标签已关闭，原 SDK 标签缺失状态保留；自有服务已清理。无 PR、合并、部署或发布，完整目标继续。
