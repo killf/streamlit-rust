@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 禁用日期正常 JSON：null/字符串/日期数组/有序对象键先供 Peer callback 读取，禁用登记再恢复旧原生值并只同步目标一次。48 个 SDK/注册组合先红后绿，两端各 48 独立会话、240 轮、2112 帧、960 完整 Element 匹配，含对象重复键和重新启用/正常编辑。见[验收](acceptance.md#current-disabled-date-normal-json-validation-2026-11-01)。不新增依赖或公共 API，空/部分范围与启用 JSON 等仍开放。
+
 2026-11-01 禁用日期 JSON 提前类型错误：布尔/数字标量与数组内 int/float/bool/None/list/dict 复用 persistent input_error，保留先解析项、先遇非法日期即回默认的顺序。新增 48 个 SDK/注册组合先红后绿；两端各 48 独立会话、144 轮、960 帧，96 个预期异常，栈差异保留。见[验收](acceptance.md#current-disabled-date-json-type-error-validation-2026-11-01)。JSON 正常状态、解析错误、任意精度及空/部分日期模型仍开放。
 
 2026-11-01 禁用日期非空普通字符串：Peer callback 先看到声明默认，登记时再报 TypeError；恢复保留默认，重新启用与下一次正常编辑恢复既有 callback 策略。十二 SDK/注册组合先红后绿，两端各十二独立会话、60 轮、498 帧、210 Element；栈差异保留，error_semantics_match=true、semantic_match=false。见[验收](acceptance.md#current-disabled-date-string-error-recovery-validation-2026-11-01)。空串、trigger/None、JSON/容器及公开返回模型仍开放。

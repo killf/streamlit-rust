@@ -42,6 +42,7 @@ parser.add_argument('--date-single', action='store_true', help='single-date defa
 parser.add_argument('--date-bounds', action='store_true', help='single/complete-range native bounds, callback/reset order and code assignments')
 parser.add_argument('--date-implicit', action='store_true', help='implicit-bound single/range mode retention and callback recovery')
 parser.add_argument('--date-mode', action='store_true', help='explicit-bound single/range mode resets and callback recovery')
+parser.add_argument('--date-json-normal', action='store_true', help='disabled date successful JSON temporary values, restoration and enabled edits')
 parser.add_argument('--date-strings', action='store_true', help='disabled date string errors after peer callbacks and subsequent recovery')
 parser.add_argument('--date-json-errors', action='store_true', help='isolated disabled date parsed JSON scalar/array early type errors')
 parser.add_argument('--date-errors', action='store_true', help='isolated disabled date early-type-error and blocked recovery sessions')
@@ -68,6 +69,7 @@ parser.add_argument('--resume-after-stop', action='store_true', help='append nor
 parser.add_argument('--stop-lifecycle', action='store_true', help='button and URL-bound text around early stop and normal cleanup')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
+args.date_strings = args.date_strings or args.date_json_normal
 args.date_errors = args.date_errors or args.date_json_errors
 assert sum((args.integer_bounds, args.number_sequence, args.number_unkeyed, args.stop_lifecycle, args.number_permissive, args.form_identity, args.color, args.color_unkeyed, args.bool_width, args.select_policy, args.radio_identity, args.select_empty, args.multi_empty, args.multi_limits, args.format_collisions, args.radio_duplicates, args.group_width, args.group_policy, args.group_state, args.group_defaults, args.feedback_identity, args.feedback_empty, args.text_empty, args.number_empty, args.time_empty, args.datetime_empty, args.datetime_bounds, args.date_single, args.date_bounds, args.date_range, args.date_mode, args.date_implicit, args.date_disabled, args.date_errors, args.date_strings)) <= 1
 assert not args.number_float or args.number_sequence
@@ -155,6 +157,8 @@ if args.date_mode:
     TRACE['scope'] = 'Twelve keyed single/range explicit-bound mode reset and callback runs on one native WS; no implicit/empty/partial/browser claim.'
 if args.date_strings:
     TRACE['scope'] = 'Twelve isolated disabled date nonempty string error sessions with peer callbacks, recovery, reenable and edit; no trigger/None/browser claim.'
+if args.date_json_normal:
+    TRACE['scope'] = 'Forty-eight isolated disabled date representable JSON temporary-state/restoration sessions over five runs; object insertion/duplicate-key order included, no empty/partial/enabled-JSON/browser claim.'
 if args.date_errors:
     TRACE['scope'] = 'Thirty-six isolated disabled date protobuf-type-error sessions, load/error/blocked recovery; no JSON/string/empty-container/browser claim.'
 if args.date_json_errors:
@@ -325,8 +329,8 @@ try:
         steps = [(attempt,None) for case in TRACE['cases'] for attempt in ('load','malformed','recovery')]
     if args.date_strings:
         TRACE['cases'] = [{'target':target,'value':text,'peer_first':peer_first} for target in ('Single','Range')
-                          for text in ('bad','2025-04-10','日期🧊') for peer_first in (False,True)]
-        steps = [(attempt,None) for case in TRACE['cases'] for attempt in ('seed','malformed','recovery','enable','edit')]
+                          for text in (('null', '"bad"', '"2025-04-10"', '["bad",7]', '["2025-04-10","bad",{}]', '["2025-04-10","2025-04-20"]', '["2025/04/10","2025/04/20"]', '["2024-12-31","2025-04-20"]', '["2025-05-20","2025-04-10"]', '{"2025-05-20":1,"2025-04-10":[]}', '{"bad":7,"2025-04-10":2}', '{"2025-05-20":1,"2025-04-10":2,"2025-05-20":3}') if args.date_json_normal else ('bad','2025-04-10','日期🧊')) for peer_first in (False,True)]
+        steps = [(attempt,None) for case in TRACE['cases'] for attempt in (('seed','submitted','observe','enable','edit') if args.date_json_normal else ('seed','malformed','recovery','enable','edit'))]
     feedback_ids = {}
     group_ids = {}
     empty_select_ids = {}
@@ -351,7 +355,9 @@ try:
                     widget = request.rerun_script.widget_states.widgets.add(id=date_bounds_ids[label])
                     if label == 'Peer':widget.bool_value = attempt in (1,3)
                     elif args.date_strings:
-                        if attempt == 1:widget.string_value = case['value']
+                        if attempt == 1:
+                            if args.date_json_normal:widget.json_value = case['value']
+                            else:widget.string_value = case['value']
                         else:widget.string_array_value.data[:] = (['2025-08-01'] if label == 'Single' else ['2025-08-10','2025-08-20']) if attempt == 3 else (['2025-11-01'] if label == 'Single' else ['2025-11-10','2025-11-20'])
                     elif attempt == 2:widget.string_array_value.data[:] = ['2025-04-10'] if label == 'Single' else ['2025-04-10','2025-04-20']
                     elif case['kind'].endswith('array_value'):getattr(widget,case['kind']).data[:] = case['value']

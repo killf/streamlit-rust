@@ -2,7 +2,7 @@
 use crate::proto::{WidgetState, widget_state};
 use crate::{SessionState, Streamlit};
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime, Timelike};
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
@@ -19,6 +19,10 @@ pub(crate) const JS_SAFE_INTEGER: f64 = 9_007_199_254_740_991.0;
 /// 2000-01-01T00:00:00Z in microseconds: the anchor of time-of-day sliders,
 /// measured on the pinned 1.66.1 reference wire.
 pub(crate) const TIME_ANCHOR_MICROS: i64 = 946_684_800_000_000;
+
+fn parse_date_input(text: &str) -> Option<NaiveDate> {
+    NaiveDate::parse_from_str(text, "%Y-%m-%d").or_else(|_| NaiveDate::parse_from_str(text, "%Y/%m/%d")).ok()
+}
 
 /// One temporal day/step in microseconds, as measured on the reference.
 pub(crate) const DAY_MICROS: i64 = 86_400_000_000;
@@ -266,6 +270,57 @@ impl Codec {
         value.as_object().is_some_and(|click| click.get("row").is_some_and(Value::is_u64) && click.get("label").is_some_and(Value::is_string))
     }
 
+    fn decode_date_json(&self, text: &str) -> Option<Value> {
+        let Self::DateInput { default, .. } = self else { return None };
+        let items = match serde_json::from_str::<Value>(text).ok()? {
+            Value::Null => return Some(default.clone()),
+
+            Value::String(text) => text.chars().map(|ch| Value::String(ch.to_string())).collect(),
+
+            Value::Array(items) => items,
+
+            Value::Object(_) => {
+                // 1. Python 迭代对象键，重复键保留首次位置；不依赖 Map 的排序配置。
+                struct Keys;
+                impl<'de> serde::de::Visitor<'de> for Keys {
+                    type Value = Vec<String>;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        formatter.write_str("a JSON object")
+                    }
+
+                    fn visit_map<M: serde::de::MapAccess<'de>>(self, mut map: M) -> Result<Self::Value, M::Error> {
+                        let mut keys = Vec::new();
+                        let mut seen = HashSet::new();
+                        while let Some(key) = map.next_key::<String>()? {
+                            map.next_value::<serde::de::IgnoredAny>()?;
+                            if seen.insert(key.clone()) {
+                                keys.push(key);
+                            }
+                        }
+                        Ok(keys)
+                    }
+                }
+                serde_json::Deserializer::from_str(text).deserialize_map(Keys).ok()?.into_iter().map(Value::String).collect()
+            }
+
+            _ => return None,
+        };
+        // 2. 非法日期先回默认；后续类型错误不再发生。空/部分范围仍待公共模型。
+        let mut dates = Vec::new();
+        for item in items {
+            let Value::String(text) = item else { return None };
+            if parse_date_input(&text).is_none() {
+                return Some(default.clone());
+            }
+            dates.push(text);
+        }
+        if dates.is_empty() {
+            return None;
+        }
+        self.decode(&widget_state::Value::StringArrayValue(crate::proto::StringArray { data: dates }))
+    }
+
     fn decode_state(&self, state: &WidgetState, empty_input: Option<&Value>) -> Option<Value> {
         let value = match state.value.as_ref() {
             Some(wire) => self.decode(wire),
@@ -385,11 +440,7 @@ impl Codec {
             }),
             (Self::DateInput { range, min, max, default, .. }, widget_state::Value::StringArrayValue(array)) => {
                 // 1. 先检查全部日期；任意非法/越界条目都恢复上轮登记默认。
-                let dates: Option<Vec<_>> = array
-                    .data
-                    .iter()
-                    .map(|text| chrono::NaiveDate::parse_from_str(text, "%Y-%m-%d").or_else(|_| chrono::NaiveDate::parse_from_str(text, "%Y/%m/%d")).ok())
-                    .collect();
+                let dates: Option<Vec<_>> = array.data.iter().map(|text| parse_date_input(text)).collect();
                 match dates {
                     Some(dates) if dates.iter().all(|date| date >= min && date <= max) => {
                         let iso = |date: &chrono::NaiveDate| Value::String(date.format("%Y-%m-%d").to_string());
@@ -810,6 +861,7 @@ impl SessionState {
                     .decode_state(&widget, record.empty_input.as_ref())
                     .or_else(|| match widget.value.as_ref() {
                         Some(widget_state::Value::StringValue(text)) if !text.is_empty() => record.empty_input.clone(),
+                        Some(widget_state::Value::JsonValue(text)) => record.codec.decode_date_json(text),
                         _ => None,
                     })
                     .filter(|value| record.codec.valid(value))
@@ -843,7 +895,7 @@ impl SessionState {
                                 for item in items {
                                     let error = match item {
                                         Value::String(text) => {
-                                            if NaiveDate::parse_from_str(&text, "%Y-%m-%d").or_else(|_| NaiveDate::parse_from_str(&text, "%Y/%m/%d")).is_err() {
+                                            if parse_date_input(&text).is_none() {
                                                 break;
                                             }
                                             continue;
@@ -1395,6 +1447,100 @@ mod tests {
                         register_peer()?;
                         state.finish_widgets();
                     }
+                }
+            }
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn disabled_date_json_exposes_decoded_value_then_restores_native_state() -> anyhow::Result<()> {
+        for range in [false, true] {
+            for (text, expected) in [
+                ("null", None),
+                ("\"bad\"", None),
+                ("\"2025-04-10\"", None),
+                ("[\"bad\",7]", None),
+                ("[\"2025-04-10\",\"bad\",{}]", None),
+                ("[\"2025-04-10\",\"2025-04-20\"]", Some(["2025-04-10", "2025-04-20"])),
+                ("[\"2025/04/10\",\"2025/04/20\"]", Some(["2025-04-10", "2025-04-20"])),
+                ("[\"2024-12-31\",\"2025-04-20\"]", None),
+                ("[\"2025-05-20\",\"2025-04-10\"]", Some(["2025-05-20", "2025-04-10"])),
+                ("{\"2025-05-20\":1,\"2025-04-10\":[]}", Some(["2025-05-20", "2025-04-10"])),
+                ("{\"bad\":7,\"2025-04-10\":2}", None),
+                ("{\"2025-05-20\":1,\"2025-04-10\":2,\"2025-05-20\":3}", Some(["2025-05-20", "2025-04-10"])),
+            ] {
+                for peer_first in [false, true] {
+                    let state = SessionState::default();
+                    let native = |dates: [&str; 2]| if range { serde_json::json!(dates) } else { serde_json::json!(dates[0]) };
+                    let default = native(["2025-03-15", "2025-03-20"]);
+                    let old = native(["2025-10-01", "2025-10-20"]);
+                    let register_date = |disabled| {
+                        state.register_widget(
+                            WidgetSpec {
+                                kind: "date_input",
+                                key: Some("day"),
+                                disabled,
+                                query: None,
+                                identity: "stable",
+                                default: default.clone(),
+                                codec: Codec::DateInput {
+                                    range,
+                                    min: NaiveDate::from_ymd_opt(2025, 1, 1).expect("fixture date"),
+                                    max: NaiveDate::from_ymd_opt(2025, 12, 31).expect("fixture date"),
+                                    reset_native: true,
+                                    default: default.clone(),
+                                },
+                                callback: Some(Arc::new(|_| {})),
+                            },
+                            |value| Ok(value.clone()),
+                        )
+                    };
+                    state.set("day", old.clone())?;
+                    let id = register_date(true)?.0;
+                    let (peer_id, _, _) = state.register_widget(
+                        WidgetSpec {
+                            kind: "checkbox",
+                            key: Some("peer"),
+                            disabled: false,
+                            query: None,
+                            identity: "stable",
+                            default: Value::Bool(false),
+                            codec: Codec::Bool,
+                            callback: Some(Arc::new(|_| {})),
+                        },
+                        |value| Ok(value.clone()),
+                    )?;
+                    state.finish_widgets();
+                    let mut incoming = vec![
+                        WidgetState {
+                            id: id.clone(),
+                            value: Some(widget_state::Value::JsonValue(text.into())),
+                        },
+                        WidgetState {
+                            id: peer_id,
+                            value: Some(widget_state::Value::BoolValue(true)),
+                        },
+                    ];
+                    if peer_first {
+                        incoming.reverse();
+                    }
+
+                    // 1. 同伴 callback 只读取 JSON 反序列化值；禁用日期自身不回调。
+                    assert_eq!(state.begin_widgets(incoming).len(), 1);
+                    assert!(state.widget_input_error().is_none());
+                    assert_eq!(state.get::<Value>("day")?, Some(expected.map_or(default.clone(), native)), "{text}");
+
+                    // 2. 禁用登记恢复原生旧值并同步一次，后续无输入不重复同步。
+                    let (_, value, sync) = register_date(true)?;
+                    assert_eq!(value, old);
+                    assert!(sync && state.take_registration_error().is_none());
+                    state.finish_widgets();
+                    assert!(state.begin_widgets(Vec::new()).is_empty());
+                    let (_, value, sync) = register_date(true)?;
+                    assert_eq!(value, old);
+                    assert!(!sync);
+                    state.finish_widgets();
                 }
             }
         }

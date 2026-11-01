@@ -2880,3 +2880,24 @@ SDK 原始异常栈非空，Rust 框架仍空栈；只在语义比较时排除 e
 矩阵仅补 st.date_input 证据与边界，生成 inventory 仍 130 partial；指南只追加本批行为，原字节前缀及全部受保护用户文件 SHA 保持。成功 JSON 字符串/null/日期数组/对象及空容器状态、JSONDecodeError 异常类型/文案、任意精度整数、None/空/部分/多端点返回模型、真实错误 UI、多个坏控件和表单/URL/跨页等继续开放。没有把探针观察到的成功 JSON 行为误算实现；新生产分支不依赖用户 Cargo.toml 的 preserve_order 修改。M3/M5/M7 与完整 Goal 保持开放；无 PR、合并、部署或发布。
 
 相关八个 Python 模块 1744 项通过（widget 参数模块 531 项、temporal 223 项），文档/配置/矩阵三模块 55 项通过。提交前核对全部受保护用户文件 SHA、指南原始字节前缀以及新捕获来源 SHA 与暂存 blob 一致。
+
+
+## Current disabled date normal JSON validation (2026-11-01)
+
+继续完整 Python 1.66.1 状态兼容，生产仅 widgets.rs 既有禁用 DateInput 分支增加可表示 JSON 输入归一化。复用 before_input：Peer callback 先读临时解码值，禁用登记恢复旧 October 原生值并只同步有提交的目标控件一次；观察轮不重复同步。本轮代码赋值和已有禁用/启用策略不改，未扩大到启用控件直接收到 JSON 的路径。
+
+私有 decode_date_json 处理 JSON null→已登记声明默认、字符串按字符迭代→非法日期回默认、日期数组规范化 ISO/legacy/越界回默认与反向范围原序保留；先遇非法日期则忽略后续类型错误，前期 TypeError 分类保持。JSON 对象仅迭代键，现有 serde 访问器读取原始键顺序并去重，重复键保留首次位置，值由 IgnoredAny 消费；不依赖用户 Cargo.toml 尚未提交的 preserve_order，不改 manifest/依赖。三个既有日期解析位置复用同一私有 ISO/legacy helper；空/部分/多端点及 None 公开返回模型仍未扩展，没有新增公开接口、字段、生产文件或队列规则。
+
+十二个 JSON payload 覆盖 null、两个字符串、非法字符串后接数字、有效/非法日期后接对象、ISO/legacy 完整数组、越界日期、反向范围、反序对象键、非法对象键及重复对象键；各组合单值/完整范围、两种输入顺序共 48 组合。Rust registry 单元真实先红于 null 时 Peer 仍看到 October 而非 March 默认（target/date-json-normal-red.log），修后通过并逐例验证 callback 数量、临时值、旧值恢复、sync/no-sync 与无登记错误。对应 48 个锁定 SDK AppTest 覆盖完整返回/native/callback 历史、目标同步、观察、重新启用和后续正常日期/Peer 编辑。
+
+[SDK](../tests/reference/reference-browser/widget-params/date-json-normal/trace.json) 与 [Rust](../tests/browser/rust-widget-params/date-json-normal/trace.json) 各首次保留 48 独立原生 WS 会话、240 轮、2112 原始帧、960 完整 Element。采集器新增 date-json-normal，复用现有日期示例/fixture和五阶段 seed→submitted→observe→enable→edit；没有改示例或 Python 应用源码。每例 seed 为两个日期代码赋值 October；submitted 只提交目标 JSON 与 Peer=true，Peer 读到临时日期值但报告保存旧 October；observe 仅提交 Peer=false并读到旧值；enable 的 StringArray 提交生效且仍抑制日期 callback，下一次 edit 恢复日期再 Peer 回调。所有阶段四个正常 Element，finish=0，无异常或栈归一化。
+
+复用原五阶段字符串错误校验器，但保留原十二例/错误字段/异常栈和错误恢复规则的严格分支。新增十一项原生门，校验 raw base64/长度/MessageToDict/元素投影、完整消息/running 顺序、query/case/attempt/history、同例 session/跨例隔离、240 个 run、准确 JSON 文本和对象键原序、目标/输入顺序/oneof/稳定 ID、默认/边界/format/布局/disabled/value/set_value/one-shot、临时 callback 值/旧保存值/全部有序回调。八类 coherent 负例扩展到两组独立运行，JSON 组拒绝保存值错误、观察期异常、Peer 读旧值、路径、过期输入 ID、合法数组冒充原 JSON、跨例 session 泄漏与初始同步缺失。新旧两组门共十九项通过。完整 Element 比较仅规范化不透明 ID 与 JSON 文本，Rust semantic_match=true，不宣称字节或真实浏览器 UI 兼容。
+
+同一当前二进制另重放普通字符串错误恢复、早期 raw 错误、早期 JSON 错误和正常禁用日期四组，分别 60/108/144/12 轮，均匹配旧冻结 SDK 的完整或去栈错误语义；旧异常栈差异和实际部分范围 Chrome 失败证据保持。新捕获三个 producer、widgets/widget_api 和示例二进制 SHA 核对通过；source_commit=0960042 为启动基线，工作区由实际 SHA 标识。SDK 63383 与 Rust 8599 服务均 terminate/wait，确认无监听；本批无浏览器操作。
+
+编辑 Rust 格式、逐段 diff、全工作区/all-target Clippy、widgets 22 项、真实 pickers 两项、示例构建通过，既有 MSVC linker stdout warning 保留。完整工作区 347 项通过（340 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整全绿。日志 target/date-json-normal-{red,sdk,widgets,clippy,pickers,build,sdk-ws,server,gate,workspace,python,docs}.log。
+
+矩阵仅追加 st.date_input 本批证据及边界，生成 inventory 仍 130 partial；指南追加实测正常 JSON 行为，保留原字节前缀。空/部分/多端点和原生 None 公开模型、启用 JSON、JSONDecodeError、任意精度/特殊数字、多个坏控件、绑定/表单/跨页与真实错误 UI 等继续开放，M3/M5/M7 与完整 Goal 保持开放。用户 colconfig 等现有修改保留，无 PR、合并、部署或发布。
+
+相关八个 Python 模块 1803 项通过（widget 参数模块 542 项、temporal 271 项）；文档/配置/矩阵三模块 55 项通过。提交前核对完整受保护用户文件 SHA、指南原始字节前缀和新捕获 producer/Rust 来源与暂存 blob 一致。
