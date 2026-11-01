@@ -2964,3 +2964,26 @@ Rust 按语义单元留空并逐段 diff 复查，格式、全工作区/all-targ
 相关七个 Python 模块共 961 项通过。日志 target/media-http-{before,red,green,unit,runtime,clippy,build-final,after,gate,workspace,python,docs}.log；早期只读探针 target/media-head-{sdk-probe.json,rust-before.json,subtitle-probe.json} 保留。矩阵仅补 st.audio/st.video 的本批证据和限制，inventory 仍 130 partial；一行从“未明确缺口”转为“未测参数”，是新增明确边界而非完成状态变化。指南追加已测 HTTP 规则并保留原字节前缀。完整浏览器播放/seek/字幕叠加、下载 HEAD、CORS/缓存验证器、其他 MIME/路径/头组合、更广字幕解析和资源生命周期仍开放；日期模型/JSONDecodeError 与其他原待决项不变，M3/M5/M7 与完整 Goal 不关闭。用户 colconfig 等现有修改保持，无 PR、合并、部署或发布。
 
 文档/配置/矩阵三模块 55 项通过。提交前核对受保护用户文件 SHA、指南原字节前缀、实际源码 SHA 与 Git LF blob SHA 的对应关系；修前源文件按基线 commit 重建，修后源码与暂存 blob 及当前二进制匹配。
+
+
+## Current subtitle text conversion validation (2026-11-01)
+
+继续字幕正常工作流，发现原 SRT 私有转换器丢首个 cue 编号、将结束时间错误写为 .00:00:02，并额外追加末尾换行。锁定 SDK helper 加公开 st.video AppTest 的 22 个原始字符串用例，17 接受、5 拒绝；每例保存输入、完整内容字节/base64、错误文字或完整内容地址。AppTest 的 /mock/media 前缀与实际 /media 地址分别记录并校验相同摘要；首轮按真实路由断言 mock URL 的错误已纠正，未将 mock URL 当作网络捕获。
+
+生产仅 elements/media.rs：原始字符串使用 Python 空白等价规则去首尾空白（包含 0x1c..0x1f），空/VTT 文本直接保存；SRT 原始文本沿用 SDK 前 33 字节 UTF-8 解码和首行编号/次行时间码检测，转换全局、不重叠的 ASCII 时间戳逗号，保留所有 cue 编号、caption、内部换行，不追加末尾换行。时间码和编号暂仍 ASCII 分类，没有引入 Unicode 数字表、依赖、公开接口、文件读取或其他隐含行为。
+
+[SDK oracle](../tests/reference/reference-browser/media-more/subtitle-text/cases.json) 覆盖 VTT 普通/首尾空白/空串/全空白/header-only/prefix/CRLF/Unicode 控制空白，SRT 单/多 cue、caption 内时间码、重叠候选、三/四位编号、时间码前缀、编号尾空白、CRLF、UTF-8 截断/合法 Unicode caption 及不校验钟表范围。原始 SRT 字符串的 CRLF、过长编号或前缀截断拒绝与 SDK 一致，不将文件输入的处理规则混入原始字符串。Unicode 数字、文件/bytes/Path 等更广分类不在本批完成范围。
+
+新增 Rust 精确字节/地址/拒绝单元，先真实 red：srt-one 实际为 WEBVTT 后直接接首时间码、坏结束时间和末尾换行，参考包含编号 1、正确毫秒和无额外换行（target/subtitle-text-red.log），修后 22 例全匹配；存储 MIME=text/vtt 且非附件，完整地址沿用上批标签摘要文件名。源码逐段 diff、格式、全工作区/all-target Clippy、八个媒体单元、九个媒体运行集成和两个示例构建通过，既有 MSVC linker stdout warning 保留。
+
+独立真实网络捕获 [SDK](../tests/reference/reference-browser/media-more/subtitle-text/trace.json)/[当前 Rust](../tests/browser/rust-media-more/subtitle-text/trace.json) 各 14 原始 PB、六个既有视频/布局投影、一个实际字幕 GET；实际 49 字节正文、完整 URL、状态和全部语义头匹配，不归一化摘要。[修前 Rust](../tests/browser/rust-media-more/subtitle-before/trace.json) 保留 HTTP 200 但正文损坏的 45 字节、实际错误内容地址及同一链路，参考策略拒绝。旧 digest 归一化媒体/layout 捕获保留为历史未测内容缺口，不能再据此声称 SRT 字节等价。采集器只加 subtitle-http opt-in，示例和 Python fixture 均未改；远程 example.com 视频 URI 仅发射、不访问，视频格式载荷不是浏览器播放证据。
+
+媒体/layout Python 模块从两项扩至 36 项：22 个 oracle 持续重放 SDK helper/public AppTest；两端原始 PB 重解析长度/message、session/run/version/完成及实际 [0,2] track 来源，绑定摘要/label/HTTP 内容、SHA、长度/MIME/非附件头；比较完整 VTT 和 URL。八类 coherent 负例对 cue 编号、结束时间、末尾换行、caption、MIME、状态、URL、label 做破坏；内容类重算 SHA、长度、文件地址并同步 raw PB/message/元素投影，仍被参考字节拒绝。subtitle_semantics_match=true、semantic_match=false：本批字幕字节/地址/HTTP 一致，布局、播放器、错误栈等没有据此变为全兼容。
+
+当前二进制另重放上批 48 个媒体 GET/HEAD/Range/If-Range 请求，完整 HTTP 语义保持。新捕获来源实际 SHA 与 Git LF SHA 分别保留；修前 elements/media.rs 的 CRLF 从基线 c9c0efc 精确重建验证，当前三个库来源与最终二进制匹配；source_commit 是启动基线，当前工作区由 SHA 标识。SDK 62867 与 Rust 8597/8593 自有服务均 finally terminate/wait，确认无监听；本批无浏览器。
+
+完整工作区 349 项通过（342 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整全绿。相关七个 Python 模块共 995 项通过。日志 target/subtitle-{sdk-oracle,http-sdk,before-build,before,text-red,text-green,media-unit,media-runtime,text-clippy,text-build,text-gate,text-workspace,text-python,text-docs}.log。
+
+矩阵只追加 st.video 本批证据与限制，inventory 仍 130 partial；指南追加原始字幕字符串规则并保留原字节前缀。非 ASCII 数字、文件/字节/路径与更广输入错误、标签 repr、真实浏览器字幕呈现/选择/播放和资源生命周期等继续开放；日期模型/JSONDecodeError 等其他待决项不变，M3/M5/M7 与完整 Goal 保持开放。用户 colconfig 等已有修改保留，无 PR、合并、部署或发布。
+
+文档/配置/矩阵三模块 55 项通过；提交前再次核对受保护用户文件 SHA、指南原字节前缀，以及 producer 实际/Git 来源、修前基线与修后源码/二进制 SHA 的对应关系。

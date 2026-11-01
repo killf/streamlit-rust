@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 原始字幕文本修复：SRT 保留 cue 编号、正确转换全部 ASCII 时间码并保留内部文本/换行；原始 VTT/空文本按 SDK 去首尾空白。22 个 SDK/公开 AppTest oracle 对应 Rust 字节/URL/拒绝单元先红后绿；真实字幕 HTTP 从坏的 45 字节修为 SDK 的 49 字节，修前记录保留。见[验收](acceptance.md#current-subtitle-text-conversion-validation-2026-11-01)。33 字节识别边界按参考保留；非 ASCII 数字、文件输入和浏览器显示等继续开放。
+
 2026-11-01 媒体 HTTP HEAD/字幕资源修复：现有路由接收 GET/HEAD 并使用存储 MIME，修复 HEAD、无后缀 audio/x-wav 和 VTT 的 404；字幕内容地址补 SDK 标签摘要文件名。公开网络回归先红后绿，两端各 48 个原始 TCP 响应的完整 URL/头/正文匹配，HEAD 无正文，修前 36 个 404 原样保留。见[验收](acceptance.md#current-media-head-and-subtitle-resource-validation-2026-11-01)。无公开 API/依赖变化，真实播放/定位/字幕显示、其他头和资源生命周期继续开放。
 
 2026-11-01 启用日期普通字符串登记错误：日期自身和 Peer callback 先读声明默认，再报 TypeError；仅提交 Peer 即可恢复，保存默认不复活旧 October。两种策略共 24 个 SDK/注册组合先红后绿，两端各 12 独立会话、72 轮、606 帧、258 Element；除栈外语义匹配。见[验收](acceptance.md#current-enabled-date-string-registration-error-validation-2026-11-01)。不改公开模型，空串/trigger/None、JSONDecodeError 和其他组合仍开放。

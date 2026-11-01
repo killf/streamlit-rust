@@ -8,6 +8,7 @@ import argparse
 import base64
 from datetime import datetime, timezone
 import importlib.metadata
+import hashlib
 import json
 from pathlib import Path
 import socket
@@ -24,6 +25,7 @@ from websockets.sync.client import connect
 ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description='Collect the media/layout-edges reference once; never overwrite.')
 parser.add_argument('--out', type=Path, required=True)
+parser.add_argument('--subtitle-http', action='store_true', help='fetch the actual SRT-derived subtitle URL and record its HTTP bytes')
 parser.add_argument('--url', help='caller-owned Rust server URL (comparison capture)')
 args = parser.parse_args()
 OUT = args.out.resolve()
@@ -47,11 +49,15 @@ TRACE = {'schema_version': 1, 'runtime': 'rust' if args.url else 'python', 'refe
          'scope': 'Element wire of remaining media/layout parameter edges over one native WS; no browser/UI claim.',
          'server_command': COMMAND, 'server_cleanup': 'caller-owned' if COMMAND is None else 'collector-owned',
          'url': URL, 'frames': [], 'elements': [], 'finishes': []}
+if args.subtitle_http:
+    TRACE['scope'] = 'SRT subtitle public wire URL and HTTP GET body/header capture; layout fields retained without a full layout or playback claim.'
+    TRACE['producer_sources_sha256'] = {path:hashlib.sha256((ROOT/path).read_bytes()).hexdigest() for path in ('streamlit/examples/media_more.rs','tests/reference/media_more_app.py','tests/browser/media_more_capture.py')}
+    TRACE['producer_sources_git_blob_sha256'] = {path:hashlib.sha256((ROOT/path).read_bytes().replace(b'\r\n',b'\n')).hexdigest() for path in TRACE['producer_sources_sha256']}
 SERVER = WS = None
 
 
 def save():
-    (OUT / 'trace.json').write_text(json.dumps(TRACE, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    (OUT / 'trace.json').write_text(json.dumps(TRACE, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
 
 
 def record(direction, raw, message):
@@ -117,6 +123,16 @@ try:
                 TRACE['elements'].append({'index': index, 'kind': element_kind, 'fields': fields,
                                           'url': view.url, 'delta_path': list(message.metadata.delta_path)})
                 index += 1
+    if args.subtitle_http:
+        TRACE['subtitle_responses']=[]
+        for element in TRACE['elements']:
+            if element['kind']!='video':continue
+            for track in element['fields'].get('subtitles',[]):
+                request=urllib.request.Request(URL+track['url'],headers={'Connection':'close'})
+                with urllib.request.urlopen(request,timeout=10) as response:
+                    body=response.read()
+                    TRACE['subtitle_responses'].append({'element_index':element['index'],'label':track['label'],'url':track['url'],'status':response.status,'headers':{key.lower():value for key,value in response.headers.items()},'body_bytes':len(body),'body_base64':base64.b64encode(body).decode(),'body_sha256':hashlib.sha256(body).hexdigest()})
+        assert len(TRACE['subtitle_responses'])==1
     WS.close()
     TRACE['cleanup'] = {'websocket_closed': True}
     TRACE['successful'] = True

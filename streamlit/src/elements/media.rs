@@ -459,12 +459,12 @@ pub(crate) fn media_url(bytes: &[u8], mime: &str) -> Result<String, StreamlitErr
 
 /// One validated subtitle track: the label plus the media URL of its
 /// VTT-formatted text. Mirrors the reference's acceptance rules (frozen
-/// media-params): text starting `WEBVTT` passes as-is; SRT (numeric first
-/// line, `hh:mm:ss,mmm --> hh:mm:ss,mmm` second line) is converted; anything
-/// else is rejected with the measured message.
+/// media-params): raw text is stripped; empty/VTT text is stored, and
+/// detected SRT retains cue identifiers while converting timestamp commas.
 pub(crate) fn subtitle_track(label: &str, text: &str) -> Result<crate::proto::SubtitleTrack, String> {
     let invalid = || format!("Failed to process the provided subtitle '{label}': Invalid `subtitles` value. Supported values: VTT-formatted text, SRT-formatted text.");
-    let content = if text.trim_start().starts_with("WEBVTT") {
+    let text = subtitle_trim(text);
+    let content = if text.is_empty() || text.starts_with("WEBVTT") {
         text.as_bytes().to_vec()
     } else if let Some(converted) = srt_to_vtt(text) {
         converted
@@ -477,37 +477,48 @@ pub(crate) fn subtitle_track(label: &str, text: &str) -> Result<crate::proto::Su
     Ok(crate::proto::SubtitleTrack { label: label.to_owned(), url })
 }
 
-/// The reference's SRT detection and conversion: a numeric first line and an
-/// SRT timestamp second line; conversion rewrites `,mmm` to `.mmm` and
-/// prepends the WEBVTT header.
+fn subtitle_trim(text: &str) -> &str {
+    text.trim_matches(|ch: char| ch.is_whitespace() || matches!(ch, '\u{1c}'..='\u{1f}'))
+}
+
+fn srt_timestamp(bytes: &[u8]) -> bool {
+    bytes.len() >= 12
+        && bytes[..12].iter().enumerate().all(|(index, byte)| match index {
+            2 | 5 => *byte == b':',
+            8 => *byte == b',',
+            _ => byte.is_ascii_digit(),
+        })
+}
+
+/// Raw string detection follows the SDK's 33-byte UTF-8 prefix. The current
+/// numeric classification covers ASCII counters/timestamps, not all Unicode Nd.
 fn srt_to_vtt(text: &str) -> Option<Vec<u8>> {
-    let mut lines = text.lines();
-    let first = lines.next()?.trim();
-    let second = lines.next()?.trim();
-    if first.is_empty() || !first.chars().all(|c| c.is_ascii_digit()) {
+    // 1. 只检查 SDK 实际读取的前缀；换行、空白和 UTF-8 截断影响识别。
+    let header = subtitle_trim(std::str::from_utf8(&text.as_bytes()[..text.len().min(33)]).ok()?);
+    let mut lines = header.split('\n');
+    let counter = lines.next()?;
+    if counter.is_empty() || !counter.bytes().all(|byte| byte.is_ascii_digit()) {
         return None;
     }
-    // "dd:dd:dd,ddd --> dd:dd:dd,ddd": each side is 12 chars with ':' at 2/5
-    // and ',' at 8; the arrow joins them with single spaces.
-    let (start, end) = second.split_once(" --> ")?;
-    let stamp = |value: &str| value.len() == 12 && value.as_bytes()[2] == b':' && value.as_bytes()[5] == b':' && value.as_bytes()[8] == b',' && value.as_bytes().iter().enumerate().all(|(index, byte)| matches!(index, 2 | 5 | 8) || byte.is_ascii_digit());
-    let valid = stamp(start) && stamp(end);
-    if !valid {
+    let timing = lines.next()?;
+    if !timing.as_bytes().windows(29).any(|span| srt_timestamp(&span[..12]) && &span[12..17] == b" --> " && srt_timestamp(&span[17..])) {
         return None;
     }
-    let mut out = String::from("WEBVTT\n\n");
-    for line in text.lines().skip(1) {
-        // Only timestamp lines carry the comma; cue text passes through.
-        if let Some((stamp, rest)) = line.split_once(" --> ") {
-            let converted = stamp.replace(',', ".");
-            let rest = rest.split(',').next().map(|tail| format!(".{tail}")).unwrap_or_default();
-            out.push_str(&format!("{converted} --> {rest}\n"));
+
+    // 2. 全局、不重叠地替换时间戳逗号，保留编号、正文和内部换行。
+    let mut converted = text.as_bytes().to_vec();
+    let mut offset = 0;
+    while offset + 12 <= converted.len() {
+        if srt_timestamp(&converted[offset..]) {
+            converted[offset + 8] = b'.';
+            offset += 12;
         } else {
-            out.push_str(line);
-            out.push('\n');
+            offset += 1;
         }
     }
-    Some(out.into_bytes())
+    let mut out = b"WEBVTT\n\n".to_vec();
+    out.extend_from_slice(&converted);
+    Some(out)
 }
 
 #[cfg(test)]
@@ -521,6 +532,35 @@ mod metric_tests {
         for (label, input) in [("normal:8", " 0"), ("normal:9", "  -down"), ("normal:10", "\n  up\n  next\n"), ("normal:11", " \t\n")] {
             let expected = elements.iter().find(|element| element["fields"]["label"] == label).ok_or("missing reference case")?;
             assert_eq!(metric_delta_text(input), expected["fields"]["delta"].as_str().ok_or("missing reference delta")?, "{label}");
+        }
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod subtitle_tests {
+    use super::*;
+
+    #[test]
+    fn subtitle_strings_match_frozen_sdk_bytes_addresses_and_rejections() -> Result<(), Box<dyn std::error::Error>> {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/media-more/subtitle-text/cases.json"))?;
+        let cases = reference["cases"].as_array().ok_or("missing subtitle cases")?;
+        assert_eq!(cases.len(), 22);
+        for case in cases.iter().filter(|case| case["name"] == "srt-one").chain(cases.iter().filter(|case| case["name"] != "srt-one")) {
+            let result = subtitle_track(case["label"].as_str().ok_or("missing label")?, case["input"].as_str().ok_or("missing input")?);
+            if case["accepted"] == true {
+                let track = result?;
+                let id = track.url.strip_prefix("/media/").and_then(|url| url.strip_suffix(".vtt")).ok_or("subtitle address")?;
+                let file = crate::media::stored_file(id).ok_or("stored subtitle")?;
+                let expected = serde_json::from_value::<Vec<u8>>(case["content_bytes"].clone())?;
+                assert_eq!(String::from_utf8_lossy(&file.bytes), String::from_utf8_lossy(&expected), "{}: complete VTT bytes", case["name"]);
+                assert_eq!(file.bytes.as_ref(), expected.as_slice());
+                assert_eq!(track.url, case["url"], "{}: complete content URL", case["name"]);
+                assert_eq!(file.mime, "text/vtt");
+                assert!(!file.download);
+            } else {
+                assert_eq!(result.err().as_deref(), case["error"].as_str(), "{}: expected SDK rejection", case["name"]);
+            }
         }
         Ok(())
     }
