@@ -14,6 +14,8 @@
 
 ## Current focus
 
+2026-11-01 默认视频真实播放：同一真实 MP4 在 SDK/Rust Chrome 各完成七阶段（加载、播放、暂停保持、恢复、结束、中点定位），保留八张原始图与实际时间，48 项视频检查通过。两端最终端口关闭，未改生产/fixture/viewport；字幕、其他参数/设备及完整生命周期仍开放。见[验收](acceptance.md#current-real-video-playback-ui-validation-2026-11-01)。
+
 2026-11-01 音视频数值时间：52 个 SDK AppTest 参考覆盖负数/区间、NaN/无穷、int32 范围和错误优先级；Rust 修复静默饱和与无校验，保留音频允许倒置区间的参考行为。真实 WS 先红后绿、媒体十二项集成通过，无新增文件/API/依赖；脚本异常中止与浏览器仍开放。见[验收](acceptance.md#current-numeric-media-time-validation-2026-11-01)。
 
 2026-11-01 native URL 字幕附加修复：统一现有 video 字幕处理，修复 URL 提前返回遗漏字幕/校验。八个 SDK AppTest 完整载荷/错误参考与 Rust 真实 WS 先红后绿，七次本地字幕 GET 匹配正文/地址；媒体十一项集成通过。无新文件/API/依赖或远程视频请求，YouTube、浏览器和待决 Unicode 仍开放。见[验收](acceptance.md#current-native-url-subtitle-attachment-validation-2026-11-01)。

@@ -3047,3 +3047,21 @@ SDK 每个 AppTest 独立报错，Rust 沿用已有错误元素模式，因此�
 最终工作区 353 项通过（346 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference；日志 target/media-time-workspace.log，不称完整全绿。六个相关 Python/文档模块共 215 项通过（target/media-time-gates.log），包含 67 media-params、68 media-more、25 media-contract、55 文档/配置/矩阵。生成 inventory 仍 130 partial。
 
 最终逐文件 diff、git diff --check 通过，九个受保护用户文件 SHA 与本批快照一致，旧参考对象所有字段/raw PB 保持；仅暂存本批十个已存在文件，不纳入用户 Cargo、colconfig、指南/README 修改。无浏览器、PR、合并、发布或部署。
+
+## Current real video playback UI validation (2026-11-01)
+
+本批从协议/HTTP 推进到实际浏览器播放，不改生产代码和既有 fixture。当前 8e37530 的 video example 以 offline/locked 重建成功（target/video-playback-build.log），与 SDK 1.66.1 / Python 3.14.7 的 video_app 使用同一真实 MP4：SHA256 dcda48c8cec73a32406a184d635c41a324107f0f51a0cb0fe1124cc0791a19a6、一秒、64x48。本机 Chrome 两个新任务标签，常规 viewport 1463x780/DPR1.75，无覆盖设置；生产/fixture/source/exe SHA 与启动基线分别记录，目标二进制不提交。用户原有标签未操作。
+
+使用 computer-use 技能和 cua_repl：只读 DOM 观察，实际 video 焦点 Space 播放/暂停/恢复，按最新截图里的真实进度条中点点击定位；没有 evaluate/CDP 写 DOM 或设置媒体属性，也未调用程序化 play/pause/seek。两端各七阶段 loaded/play-command/paused/pause-held/resumed/ended/seek-middle，四张未经编辑的原始 JPEG（加载/暂停/末帧/中点）及 trace 分别保存到 tests/reference/reference-browser/video/playback-ui 与 tests/browser/rust-video/playback-ui。所有原始图均实际查看：动态测试图案在播放末帧/定位后变化。没有新 WS/HTTP 捕获，不能冒充逐帧协议新证据。
+
+SDK 播放 0.0298、暂停 0.0527、约 38.768 秒后保持同值、恢复 0.0773、自然结束 1.0；Rust 对应 0.0335/0.0654、约 13.984 秒后同值、恢复 0.1815、结束 1.0。均 paused/ended 状态正确、played 范围达 0..1，之后暂停定位到 0.499134、ended=false，readyState=4、error=null。实际调度时间不同，完整保留，不强改为相等。两个来源完整 media 地址一致（端口除外）。quality/networkState/navigator 不在只读范围中暴露，Browser.getVersion 不受支持；这些辅助读取失败没有改页面，不推断浏览器版本/解码计数，也不把它们列为已验证。
+
+两任务标签已显式关闭，自有服务 proc.terminate 后 wait。SDK 即时端口检查仍可连接（port_closed=false）如实保留；再次核查无 listener，最终两端 connect_ex=10061（连接拒绝），单独记录 port_closed_final/time，未覆写第一次结果。Windows terminate 的退出码 1 来自采集器主动停止，不冒充应用崩溃或自然退出。84041 自有父任务最终退出 0，metadata 在 target/video-playback-ui-meta.json；无残留服务。
+
+既有 test_video_contract.py 增补 27 项真实记录回放/损坏门，合计 48 项通过（target/video-playback-gates.log）。检查阶段完整顺序、真实开始进展、暂停跨一秒保持、恢复/结束/played 范围、真实中点、来源完整地址/分辨率/时长/flags、坐标依据、原 JPEG 完整解码/尺寸/字节 SHA、实际最终关闭；十二种损坏各作用于两端：仍加载、未播放、零时间、暂停漂移、未结束、不完整 played、定位无效、媒体错误、错误源、未清理、缺图、图 SHA 错。不是用 HTTP 200 或静态 DOM 判定成功，也不将生产源码指纹设为功能兼容门。
+
+字幕呈现/选择、非默认 start/end/autoplay/loop/muted 参数、音频、其他视频/编码/时长/设备/浏览器、全屏和完整资源生命周期/长稳态仍开放。仅新增本批证据和相关检查/计划/矩阵，不关闭 st.video 行或 M3/M5/M7；完整目标继续。
+
+最终视频/文档/配置/矩阵四模块 103 项通过（48 视频、55 文档，target/video-playback-final-gates.log）；最终回放逻辑不以临时 browser id 作为兼容门，视频模块复验 48 项通过。生产未变，未无故重跑全 Cargo；当前 example 实际离线构建与浏览器交互已完成。矩阵仅追加 st.video 证据/边界，inventory 仍 130 partial，完整目标未关闭。
+
+提交前逐文件 diff/git diff --check 通过；九个受保护用户文件、全部捕获源码/fixture/sample/exe SHA 与启动快照一致，生产和 fixture 无 diff。仅暂存六个既有测试/计划/矩阵文件及十个本批原始证据文件（两 trace、八 JPEG），不纳入用户 Cargo、colconfig 或指南/README 修改；未创建 PR、合并、发布或部署。

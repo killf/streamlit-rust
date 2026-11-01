@@ -1,0 +1,368 @@
+{
+  "runtime": "rust",
+  "reference_version": "1.66.1",
+  "tab_id": "1754832135",
+  "source_commit": "8e37530e77fcc97ab339fb17d9b6a4f60cc2ea59",
+  "inspection_limitations": [
+    "Read-only browser scope did not expose quality counters, networkState, or navigator; Browser.getVersion is unsupported. No browser build or frame-count claim."
+  ],
+  "stages": [
+    {
+      "name": "loaded",
+      "at": "2026-11-01T05:23:51.592Z",
+      "dom": {
+        "exceptions": [],
+        "url": "http://127.0.0.1:8510/",
+        "videos": [
+          {
+            "autoplay": false,
+            "buffered": [
+              [
+                0,
+                1
+              ]
+            ],
+            "controls": true,
+            "currentTime": 0,
+            "duration": 1,
+            "ended": false,
+            "error": null,
+            "loop": false,
+            "muted": false,
+            "paused": true,
+            "played": [],
+            "quality": null,
+            "readyState": 4,
+            "src": "http://127.0.0.1:8510/media/89d6baf253834c013e2bc52aab2354d4.mp4",
+            "videoHeight": 48,
+            "videoWidth": 64
+          }
+        ],
+        "viewport": {
+          "devicePixelRatio": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "screenshot": {
+        "path": "tests/browser/rust-video/playback-ui/loaded.jpg",
+        "bytes": 30720,
+        "sha256": "7cb1de34f948619450cff80e6a6155a508216e29306efc0fd264fb356fecaeb1"
+      }
+    },
+    {
+      "name": "play-command",
+      "action": "focus video and press Space",
+      "at": "2026-11-01T05:24:07.519Z",
+      "dom": {
+        "exceptions": [],
+        "url": "http://127.0.0.1:8510/",
+        "videos": [
+          {
+            "autoplay": false,
+            "buffered": [
+              [
+                0,
+                1
+              ]
+            ],
+            "controls": true,
+            "currentTime": 0.0335,
+            "duration": 1,
+            "ended": false,
+            "error": null,
+            "loop": false,
+            "muted": false,
+            "paused": false,
+            "played": [
+              [
+                0,
+                0.0335
+              ]
+            ],
+            "quality": null,
+            "readyState": 4,
+            "src": "http://127.0.0.1:8510/media/89d6baf253834c013e2bc52aab2354d4.mp4",
+            "videoHeight": 48,
+            "videoWidth": 64
+          }
+        ],
+        "viewport": {
+          "devicePixelRatio": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      }
+    },
+    {
+      "name": "paused",
+      "action": "press Space again",
+      "at": "2026-11-01T05:24:07.584Z",
+      "dom": {
+        "exceptions": [],
+        "url": "http://127.0.0.1:8510/",
+        "videos": [
+          {
+            "autoplay": false,
+            "buffered": [
+              [
+                0,
+                1
+              ]
+            ],
+            "controls": true,
+            "currentTime": 0.0654,
+            "duration": 1,
+            "ended": false,
+            "error": null,
+            "loop": false,
+            "muted": false,
+            "paused": true,
+            "played": [
+              [
+                0,
+                0.0654
+              ]
+            ],
+            "quality": null,
+            "readyState": 4,
+            "src": "http://127.0.0.1:8510/media/89d6baf253834c013e2bc52aab2354d4.mp4",
+            "videoHeight": 48,
+            "videoWidth": 64
+          }
+        ],
+        "viewport": {
+          "devicePixelRatio": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "screenshot": {
+        "path": "tests/browser/rust-video/playback-ui/paused.jpg",
+        "bytes": 35223,
+        "sha256": "edabbe0eb8ef40dc03560a5800401ac7391fd15cf1de3fdce0865f5bf2386386"
+      }
+    },
+    {
+      "name": "pause-held",
+      "at": "2026-11-01T05:24:21.568Z",
+      "dom": {
+        "exceptions": [],
+        "url": "http://127.0.0.1:8510/",
+        "videos": [
+          {
+            "autoplay": false,
+            "buffered": [
+              [
+                0,
+                1
+              ]
+            ],
+            "controls": true,
+            "currentTime": 0.0654,
+            "duration": 1,
+            "ended": false,
+            "error": null,
+            "loop": false,
+            "muted": false,
+            "paused": true,
+            "played": [
+              [
+                0,
+                0.0654
+              ]
+            ],
+            "quality": null,
+            "readyState": 4,
+            "src": "http://127.0.0.1:8510/media/89d6baf253834c013e2bc52aab2354d4.mp4",
+            "videoHeight": 48,
+            "videoWidth": 64
+          }
+        ],
+        "viewport": {
+          "devicePixelRatio": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      }
+    },
+    {
+      "name": "resumed",
+      "action": "press Space",
+      "at": "2026-11-01T05:24:21.616Z",
+      "dom": {
+        "exceptions": [],
+        "url": "http://127.0.0.1:8510/",
+        "videos": [
+          {
+            "autoplay": false,
+            "buffered": [
+              [
+                0,
+                1
+              ]
+            ],
+            "controls": true,
+            "currentTime": 0.1815,
+            "duration": 1,
+            "ended": false,
+            "error": null,
+            "loop": false,
+            "muted": false,
+            "paused": false,
+            "played": [
+              [
+                0,
+                0.1815
+              ]
+            ],
+            "quality": null,
+            "readyState": 4,
+            "src": "http://127.0.0.1:8510/media/89d6baf253834c013e2bc52aab2354d4.mp4",
+            "videoHeight": 48,
+            "videoWidth": 64
+          }
+        ],
+        "viewport": {
+          "devicePixelRatio": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      }
+    },
+    {
+      "name": "ended",
+      "at": "2026-11-01T05:24:32.719Z",
+      "dom": {
+        "exceptions": [],
+        "url": "http://127.0.0.1:8510/",
+        "videos": [
+          {
+            "autoplay": false,
+            "buffered": [
+              [
+                0,
+                1
+              ]
+            ],
+            "controls": true,
+            "currentTime": 1,
+            "duration": 1,
+            "ended": true,
+            "error": null,
+            "loop": false,
+            "muted": false,
+            "paused": true,
+            "played": [
+              [
+                0,
+                1
+              ]
+            ],
+            "quality": null,
+            "readyState": 4,
+            "src": "http://127.0.0.1:8510/media/89d6baf253834c013e2bc52aab2354d4.mp4",
+            "videoHeight": 48,
+            "videoWidth": 64
+          }
+        ],
+        "viewport": {
+          "devicePixelRatio": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "screenshot": {
+        "path": "tests/browser/rust-video/playback-ui/ended.jpg",
+        "bytes": 35329,
+        "sha256": "92274f3bd9fbe06c2d3abb705fdb96b94e84414df22655a8988a7c71dc12e9f1"
+      }
+    },
+    {
+      "name": "seek-middle",
+      "action": "click observed timeline midpoint at 726,602",
+      "at": "2026-11-01T05:24:41.996Z",
+      "dom": {
+        "exceptions": [],
+        "url": "http://127.0.0.1:8510/",
+        "videos": [
+          {
+            "autoplay": false,
+            "buffered": [
+              [
+                0,
+                1
+              ]
+            ],
+            "controls": true,
+            "currentTime": 0.499134,
+            "duration": 1,
+            "ended": false,
+            "error": null,
+            "loop": false,
+            "muted": false,
+            "paused": true,
+            "played": [
+              [
+                0,
+                1
+              ]
+            ],
+            "quality": null,
+            "readyState": 4,
+            "src": "http://127.0.0.1:8510/media/89d6baf253834c013e2bc52aab2354d4.mp4",
+            "videoHeight": 48,
+            "videoWidth": 64
+          }
+        ],
+        "viewport": {
+          "devicePixelRatio": 1.75,
+          "height": 780,
+          "width": 1463
+        }
+      },
+      "screenshot": {
+        "path": "tests/browser/rust-video/playback-ui/seek-middle.jpg",
+        "bytes": 32738,
+        "sha256": "7818e47b895735876352b75655bcceeffa71d1a07b7440139f0b727b21cc0e89"
+      },
+      "coordinate_source": "tests/browser/rust-video/playback-ui/ended.jpg"
+    }
+  ],
+  "capture_api": "cua_repl browser API: actual video Space key and observed native timeline pointer input; read-only DOM snapshots; original screenshots",
+  "source_sha256": {
+    "streamlit/src/api.rs": "c69fe2343e29aca82388e5e9cf919220fb8ed98283ca9ffdf70ab968d7df3b3d",
+    "streamlit/src/elements/media.rs": "2e085542c61d605db274b1d99dea62fd7c6bbbdc81856873838802c38b731e6a",
+    "streamlit/src/media.rs": "71a1c1845b021f0e130064ec6e88f8f3988cb3644ef7a998b0bec0dc52764310",
+    "streamlit/examples/video.rs": "3e05321af5a14de709e2216e13842869cc8599908749bbd39c255af1ba698e7c",
+    "tests/reference/video_app.py": "d4e68536b660625c83a839cab53497c645be6c7a4874317205634359854f63e9",
+    "tests/reference/video_sample.mp4": "dcda48c8cec73a32406a184d635c41a324107f0f51a0cb0fe1124cc0791a19a6",
+    "streamlit/examples/data/video_sample.mp4": "dcda48c8cec73a32406a184d635c41a324107f0f51a0cb0fe1124cc0791a19a6",
+    "target/debug/examples/video.exe": "6508a6c1b490b865b9684f5bfbe5378e013ee08113ba72b2e9a441ccf7250090"
+  },
+  "browser": {
+    "name": "Chrome",
+    "id": "3",
+    "viewport_override": false
+  },
+  "scope": "Default committed one-second MP4: load, play, pause hold, resume/end, paused midpoint seek. No audio/subtitle/other parameter/device/fullscreen/browser-version/frame-count claim.",
+  "tab_closed": true,
+  "server_cleanup": {
+    "pid": 20172,
+    "port": 8510,
+    "exit_code": 1,
+    "stopped": true,
+    "port_closed": true,
+    "port_closed_final": true,
+    "port_closed_final_checked_at": 1793510843.3701959,
+    "connect_ex_result": 10061,
+    "termination_reason": "Collector requested proc.terminate() and waited; Windows termination exit code 1 is not an observed application crash."
+  },
+  "started_at": 1793510346.3431516,
+  "finished_at": 1793510753.3664086,
+  "visual_review": "Original load, paused, ended and midpoint-seek screenshots inspected; test pattern changes after playback/seek. No image editing or viewport override.",
+  "sdk_distribution": {
+    "streamlit": "1.66.1",
+    "python": "3.14.7"
+  }
+}
