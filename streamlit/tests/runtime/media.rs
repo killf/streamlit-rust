@@ -8,6 +8,53 @@ use super::*;
 use crate::InputWidgets;
 use crate::{DeltaColor, MetricOptions, RgbaImage};
 
+fn youtube_url_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/media-more/subtitle-text/cases.json")).expect("video URL reference");
+
+        for case in reference["youtube_url_reference"]["cases"].as_array().expect("URL cases") {
+            let mut options = crate::VideoOptions::from_url(case["url"].as_str().expect("URL")).muted(true).loop_(true).start_time(case["start_time"].as_f64().expect("start"));
+            if let Some(end) = case["end_time"].as_f64() {
+                options = options.end_time(end);
+            }
+            if let Some(subtitle) = case["subtitle"].as_str() {
+                options = options.subtitle("en", subtitle);
+            }
+            st.video(options);
+        }
+    })
+}
+
+#[actix_web::test]
+async fn youtube_url_classification_and_error_precedence_match_sdk() -> TestResult {
+    let (_, handle, task, mut socket) = start_media_server(youtube_url_entry).await?;
+    let result = tokio::time::timeout(Duration::from_secs(15), run_once(&mut socket, &mut String::new())).await;
+    drop(socket);
+    handle.stop(false).await;
+    task.await??;
+    let wires = result??;
+    let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/media-more/subtitle-text/cases.json"))?;
+    let cases = reference["youtube_url_reference"]["cases"].as_array().ok_or("missing URL cases")?;
+    assert_eq!(cases.len(), 42);
+    assert_eq!(wires.elements.len(), cases.len());
+
+    for (element, case) in wires.elements.iter().zip(cases) {
+        if case["accepted"] == true {
+            let Some(element::Type::Video(video)) = element.r#type.as_ref() else { return Err("expected URL video".into()) };
+            let bytes = serde_json::from_value::<Vec<u8>>(case["proto_bytes"].clone())?;
+            assert_eq!(*video, crate::proto::Video::decode(bytes.as_slice())?, "{}", case["name"]);
+        } else {
+            let Some(element::Type::Exception(error)) = element.r#type.as_ref() else { return Err("expected URL error".into()) };
+            assert_eq!(error.r#type, case["error_type"], "{}", case["name"]);
+            assert_eq!(error.message, case["error"], "{}", case["name"]);
+            assert_eq!(Some(error.message_is_markdown), case["message_is_markdown"].as_bool());
+            assert_eq!(Some(error.is_streamlit_exception), case["is_streamlit_exception"].as_bool());
+        }
+    }
+
+    Ok(())
+}
+
 fn media_mime_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
     Box::pin(async move {
         let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/media-params/trace.json")).expect("frozen MIME reference");

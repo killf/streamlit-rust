@@ -3138,3 +3138,23 @@ DOM 读取与截图不是原子操作：SDK fresh-loop-paused 的 DOM 是 0.7817
 最终媒体参数参考重放 113 项、文档/配置/矩阵 55 项通过，共 168 项（target/media-mime-registry-replay.log、target/media-mime-registry-docs.log）。新增一项在全部 886 个输入上逐一重放 SDK/helper 与标准内置表的后缀，再实际重跑 1772 个公开播放器地址，并校验 161 个差异。原 19 个顶层参考字段逐值未变，九个用户文件 SHA 不变；Rust 源码与原生测试无 diff，因此本批不重复 Cargo。矩阵/生成清单未改，仍 130 partial。逐文件 diff/git diff --check 通过；只提交既有参考、Python 测试及两份计划/验收文档，无 PR、合并、发布或部署。
 
 最后补强 registry seeds 与当前 SDK 实际 inverse 集合逐项相等的断言，防止只凭数量声称完整；新增检查单独重跑通过（target/media-mime-registry-final-seeds.log，1 项），未改原数据。
+
+
+## Current YouTube ASCII URL classification validation (2026-11-01)
+
+继续完整目标；完整 MIME 映射来源等待用户选择期间，不改该策略。先检查数字时间边界的现有实现和 SDK 解析顺序，未发现新的差异；转向同一媒体 URL 分支，发现所有 YouTube URL 当前被发为 Native。无需真实外部视频即可测得 URL 分类、改写及错误优先级，不能继续把这些协议能力全部列为外部环境受阻。
+
+既有 media-more/subtitle-text/cases.json 追加 youtube_url_reference：锁定 SDK 1.66.1 的公开 AppTest 固化 42 案，37 个完整 Video protobuf（23 iframe、14 native 对照）、五个异常。覆盖 watch/短链/embed/v/e/nocookie、oembed/归因编码、desktop/feature 顺序、10/20 字符匹配和截断、原查询/片段丢弃、大小写、伪装主机和不支持的查询顺序；全部使用虚构 ASCII ID，不做外部视频 GET。正常/非法/空文本的字幕 dict 均先报 StreamlitIncompatibleParametersError；负时间和协议溢出仍先于 YouTube 字幕错误。错误类型、全文和 Markdown/Streamlit 标志原样保存。
+
+真实原生 WS 回归先红：首个 watch URL 保持原地址和 Native，参考要求 canonical embed 地址和 YoutubeIframe（target/youtube-url-red.log）。在既有 elements/media.rs 增加私有 ASCII URL 识别，保留 SDK 已测大小写/路径/参数顺序及 ID 前缀规则；VideoElement 携带私有类型标志，api.rs 在字幕校验前拒绝 YouTube 字幕组合，随后统一生成播放器。普通 URL 仍原样传递；不获取远程媒体，不新增公共接口、依赖、文件或 MIME 数据。
+
+Rust 用法仍为 `st.video(VideoOptions::from_url("https://youtu.be/Ab_cD-12345").muted(true).start_time(1.75).end_time(4.5));`。输出 iframe 地址为 `https://www.youtube.com/embed/Ab_cD-12345`，时间保持 SDK 整秒截断；附加任意字幕轨时经现有错误元素路径返回已测异常。既有抛错/整轮中止与恢复策略不在此重构，单批原生 WS 的继续执行不等于 Python 整轮错误控制完全匹配。
+
+源码按语义单元留空行、复杂识别分三阶段注释，三份 Rust 文件逐段 diff/rustfmt 复查。首次 Clippy 指出可折叠的 if，修正后 workspace/all-targets Clippy -D warnings 通过，保留既有 MSVC linker_messages 告警（最终 target/youtube-url-clippy-fixed.log）。Python media-more 110 项通过（原 68 项加 42 案，target/youtube-url-python.log），原引用字段逐值保留。
+
+本批只覆盖 ASCII URL 协议分类及错误优先级。Unicode 正则 word 字符、真实 iframe DOM/加载/播放、autoplay 身份以及任意 URL/本地文件解释继续开放；没有 SDK socket、外部视频或浏览器兼容结论。矩阵 st.video 仍 partial，M3/M5/M7 与完整目标不关闭，未实现待决 MIME/Unicode/repr/非 Delta 队列架构。
+
+
+首轮识别单元另发现实现误把 www.youtu.be 当成支持短链，而 SDK 将其保留为 Native；原失败 target/youtube-url-unit.log 保留，未改参考数据。改为只对 youtube 主机处理 www/m 前缀，确切短链单独识别；重新按代码检查→单元→运行集成顺序验证，3 项字幕/URL 单元和 14 项媒体集成通过（target/youtube-url-unit-fixed.log、target/youtube-url-runtime.log）。42 个真实原生 WS 元素逐个对齐完整播放器或异常类型/全文/标志，服务已停止并等待退出。其余媒体契约/文档/配置/矩阵 80 项通过，合并 media-more 共 190 项 Python 检查（target/youtube-url-docs-media.log、target/youtube-url-python.log）。
+
+最终工作区 357 项通过（350 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿；日志 target/youtube-url-workspace.log。只更新 st.video 矩阵及生成清单，仍 130 partial；旧参考十二字段和九个受保护用户文件均不变。仅暂存本批十个既有代码/测试/参考/计划/矩阵文件，不包含用户 Cargo、colconfig、指南/README 修改；无 PR、合并、发布或部署，完整目标保持开放。

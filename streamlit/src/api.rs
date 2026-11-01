@@ -2443,7 +2443,21 @@ impl<C: AppendChild> StreamlitApi for C {
             return;
         }
 
-        // 2. URL 与字节输入均先校验字幕；无效文本只渲染错误元素。
+        // 2. YouTube 的字幕互斥错误先于字幕格式校验，空文本轨也不例外。
+        let youtube_url = options.url.as_deref().and_then(crate::elements::media::youtube_video_url);
+        let youtube = youtube_url.is_some();
+        if youtube && !options.subtitles.is_empty() {
+            let error = crate::elements::exception::AppException::new(
+                "streamlit.errors.StreamlitIncompatibleParametersError".into(),
+                "`subtitles` and `data=<YouTube URL>` cannot be used together. Subtitles are not supported for YouTube videos.".into(),
+                Vec::new(),
+            )
+            .streamlit_markdown();
+            self.push(Rc::new(RefCell::new(error)));
+            return;
+        }
+
+        // 3. 其余 URL 与字节输入校验字幕；无效文本只渲染错误元素。
         let mut tracks = Vec::new();
         for (label, text) in &options.subtitles {
             match crate::elements::media::subtitle_track(label, text) {
@@ -2461,15 +2475,15 @@ impl<C: AppendChild> StreamlitApi for C {
             }
         }
 
-        // 3. 远程视频仅保留 URL；字幕仍使用本地媒体地址。
+        // 4. YouTube 改写 iframe 地址；普通 URL 保留原文，均不获取远程资源。
         let url = match options.url {
-            Some(url) => Ok(url),
+            Some(url) => Ok(youtube_url.unwrap_or(url)),
             None => crate::elements::media::media_url(&options.data, &options.mime),
         };
 
         match url {
             Ok(url) => {
-                let element = crate::elements::media::VideoElement::new(url)
+                let element = crate::elements::media::VideoElement::new(url, youtube)
                     .with_playback(crate::elements::media::Playback {
                         start_time: options.start_time,
                         end_time: options.end_time,

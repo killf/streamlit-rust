@@ -308,14 +308,19 @@ fn playback_id(kind: &str, url: &str, playback: &Playback, subtitles: Option<&st
 
 pub(crate) struct VideoElement {
     url: String,
+
+    // 选择官方前端 iframe 播放器；字节媒体和普通 URL 使用原生播放器。
+    youtube: bool,
+
     playback: Playback,
     subtitles: Vec<crate::proto::SubtitleTrack>,
 }
 
 impl VideoElement {
-    pub fn new(url: String) -> Self {
+    pub fn new(url: String, youtube: bool) -> Self {
         Self {
             url,
+            youtube,
             playback: Playback::default(),
             subtitles: Vec::new(),
         }
@@ -349,14 +354,13 @@ impl Element for VideoElement {
             )
             .as_str(),
         );
-        // The measured video element: the NATIVE type, the relative URL and
-        // the stretch width inside the message; element level carries none.
+        // 播放器类型由 URL 分类决定，宽度仍放在播放器消息内。
         push_element(
             context,
             element_hash,
             element::Type::Video(crate::proto::Video {
                 url: self.url.clone(),
-                r#type: crate::proto::video::Type::Native as i32,
+                r#type: if self.youtube { crate::proto::video::Type::YoutubeIframe } else { crate::proto::video::Type::Native } as i32,
                 start_time: Playback::seconds(self.playback.start_time).unwrap_or(0),
                 end_time: Playback::seconds(self.playback.end_time).unwrap_or(0),
                 r#loop: self.playback.loop_,
@@ -374,6 +378,65 @@ impl Element for VideoElement {
         );
         Ok(())
     }
+}
+
+/// Recognizes the pinned SDK's URL forms for ASCII YouTube IDs. This does
+/// not fetch the URL. Unicode regex word classification remains unmeasured.
+pub(crate) fn youtube_video_url(url: &str) -> Option<String> {
+    fn video_id(value: &str) -> Option<(&str, &str)> {
+        let length = value.bytes().take(20).take_while(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'_' | b'-')).count();
+        (length >= 10).then(|| value.split_at(length))
+    }
+
+    let address = url.strip_prefix("https://").or_else(|| url.strip_prefix("http://"))?;
+    let embed = |id: &str| format!("https://www.youtube.com/embed/{id}");
+
+    // 1. oembed/归因链接使用独立的编码参数形式，保留 SDK 的大小写和顺序。
+    for host in ["youtube.com/", "www.youtube.com/", "m.youtube.com/", "www.m.youtube.com/"] {
+        let Some(path) = address.strip_prefix(host) else { continue };
+        if let Some(encoded) = path.strip_prefix("oembed?url=") {
+            let value = encoded.strip_prefix("https%3A//www.youtube.com/watch?v%3D").or_else(|| encoded.strip_prefix("http%3A//www.youtube.com/watch?v%3D"))?;
+            let (id, tail) = video_id(value)?;
+            return tail.starts_with("&format=json").then(|| embed(id));
+        }
+        if let Some(value) = path.strip_prefix("attribution_link?a=") {
+            for (offset, _) in value.rmatch_indices("watch%3Fv%3D") {
+                if value[..offset].contains('\n') {
+                    continue;
+                }
+                if let Some((id, tail)) = video_id(&value[offset + "watch%3Fv%3D".len()..])
+                    && tail.starts_with("%26feature")
+                {
+                    return Some(embed(id));
+                }
+            }
+            return None;
+        }
+    }
+
+    // 2. 普通链接只识别 SDK 接受的主机、路径和可选查询参数前缀。
+    if let Some(value) = address.strip_prefix("youtu.be/") {
+        return video_id(value).map(|(id, _)| embed(id));
+    }
+    let address = address.strip_prefix("www.").or_else(|| address.strip_prefix("m.")).unwrap_or(address);
+    let path = address.strip_prefix("youtube.com/").or_else(|| address.strip_prefix("youtube-nocookie.com/"))?;
+    for prefix in ["embed/", "v/", "e/"] {
+        if let Some(value) = path.strip_prefix(prefix) {
+            return video_id(value).map(|(id, _)| embed(id));
+        }
+    }
+    let mut query = path.strip_prefix("watch?").or_else(|| path.strip_prefix('?'))?;
+    query = query.strip_prefix("app=desktop&").unwrap_or(query);
+    if let Some(feature) = query.strip_prefix("feature=") {
+        let (value, rest) = feature.split_once('&')?;
+        if !value.bytes().all(|byte| byte.is_ascii_alphanumeric() || byte == b'_') {
+            return None;
+        }
+        query = rest;
+    }
+
+    // 3. SDK 匹配 10..20 个字符的前缀，后续查询/片段不进入 iframe URL。
+    video_id(query.strip_prefix("v=")?).map(|(id, _)| embed(id))
 }
 
 /// How a metric colors its delta. The measured normal/inverse pair derives
@@ -588,6 +651,20 @@ mod metric_tests {
 #[cfg(test)]
 mod subtitle_tests {
     use super::*;
+
+    #[test]
+    fn youtube_ascii_url_forms_match_frozen_public_sdk() -> anyhow::Result<()> {
+        let reference: serde_json::Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/media-more/subtitle-text/cases.json"))?;
+        let cases = reference["youtube_url_reference"]["cases"].as_array().ok_or_else(|| anyhow::anyhow!("missing URL cases"))?;
+        assert_eq!(cases.len(), 42);
+
+        for case in cases.iter().filter(|case| case["accepted"] == true) {
+            let expected = if case["fields"]["type"] == "YOUTUBE_IFRAME" { case["fields"]["url"].as_str() } else { None };
+            assert_eq!(youtube_video_url(case["url"].as_str().ok_or_else(|| anyhow::anyhow!("missing URL"))?).as_deref(), expected, "{}", case["name"]);
+        }
+
+        Ok(())
+    }
 
     #[test]
     fn subtitle_label_errors_match_frozen_public_sdk_messages() -> Result<(), Box<dyn std::error::Error>> {

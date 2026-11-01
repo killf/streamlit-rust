@@ -19,6 +19,34 @@ def read(path):
     return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
+YOUTUBE_URL_CASES = read(PYTHON / 'subtitle-text/cases.json')['youtube_url_reference']['cases']
+
+
+@pytest.mark.parametrize('case', YOUTUBE_URL_CASES, ids=lambda case: case['name'])
+def test_youtube_url_classification_and_error_precedence_replay_sdk(case):
+    import importlib.metadata
+    from streamlit.testing.v1 import AppTest
+    assert importlib.metadata.version('streamlit') == '1.66.1'
+    assert len(YOUTUBE_URL_CASES) == 42
+    source = ('import streamlit as st\nst.video(' + repr(case['url'])
+              + ',start_time=' + repr(case['start_time'])
+              + ',end_time=' + repr(case['end_time']) + ',muted=True,loop=True')
+    if case['subtitle'] is not None:
+        source += ',subtitles={"en":' + repr(case['subtitle']) + '}'
+    app = AppTest.from_string(source + ')').run()
+    if case['accepted']:
+        assert not app.exception and len(app.get('video')) == 1
+        proto = app.get('video')[0].proto
+        assert MessageToDict(proto, preserving_proto_field_name=True) == case['fields']
+        assert proto.SerializeToString() == bytes(case['proto_bytes'])
+    else:
+        assert not app.get('video') and len(app.exception) == 1
+        error = app.exception[0].proto
+        assert (error.type, error.message) == (case['error_type'], case['error'])
+        assert error.message_is_markdown == case['message_is_markdown']
+        assert error.is_streamlit_exception == case['is_streamlit_exception']
+
+
 def frames(capture):
     for frame in capture["frames"]:
         data = base64.b64decode(frame["base64"], validate=True)
