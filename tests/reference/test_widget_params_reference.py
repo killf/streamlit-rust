@@ -3766,43 +3766,51 @@ DATE_JSON_ERRORS = {
 }
 
 
-def check_date_errors(capture, *, json_errors=False):
+def check_date_errors(capture, *, json_errors=False, enabled=False):
     cases = [{'target':target,'kind':kind,'value':value,'peer_first':peer_first} for target in ('Single','Range') for kind,value in ((('json_value',value) for value in DATE_JSON_ERRORS) if json_errors else DATE_ERROR_INPUTS) for peer_first in (False,True)]
+    per_case=4 if enabled else 3
+    if enabled:assert capture['date_input_policy']=='enabled'
     assert capture['successful'] and 'producer_error' not in capture and capture['reference_version']=='1.66.1'
-    assert capture['runtime'] in ('python','rust') and capture['cases']==cases and capture['finishes']==[0]*(len(cases)*3)
+    assert capture['runtime'] in ('python','rust') and capture['cases']==cases and capture['finishes']==[0]*(len(cases)*per_case)
     assert capture['cleanup']['websocket_closed'] and capture['cleanup']['server_stopped' if capture['runtime']=='python' else 'caller_server_stopped']
-    assert len(capture['frames'])==len(cases)*20 and len(capture['elements'])==len(cases)*6
+    assert len(capture['frames'])==len(cases)*(29 if enabled else 20) and len(capture['elements'])==len(cases)*(10 if enabled else 6)
     kinds=[(message.WhichOneof('type'),message.session_status_changed.script_is_running) if message.WhichOneof('type')=='session_status_changed' else message.WhichOneof('type') for message in frames(capture)]
     expected=[]
     for case in cases:
-        for attempt in range(3):
-            expected+=['rerun_script']+([('session_status_changed',False)] if attempt else [])
+        for raw_attempt in range(per_case):
+            attempt=raw_attempt-1 if enabled and raw_attempt else raw_attempt
+            expected+=['rerun_script']+([('session_status_changed',False)] if raw_attempt else [])
             expected+=['new_session',('session_status_changed',True)]+['delta']*(1 if attempt else 4)+['script_finished']
     assert kinds==expected
     runs=color_runs(capture,('date_input','checkbox','json','exception'))
-    assert len(runs)==len(cases)*3
+    assert len(runs)==len(cases)*per_case
     normalized,sessions,run_ids,offset=[],set(),set(),0
     for case_index,(case,recorded) in enumerate(zip(cases,capture['cases'],strict=True)):
         assert type(recorded['peer_first']) is bool and type(recorded['value']) is type(case['value'])
         identity,session_id=None,None
-        for attempt,run in enumerate(runs[case_index*3:case_index*3+3]):
-            request=run['request'];phase=('load','malformed','recovery')[attempt]
-            assert request.query_string=='probe=date-disabled&phase=disabled-load&case='+str(case_index)+'&attempt='+phase and not request.is_history_navigation
+        for raw_attempt,run in enumerate(runs[case_index*per_case:(case_index+1)*per_case]):
+            attempt=raw_attempt-1 if enabled and raw_attempt else raw_attempt
+            first=raw_attempt==0
+            fixture_phase='enabled-joint' if enabled and raw_attempt else 'disabled-load'
+            request=run['request'];phase='enable-idle' if enabled and raw_attempt==1 else ('load','malformed','recovery')[attempt]
+            assert request.query_string=='probe=date-disabled&phase='+fixture_phase+'&case='+str(case_index)+'&attempt='+phase and not request.is_history_navigation
             assert len(run['sessions'])==1 and run['finishes']==[0]
             session=run['sessions'][0]
             assert session.initialize.environment_info.streamlit_version=='1.66.1'
-            if attempt==0:
+            if first:
                 session_id=session.initialize.session_id;assert session_id and session_id not in sessions;sessions.add(session_id)
             else:assert session.initialize.session_id==session_id
             assert session.script_run_id and session.script_run_id not in run_ids;run_ids.add(session.script_run_id)
             entries=run['entries'];incoming=request.widget_states.widgets
             if attempt==0:
                 assert not incoming and [entry[0] for entry in entries]==['date_input','date_input','checkbox','json']
-                identity={}
+                if first:identity={}
                 for position,(kind,widget,element) in enumerate(entries[:3]):
-                    label=('Single','Range','Peer')[position];identity[label]=widget.id
+                    label=('Single','Range','Peer')[position]
+                    if first:identity[label]=widget.id
+                    else:assert identity[label]==widget.id
                     assert widget.label==label and widget.id.endswith('-date_bound_'+('single','range','peer')[position])
-                    assert widget.disabled is (position<2) and not widget.ignore_rerun and not widget.form_id and not widget.help and not widget.set_value and not widget.value
+                    assert widget.disabled is (position<2 and (not enabled or first)) and not widget.ignore_rerun and not widget.form_id and not widget.help and not widget.set_value and not widget.value
                     assert widget.label_visibility.value==0 and not element.HasField('has_one_shot_effect')
                     if position==2:assert not widget.default and element.width_config.use_content
                     else:
@@ -3810,7 +3818,7 @@ def check_date_errors(capture, *, json_errors=False):
                         assert (widget.min,widget.max,widget.format,widget.query_param_key)==('2025-01-01','2025-12-31','YYYY/MM/DD','') and element.width_config.use_stretch
                 assert len(set(identity.values()))==3
                 values=['2025-03-15',['2025-03-15','2025-03-20'],False]
-                assert json.loads(entries[-1][1].body)=={'phase':'disabled-load','values':values,'native':values,'calls':[]}
+                assert json.loads(entries[-1][1].body)=={'phase':fixture_phase,'values':values,'native':values,'calls':[]}
                 paths=[[0,i] for i in range(4)]
             else:
                 order=('Peer',case['target']) if case['peer_first'] else (case['target'],'Peer')
@@ -3844,7 +3852,7 @@ def check_date_errors(capture, *, json_errors=False):
                 else:view[kind].pop('id')
                 fields.append(view)
             normalized.append(fields)
-    assert len(sessions)==len(cases) and len(run_ids)==len(cases)*3 and offset==len(cases)*6
+    assert len(sessions)==len(cases) and len(run_ids)==len(cases)*per_case and offset==len(cases)*(10 if enabled else 6)
     return normalized
 
 
@@ -3862,8 +3870,10 @@ def test_disabled_date_error_semantics_match_with_runtime_stacks_preserved():
 
 @pytest.mark.parametrize('mutation',('message','recovery','callback','path','stale-id','oneof','session-leak','false-value'))
 @pytest.mark.parametrize('json_errors',(False,True),ids=('wire','json'))
-def test_disabled_date_error_gate_rejects_coherent_wrong_wire(mutation,json_errors):
-    capture=read(PYTHON/('date-json-errors/trace.json' if json_errors else 'date-errors/trace.json'));target=2 if mutation=='recovery' else 3 if mutation=='session-leak' else 7 if mutation=='false-value' else 1
+@pytest.mark.parametrize('enabled',(False,True),ids=('disabled','enabled'))
+def test_disabled_date_error_gate_rejects_coherent_wrong_wire(mutation,json_errors,enabled):
+    folder=('date-enabled-json-errors' if json_errors else 'date-enabled-errors') if enabled else ('date-json-errors' if json_errors else 'date-errors')
+    capture=read(PYTHON/folder/'trace.json');target=(3 if mutation=='recovery' else 4 if mutation=='session-leak' else 10 if mutation=='false-value' else 2) if enabled else (2 if mutation=='recovery' else 3 if mutation=='session-leak' else 7 if mutation=='false-value' else 1)
     first_session=color_runs(capture,('date_input','checkbox','json','exception'))[0]['sessions'][0].initialize.session_id
     run,changed=-1,0
     for frame in capture['frames']:
@@ -3887,7 +3897,7 @@ def test_disabled_date_error_gate_rejects_coherent_wrong_wire(mutation,json_erro
         changed+=1;raw=message.SerializeToString();frame.update(base64=base64.b64encode(raw).decode(),bytes=len(raw),message=MessageToDict(message,preserving_proto_field_name=True))
     assert changed==1
     capture['elements']=[{'kind':m.delta.new_element.WhichOneof('type'),'fields':MessageToDict(getattr(m.delta.new_element,m.delta.new_element.WhichOneof('type')),preserving_proto_field_name=True),'delta_path':list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m,ForwardMsg) and m.WhichOneof('type')=='delta']
-    with pytest.raises(AssertionError):check_date_errors(capture,json_errors=json_errors)
+    with pytest.raises(AssertionError):check_date_errors(capture,json_errors=json_errors,enabled=enabled)
 
 
 def check_date_bounds(capture, *, disabled=False):
@@ -6389,17 +6399,21 @@ DATE_JSON_NORMAL = {
 }
 
 
-def check_date_strings(capture, *, json_normal=False):
+def check_date_strings(capture, *, json_normal=False, enabled=False):
     cases=[{'target':target,'value':text,'peer_first':first} for target in ('Single','Range') for text in (DATE_JSON_NORMAL if json_normal else ('bad','2025-04-10','日期🧊')) for first in (False,True)]
+    per_case=6 if enabled else 5
+    assert not enabled or json_normal
+    if enabled:assert capture['date_input_policy']=='enabled'
     assert capture['successful'] and 'producer_error' not in capture and capture['reference_version']=='1.66.1'
-    assert capture['runtime'] in ('python','rust') and capture['cases']==cases and capture['finishes']==[0]*(len(cases)*5)
+    assert capture['runtime'] in ('python','rust') and capture['cases']==cases and capture['finishes']==[0]*(len(cases)*per_case)
     assert capture['cleanup']['websocket_closed'] and capture['cleanup']['server_stopped' if capture['runtime']=='python' else 'caller_server_stopped']
-    assert len(capture['frames'])==(len(cases)*44 if json_normal else 498) and len(capture['elements'])==(len(cases)*20 if json_normal else 210)
+    assert len(capture['frames'])==(len(cases)*(53 if enabled else 44) if json_normal else 498) and len(capture['elements'])==(len(cases)*(24 if enabled else 20) if json_normal else 210)
     expected=[]
     for case in cases:
-        for attempt in range(5):
+        for raw_attempt in range(per_case):
+            attempt=raw_attempt-1 if enabled and raw_attempt else raw_attempt
             count=(1 if case['target']=='Single' else 2) if attempt==1 and not json_normal else 4
-            expected+=['rerun_script']+([('session_status_changed',False)] if attempt else [])
+            expected+=['rerun_script']+([('session_status_changed',False)] if raw_attempt else [])
             expected+=['new_session',('session_status_changed',True)]+['delta']*count+['script_finished']
     kinds=[(m.WhichOneof('type'),m.session_status_changed.script_is_running) if m.WhichOneof('type')=='session_status_changed' else m.WhichOneof('type') for m in frames(capture)]
     assert kinds==expected
@@ -6409,15 +6423,19 @@ def check_date_strings(capture, *, json_normal=False):
         identity,session_id=None,None
         target=case['target'];target_index=0 if target=='Single' else 1
         values=['2025-10-01',['2025-10-10','2025-10-20'],False];calls=[]
-        for attempt,run in enumerate(runs[case_index*5:case_index*5+5]):
+        for raw_attempt,run in enumerate(runs[case_index*per_case:(case_index+1)*per_case]):
+            attempt=raw_attempt-1 if enabled and raw_attempt else raw_attempt
+            first=raw_attempt==0
             phase='disabled-assign' if attempt==0 else 'disabled-load' if attempt<3 else 'enabled-joint'
+            if enabled and raw_attempt:phase='enabled-joint'
             name=(('seed','submitted','observe','enable','edit') if json_normal else ('seed','malformed','recovery','enable','edit'))[attempt]
+            if enabled and raw_attempt==1:name='enable-idle'
             request=run['request'];incoming=request.widget_states.widgets;entries=run['entries']
             assert request.query_string=='probe=date-disabled&phase='+phase+'&case='+str(case_index)+'&attempt='+name and not request.is_history_navigation
             assert len(run['sessions'])==1 and run['finishes']==[0]
             session=run['sessions'][0]
             assert session.initialize.environment_info.streamlit_version=='1.66.1'
-            if attempt==0:
+            if first:
                 session_id=session.initialize.session_id;assert session_id and session_id not in sessions;sessions.add(session_id)
                 identity={entry[1].label:entry[1].id for entry in entries[:3]};assert len(set(identity.values()))==3
             else:assert session.initialize.session_id==session_id
@@ -6438,11 +6456,14 @@ def check_date_strings(capture, *, json_normal=False):
                 if attempt==1 and json_normal:
                     exposed=list(values);decoded=DATE_JSON_NORMAL[case['value']]
                     exposed[target_index]=(decoded[0] if target=='Single' else decoded) if decoded is not None else ('2025-03-15' if target=='Single' else ['2025-03-15','2025-03-20'])
-                    calls += [['peer',*exposed]]
+                    if enabled:
+                        values=exposed
+                        calls += [[source,*values] for source in (('peer',target.lower()) if case['peer_first'] else (target.lower(),'peer'))]
+                    else:calls += [['peer',*exposed]]
                 else:
                     if attempt==1:values[target_index]='2025-03-15' if target=='Single' else ['2025-03-15','2025-03-20']
                     elif attempt>=3:values[target_index]=dates[0] if target=='Single' else dates
-                    calls += [[source,*values] for source in ((target.lower(),'peer') if attempt==4 else ('peer',))]
+                    calls += [[source,*values] for source in ((target.lower(),'peer') if attempt==4 or enabled and attempt==3 else ('peer',))]
             expected_kinds=(['exception'] if target=='Single' else ['date_input','exception']) if attempt==1 and not json_normal else ['date_input','date_input','checkbox','json']
             assert [entry[0] for entry in entries]==expected_kinds
             for position,(kind,widget,element) in enumerate(entries):
@@ -6455,9 +6476,9 @@ def check_date_strings(capture, *, json_normal=False):
                 else:
                     label=('Single','Range','Peer')[position]
                     assert widget.label==label and widget.id==identity[label] and widget.id.endswith('-date_bound_'+label.lower())
-                    assert widget.disabled is (position<2 and attempt<3) and not widget.ignore_rerun and not widget.form_id and not widget.help
+                    assert widget.disabled is (position<2 and (first or not enabled and attempt<3)) and not widget.ignore_rerun and not widget.form_id and not widget.help
                     assert widget.label_visibility.value==0
-                    sync=(attempt==0 and position<2) or (json_normal and attempt==1 and position==target_index)
+                    sync=(first and position<2) or (not enabled and json_normal and attempt==1 and position==target_index)
                     assert widget.set_value is sync and element.HasField('has_one_shot_effect') is sync
                     if sync:assert element.has_one_shot_effect
                     if position==2:assert not widget.default and not widget.value and element.width_config.use_content
@@ -6474,7 +6495,7 @@ def check_date_strings(capture, *, json_normal=False):
                 else:view[kind].pop('id')
                 fields.append(view)
             normalized.append(fields)
-    assert len(sessions)==len(cases) and len(run_ids)==len(cases)*5 and offset==(len(cases)*20 if json_normal else 210)
+    assert len(sessions)==len(cases) and len(run_ids)==len(cases)*per_case and offset==(len(cases)*(24 if enabled else 20) if json_normal else 210)
     return normalized
 
 
@@ -6491,10 +6512,10 @@ def test_disabled_date_string_semantics_match_with_runtime_stacks_preserved():
 
 
 @pytest.mark.parametrize('mutation',('message','recovery-error','callback-default','path','stale-id','oneof','session-leak','seed-sync'))
-@pytest.mark.parametrize('json_normal',(False,True),ids=('string-error','json-normal'))
-def test_disabled_date_string_gate_rejects_coherent_wrong_wire(mutation,json_normal):
-    capture=read(PYTHON/('date-json-normal/trace.json' if json_normal else 'date-strings/trace.json'))
-    target=0 if mutation=='seed-sync' else 5 if mutation=='session-leak' else 2 if mutation in ('recovery-error','callback-default') else 31 if mutation=='path' else 1
+@pytest.mark.parametrize('json_normal,enabled',((False,False),(True,False),(True,True)),ids=('string-error','json-normal','json-enabled'))
+def test_disabled_date_string_gate_rejects_coherent_wrong_wire(mutation,json_normal,enabled):
+    capture=read(PYTHON/('date-enabled-json-normal/trace.json' if enabled else 'date-json-normal/trace.json' if json_normal else 'date-strings/trace.json'))
+    target=(0 if mutation=='seed-sync' else 6 if mutation=='session-leak' else 3 if mutation in ('recovery-error','callback-default') else 38 if mutation=='path' else 2) if enabled else (0 if mutation=='seed-sync' else 5 if mutation=='session-leak' else 2 if mutation in ('recovery-error','callback-default') else 31 if mutation=='path' else 1)
     first_session=color_runs(capture,('date_input','checkbox','json','exception'))[0]['sessions'][0].initialize.session_id
     run,changed=-1,0
     for frame in capture['frames']:
@@ -6508,7 +6529,7 @@ def test_disabled_date_string_gate_rejects_coherent_wrong_wire(mutation,json_nor
         elif not client and message.WhichOneof('type')=='delta':
             element=message.delta.new_element;kind=element.WhichOneof('type')
             if mutation=='message' and json_normal and kind=='json':
-                report=json.loads(element.json.body);report['values'][0]='2025-03-15';element.json.body=json.dumps(report)
+                report=json.loads(element.json.body);report['values'][0]='2025-10-01' if enabled else '2025-03-15';element.json.body=json.dumps(report)
             elif mutation=='message' and kind=='exception':element.exception.message='wrong error'
             elif mutation=='path' and kind==('json' if json_normal else 'exception'):message.metadata.delta_path[:]=[0,0]
             elif mutation=='seed-sync' and kind=='date_input' and element.date_input.label=='Single':element.date_input.set_value=False
@@ -6520,7 +6541,7 @@ def test_disabled_date_string_gate_rejects_coherent_wrong_wire(mutation,json_nor
         changed+=1;raw=message.SerializeToString();frame.update(base64=base64.b64encode(raw).decode(),bytes=len(raw),message=MessageToDict(message,preserving_proto_field_name=True))
     assert changed==1
     capture['elements']=[{'kind':m.delta.new_element.WhichOneof('type'),'fields':MessageToDict(getattr(m.delta.new_element,m.delta.new_element.WhichOneof('type')),preserving_proto_field_name=True),'delta_path':list(m.metadata.delta_path)} for m in frames(capture) if isinstance(m,ForwardMsg) and m.WhichOneof('type')=='delta']
-    with pytest.raises(AssertionError):check_date_strings(capture,json_normal=json_normal)
+    with pytest.raises(AssertionError):check_date_strings(capture,json_normal=json_normal,enabled=enabled)
 
 
 @pytest.mark.parametrize('root',(PYTHON,RUST),ids=('python','rust'))
@@ -6545,3 +6566,31 @@ def test_disabled_date_normal_json_complete_elements_match():
     assert captures[0]['producer_sources_sha256']==captures[1]['producer_sources_sha256']
     assert captures[1]['semantic_match'] is True
     assert check_date_strings(captures[0],json_normal=True)==check_date_strings(captures[1],json_normal=True)
+
+
+@pytest.mark.parametrize('root',(PYTHON,RUST),ids=('python','rust'))
+@pytest.mark.parametrize('json_errors',(False,True),ids=('wire','json'))
+def test_enabled_date_type_errors_and_blocked_recovery(root,json_errors):
+    folder='date-enabled-json-errors' if json_errors else 'date-enabled-errors'
+    check_date_errors(read(root/folder/'trace.json'),json_errors=json_errors,enabled=True)
+
+
+@pytest.mark.parametrize('json_errors',(False,True),ids=('wire','json'))
+def test_enabled_date_error_semantics_match_with_runtime_stacks_preserved(json_errors):
+    folder='date-enabled-json-errors' if json_errors else 'date-enabled-errors'
+    captures=[read(root/folder/'trace.json') for root in (PYTHON,RUST)]
+    assert captures[0]['producer_sources_sha256']==captures[1]['producer_sources_sha256']
+    assert captures[1]['error_semantics_match'] is True and captures[1]['semantic_match'] is False
+    assert check_date_errors(captures[0],json_errors=json_errors,enabled=True)==check_date_errors(captures[1],json_errors=json_errors,enabled=True)
+
+
+@pytest.mark.parametrize('root',(PYTHON,RUST),ids=('python','rust'))
+def test_enabled_date_normal_json_callbacks_and_saved_values(root):
+    check_date_strings(read(root/'date-enabled-json-normal/trace.json'),json_normal=True,enabled=True)
+
+
+def test_enabled_date_normal_json_complete_elements_match():
+    captures=[read(root/'date-enabled-json-normal/trace.json') for root in (PYTHON,RUST)]
+    assert captures[0]['producer_sources_sha256']==captures[1]['producer_sources_sha256']
+    assert captures[1]['semantic_match'] is True
+    assert check_date_strings(captures[0],json_normal=True,enabled=True)==check_date_strings(captures[1],json_normal=True,enabled=True)

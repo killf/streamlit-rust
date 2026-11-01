@@ -270,6 +270,51 @@ impl Codec {
         value.as_object().is_some_and(|click| click.get("row").is_some_and(Value::is_u64) && click.get("label").is_some_and(Value::is_string))
     }
 
+    fn date_input_error(&self, wire: Option<&widget_state::Value>) -> Option<&'static str> {
+        if !matches!(self, Self::DateInput { .. }) {
+            return None;
+        }
+        match wire {
+            Some(widget_state::Value::BoolValue(_) | widget_state::Value::TriggerValue(_)) => Some("'bool' object is not iterable"),
+            Some(widget_state::Value::IntValue(_)) => Some("'int' object is not iterable"),
+            Some(widget_state::Value::DoubleValue(_)) => Some("'float' object is not iterable"),
+            Some(widget_state::Value::IntArrayValue(array)) if !array.data.is_empty() => Some("strptime() argument 1 must be str, not int"),
+            Some(widget_state::Value::DoubleArrayValue(array)) if !array.data.is_empty() => Some("strptime() argument 1 must be str, not float"),
+            Some(widget_state::Value::BytesValue(bytes)) if !bytes.is_empty() => Some("strptime() argument 1 must be str, not int"),
+            Some(widget_state::Value::JsonValue(text)) => serde_json::from_str::<Value>(text).ok().and_then(|value| match value {
+                Value::Bool(_) => Some("'bool' object is not iterable"),
+                Value::Number(number) if number.is_i64() || number.is_u64() => Some("'int' object is not iterable"),
+                Value::Number(_) => Some("'float' object is not iterable"),
+
+                Value::Array(items) => {
+                    // 逐项解析：前面的非法日期先回默认，后项类型错误不再发生。
+                    for item in items {
+                        let error = match item {
+                            Value::String(text) => {
+                                if parse_date_input(&text).is_none() {
+                                    break;
+                                }
+                                continue;
+                            }
+
+                            Value::Bool(_) => "strptime() argument 1 must be str, not bool",
+                            Value::Number(number) if number.is_i64() || number.is_u64() => "strptime() argument 1 must be str, not int",
+                            Value::Number(_) => "strptime() argument 1 must be str, not float",
+                            Value::Null => "strptime() argument 1 must be str, not None",
+                            Value::Array(_) => "strptime() argument 1 must be str, not list",
+                            Value::Object(_) => "strptime() argument 1 must be str, not dict",
+                        };
+                        return Some(error);
+                    }
+                    None
+                }
+
+                _ => None,
+            }),
+            _ => None,
+        }
+    }
+
     fn decode_date_json(&self, text: &str) -> Option<Value> {
         let Self::DateInput { default, .. } = self else { return None };
         let items = match serde_json::from_str::<Value>(text).ok()? {
@@ -323,6 +368,8 @@ impl Codec {
 
     fn decode_state(&self, state: &WidgetState, empty_input: Option<&Value>) -> Option<Value> {
         let value = match state.value.as_ref() {
+            Some(widget_state::Value::JsonValue(text)) if matches!(self, Self::DateInput { .. }) => self.decode_date_json(text),
+
             Some(wire) => self.decode(wire),
 
             // 支持的 ID-only 包按上一轮 serde 的有效默认值反序列化。
@@ -837,12 +884,12 @@ impl SessionState {
             }
         }
         let mut callbacks = Vec::new();
-        // 2. 正常控件仍先验证整批输入；禁用控件延迟到注册时处理。
+        // 2. 日期的已知 TypeError 交由下阶段保留；其他非法输入沿用整批验证。
         if incoming.iter().any(|widget| {
             registry
                 .records
                 .get(&widget.id)
-                .is_some_and(|record| !record.disabled && record.codec.decode_state(widget, record.empty_input.as_ref()).is_none_or(|value| !record.codec.valid(&value)))
+                .is_some_and(|record| !record.disabled && record.codec.date_input_error(widget.value.as_ref()).is_none() && record.codec.decode_state(widget, record.empty_input.as_ref()).is_none_or(|value| !record.codec.valid(&value)))
         }) {
             return callbacks;
         }
@@ -852,6 +899,12 @@ impl SessionState {
             if !registry.received.insert(widget.id.clone()) {
                 continue;
             }
+            // 日期的已知类型错误先完成输入接收，最后统一阻止 callback 分派。
+            if let Some(error) = registry.records.get(&widget.id).and_then(|record| record.codec.date_input_error(widget.value.as_ref())) {
+                registry.input_error.get_or_insert_with(|| error.to_owned());
+                continue;
+            }
+
             // 禁用日期先暴露解码值；正常包登记恢复旧值，错误字符串留待登记报错。
             if let Some(record) = registry.records.get_mut(&widget.id)
                 && record.disabled
@@ -861,7 +914,6 @@ impl SessionState {
                     .decode_state(&widget, record.empty_input.as_ref())
                     .or_else(|| match widget.value.as_ref() {
                         Some(widget_state::Value::StringValue(text)) if !text.is_empty() => record.empty_input.clone(),
-                        Some(widget_state::Value::JsonValue(text)) => record.codec.decode_date_json(text),
                         _ => None,
                     })
                     .filter(|value| record.codec.valid(value))
@@ -877,51 +929,6 @@ impl SessionState {
             }
 
             if registry.records.get(&widget.id).is_none_or(|record| record.disabled) {
-                if registry.records.get(&widget.id).is_some_and(|record| record.disabled && matches!(record.codec, Codec::DateInput { .. })) {
-                    let error = match widget.value.as_ref() {
-                        Some(widget_state::Value::BoolValue(_) | widget_state::Value::TriggerValue(_)) => Some("'bool' object is not iterable"),
-                        Some(widget_state::Value::IntValue(_)) => Some("'int' object is not iterable"),
-                        Some(widget_state::Value::DoubleValue(_)) => Some("'float' object is not iterable"),
-                        Some(widget_state::Value::IntArrayValue(array)) if !array.data.is_empty() => Some("strptime() argument 1 must be str, not int"),
-                        Some(widget_state::Value::DoubleArrayValue(array)) if !array.data.is_empty() => Some("strptime() argument 1 must be str, not float"),
-                        Some(widget_state::Value::BytesValue(bytes)) if !bytes.is_empty() => Some("strptime() argument 1 must be str, not int"),
-                        Some(widget_state::Value::JsonValue(text)) => serde_json::from_str::<Value>(text).ok().and_then(|value| match value {
-                            Value::Bool(_) => Some("'bool' object is not iterable"),
-                            Value::Number(number) if number.is_i64() || number.is_u64() => Some("'int' object is not iterable"),
-                            Value::Number(_) => Some("'float' object is not iterable"),
-
-                            Value::Array(items) => {
-                                // 逐项解析：前面的非法日期先回默认，后项类型错误不再发生。
-                                for item in items {
-                                    let error = match item {
-                                        Value::String(text) => {
-                                            if parse_date_input(&text).is_none() {
-                                                break;
-                                            }
-                                            continue;
-                                        }
-
-                                        Value::Bool(_) => "strptime() argument 1 must be str, not bool",
-                                        Value::Number(number) if number.is_i64() || number.is_u64() => "strptime() argument 1 must be str, not int",
-                                        Value::Number(_) => "strptime() argument 1 must be str, not float",
-                                        Value::Null => "strptime() argument 1 must be str, not None",
-                                        Value::Array(_) => "strptime() argument 1 must be str, not list",
-                                        Value::Object(_) => "strptime() argument 1 must be str, not dict",
-                                    };
-                                    return Some(error);
-                                }
-                                None
-                            }
-
-                            _ => None,
-                        }),
-                        _ => None,
-                    };
-                    if let Some(error) = error {
-                        registry.input_error.get_or_insert_with(|| error.to_owned());
-                    }
-                }
-
                 if registry.records.get(&widget.id).is_some_and(|record| record.disabled && matches!(record.codec, Codec::Select(_))) {
                     let unhashable_type = match widget.value.as_ref() {
                         Some(widget_state::Value::StringArrayValue(_) | widget_state::Value::IntArrayValue(_) | widget_state::Value::DoubleArrayValue(_)) => Some("google._upb._message.RepeatedScalarContainer"),
@@ -1454,93 +1461,97 @@ mod tests {
     }
 
     #[test]
-    fn disabled_date_json_exposes_decoded_value_then_restores_native_state() -> anyhow::Result<()> {
-        for range in [false, true] {
-            for (text, expected) in [
-                ("null", None),
-                ("\"bad\"", None),
-                ("\"2025-04-10\"", None),
-                ("[\"bad\",7]", None),
-                ("[\"2025-04-10\",\"bad\",{}]", None),
-                ("[\"2025-04-10\",\"2025-04-20\"]", Some(["2025-04-10", "2025-04-20"])),
-                ("[\"2025/04/10\",\"2025/04/20\"]", Some(["2025-04-10", "2025-04-20"])),
-                ("[\"2024-12-31\",\"2025-04-20\"]", None),
-                ("[\"2025-05-20\",\"2025-04-10\"]", Some(["2025-05-20", "2025-04-10"])),
-                ("{\"2025-05-20\":1,\"2025-04-10\":[]}", Some(["2025-05-20", "2025-04-10"])),
-                ("{\"bad\":7,\"2025-04-10\":2}", None),
-                ("{\"2025-05-20\":1,\"2025-04-10\":2,\"2025-05-20\":3}", Some(["2025-05-20", "2025-04-10"])),
-            ] {
-                for peer_first in [false, true] {
-                    let state = SessionState::default();
-                    let native = |dates: [&str; 2]| if range { serde_json::json!(dates) } else { serde_json::json!(dates[0]) };
-                    let default = native(["2025-03-15", "2025-03-20"]);
-                    let old = native(["2025-10-01", "2025-10-20"]);
-                    let register_date = |disabled| {
-                        state.register_widget(
+    fn date_json_exposes_decoded_value_and_respects_registered_disabled_policy() -> anyhow::Result<()> {
+        for disabled in [false, true] {
+            for range in [false, true] {
+                for (text, expected) in [
+                    ("null", None),
+                    ("\"bad\"", None),
+                    ("\"2025-04-10\"", None),
+                    ("[\"bad\",7]", None),
+                    ("[\"2025-04-10\",\"bad\",{}]", None),
+                    ("[\"2025-04-10\",\"2025-04-20\"]", Some(["2025-04-10", "2025-04-20"])),
+                    ("[\"2025/04/10\",\"2025/04/20\"]", Some(["2025-04-10", "2025-04-20"])),
+                    ("[\"2024-12-31\",\"2025-04-20\"]", None),
+                    ("[\"2025-05-20\",\"2025-04-10\"]", Some(["2025-05-20", "2025-04-10"])),
+                    ("{\"2025-05-20\":1,\"2025-04-10\":[]}", Some(["2025-05-20", "2025-04-10"])),
+                    ("{\"bad\":7,\"2025-04-10\":2}", None),
+                    ("{\"2025-05-20\":1,\"2025-04-10\":2,\"2025-05-20\":3}", Some(["2025-05-20", "2025-04-10"])),
+                ] {
+                    for peer_first in [false, true] {
+                        let state = SessionState::default();
+                        let native = |dates: [&str; 2]| if range { serde_json::json!(dates) } else { serde_json::json!(dates[0]) };
+                        let default = native(["2025-03-15", "2025-03-20"]);
+                        let old = native(["2025-10-01", "2025-10-20"]);
+                        let register_date = |disabled| {
+                            state.register_widget(
+                                WidgetSpec {
+                                    kind: "date_input",
+                                    key: Some("day"),
+                                    disabled,
+                                    query: None,
+                                    identity: "stable",
+                                    default: default.clone(),
+                                    codec: Codec::DateInput {
+                                        range,
+                                        min: NaiveDate::from_ymd_opt(2025, 1, 1).expect("fixture date"),
+                                        max: NaiveDate::from_ymd_opt(2025, 12, 31).expect("fixture date"),
+                                        reset_native: true,
+                                        default: default.clone(),
+                                    },
+                                    callback: Some(Arc::new(|_| {})),
+                                },
+                                |value| Ok(value.clone()),
+                            )
+                        };
+                        state.set("day", old.clone())?;
+                        let id = register_date(disabled)?.0;
+                        let (peer_id, _, _) = state.register_widget(
                             WidgetSpec {
-                                kind: "date_input",
-                                key: Some("day"),
-                                disabled,
+                                kind: "checkbox",
+                                key: Some("peer"),
+                                disabled: false,
                                 query: None,
                                 identity: "stable",
-                                default: default.clone(),
-                                codec: Codec::DateInput {
-                                    range,
-                                    min: NaiveDate::from_ymd_opt(2025, 1, 1).expect("fixture date"),
-                                    max: NaiveDate::from_ymd_opt(2025, 12, 31).expect("fixture date"),
-                                    reset_native: true,
-                                    default: default.clone(),
-                                },
+                                default: Value::Bool(false),
+                                codec: Codec::Bool,
                                 callback: Some(Arc::new(|_| {})),
                             },
                             |value| Ok(value.clone()),
-                        )
-                    };
-                    state.set("day", old.clone())?;
-                    let id = register_date(true)?.0;
-                    let (peer_id, _, _) = state.register_widget(
-                        WidgetSpec {
-                            kind: "checkbox",
-                            key: Some("peer"),
-                            disabled: false,
-                            query: None,
-                            identity: "stable",
-                            default: Value::Bool(false),
-                            codec: Codec::Bool,
-                            callback: Some(Arc::new(|_| {})),
-                        },
-                        |value| Ok(value.clone()),
-                    )?;
-                    state.finish_widgets();
-                    let mut incoming = vec![
-                        WidgetState {
-                            id: id.clone(),
-                            value: Some(widget_state::Value::JsonValue(text.into())),
-                        },
-                        WidgetState {
-                            id: peer_id,
-                            value: Some(widget_state::Value::BoolValue(true)),
-                        },
-                    ];
-                    if peer_first {
-                        incoming.reverse();
+                        )?;
+                        state.finish_widgets();
+                        let mut incoming = vec![
+                            WidgetState {
+                                id: id.clone(),
+                                value: Some(widget_state::Value::JsonValue(text.into())),
+                            },
+                            WidgetState {
+                                id: peer_id,
+                                value: Some(widget_state::Value::BoolValue(true)),
+                            },
+                        ];
+                        if peer_first {
+                            incoming.reverse();
+                        }
+
+                        // 1. 同伴 callback 只读取 JSON 反序列化值；禁用日期自身不回调。
+                        assert_eq!(state.begin_widgets(incoming).len(), if disabled { 1 } else { 2 });
+                        assert!(state.widget_input_error().is_none());
+                        let decoded = expected.map_or(default.clone(), native);
+                        assert_eq!(state.get::<Value>("day")?, Some(decoded.clone()), "{text}");
+
+                        // 2. 禁用登记恢复原生旧值并同步一次，后续无输入不重复同步。
+                        let saved = if disabled { old.clone() } else { decoded };
+                        let (_, value, sync) = register_date(disabled)?;
+                        assert_eq!(value, saved);
+                        assert!(sync == disabled && state.take_registration_error().is_none());
+                        state.finish_widgets();
+                        assert!(state.begin_widgets(Vec::new()).is_empty());
+                        let (_, value, sync) = register_date(disabled)?;
+                        assert_eq!(value, saved);
+                        assert!(!sync);
+                        state.finish_widgets();
                     }
-
-                    // 1. 同伴 callback 只读取 JSON 反序列化值；禁用日期自身不回调。
-                    assert_eq!(state.begin_widgets(incoming).len(), 1);
-                    assert!(state.widget_input_error().is_none());
-                    assert_eq!(state.get::<Value>("day")?, Some(expected.map_or(default.clone(), native)), "{text}");
-
-                    // 2. 禁用登记恢复原生旧值并同步一次，后续无输入不重复同步。
-                    let (_, value, sync) = register_date(true)?;
-                    assert_eq!(value, old);
-                    assert!(sync && state.take_registration_error().is_none());
-                    state.finish_widgets();
-                    assert!(state.begin_widgets(Vec::new()).is_empty());
-                    let (_, value, sync) = register_date(true)?;
-                    assert_eq!(value, old);
-                    assert!(!sync);
-                    state.finish_widgets();
                 }
             }
         }
@@ -1588,99 +1599,101 @@ mod tests {
     }
 
     #[test]
-    fn disabled_date_type_errors_suppress_callbacks_and_block_recovery() -> anyhow::Result<()> {
-        let min = NaiveDate::from_ymd_opt(2025, 1, 1).expect("fixture date");
-        let max = NaiveDate::from_ymd_opt(2025, 12, 31).expect("fixture date");
-        for (wire, expected_error) in [
-            (widget_state::Value::BoolValue(true), "'bool' object is not iterable"),
-            (widget_state::Value::BoolValue(false), "'bool' object is not iterable"),
-            (widget_state::Value::TriggerValue(true), "'bool' object is not iterable"),
-            (widget_state::Value::TriggerValue(false), "'bool' object is not iterable"),
-            (widget_state::Value::IntValue(7), "'int' object is not iterable"),
-            (widget_state::Value::DoubleValue(1.5), "'float' object is not iterable"),
-            (widget_state::Value::IntArrayValue(crate::proto::SInt64Array { data: vec![7] }), "strptime() argument 1 must be str, not int"),
-            (widget_state::Value::DoubleArrayValue(crate::proto::DoubleArray { data: vec![1.5] }), "strptime() argument 1 must be str, not float"),
-            (widget_state::Value::BytesValue(vec![b'x']), "strptime() argument 1 must be str, not int"),
-            (widget_state::Value::JsonValue("true".into()), "'bool' object is not iterable"),
-            (widget_state::Value::JsonValue("false".into()), "'bool' object is not iterable"),
-            (widget_state::Value::JsonValue("7".into()), "'int' object is not iterable"),
-            (widget_state::Value::JsonValue("1.5".into()), "'float' object is not iterable"),
-            (widget_state::Value::JsonValue("[7]".into()), "strptime() argument 1 must be str, not int"),
-            (widget_state::Value::JsonValue("[1.5]".into()), "strptime() argument 1 must be str, not float"),
-            (widget_state::Value::JsonValue("[true]".into()), "strptime() argument 1 must be str, not bool"),
-            (widget_state::Value::JsonValue("[null]".into()), "strptime() argument 1 must be str, not None"),
-            (widget_state::Value::JsonValue("[[]]".into()), "strptime() argument 1 must be str, not list"),
-            (widget_state::Value::JsonValue("[{}]".into()), "strptime() argument 1 must be str, not dict"),
-            (widget_state::Value::JsonValue("[\"2025-04-10\",7]".into()), "strptime() argument 1 must be str, not int"),
-            (widget_state::Value::JsonValue("[\"2025-04-10\",true]".into()), "strptime() argument 1 must be str, not bool"),
-        ] {
-            for range in [false, true] {
-                for peer_first in [false, true] {
-                    let state = SessionState::default();
-                    let default = if range { serde_json::json!(["2025-03-15", "2025-03-20"]) } else { serde_json::json!("2025-03-15") };
-                    let (date_id, _, _) = state.register_widget(
-                        WidgetSpec {
-                            kind: "date_input",
-                            key: Some("day"),
-                            disabled: true,
-                            query: None,
-                            identity: "stable",
-                            default: default.clone(),
-                            codec: Codec::DateInput { range, min, max, reset_native: true, default },
-                            callback: Some(Arc::new(|_| {})),
-                        },
-                        |value| Ok(value.clone()),
-                    )?;
-                    let (peer_id, _, _) = state.register_widget(
-                        WidgetSpec {
-                            kind: "checkbox",
-                            key: Some("peer"),
-                            disabled: false,
-                            query: None,
-                            identity: "stable",
-                            default: Value::Bool(false),
-                            codec: Codec::Bool,
-                            callback: Some(Arc::new(|_| {})),
-                        },
-                        |value| Ok(value.clone()),
-                    )?;
-                    state.finish_widgets();
-                    let mut incoming = vec![
-                        WidgetState { id: date_id.clone(), value: Some(wire.clone()) },
-                        WidgetState {
-                            id: peer_id.clone(),
-                            value: Some(widget_state::Value::BoolValue(true)),
-                        },
-                    ];
-                    if peer_first {
-                        incoming.reverse();
+    fn date_type_errors_suppress_callbacks_and_block_recovery_for_both_policies() -> anyhow::Result<()> {
+        for disabled in [false, true] {
+            let min = NaiveDate::from_ymd_opt(2025, 1, 1).expect("fixture date");
+            let max = NaiveDate::from_ymd_opt(2025, 12, 31).expect("fixture date");
+            for (wire, expected_error) in [
+                (widget_state::Value::BoolValue(true), "'bool' object is not iterable"),
+                (widget_state::Value::BoolValue(false), "'bool' object is not iterable"),
+                (widget_state::Value::TriggerValue(true), "'bool' object is not iterable"),
+                (widget_state::Value::TriggerValue(false), "'bool' object is not iterable"),
+                (widget_state::Value::IntValue(7), "'int' object is not iterable"),
+                (widget_state::Value::DoubleValue(1.5), "'float' object is not iterable"),
+                (widget_state::Value::IntArrayValue(crate::proto::SInt64Array { data: vec![7] }), "strptime() argument 1 must be str, not int"),
+                (widget_state::Value::DoubleArrayValue(crate::proto::DoubleArray { data: vec![1.5] }), "strptime() argument 1 must be str, not float"),
+                (widget_state::Value::BytesValue(vec![b'x']), "strptime() argument 1 must be str, not int"),
+                (widget_state::Value::JsonValue("true".into()), "'bool' object is not iterable"),
+                (widget_state::Value::JsonValue("false".into()), "'bool' object is not iterable"),
+                (widget_state::Value::JsonValue("7".into()), "'int' object is not iterable"),
+                (widget_state::Value::JsonValue("1.5".into()), "'float' object is not iterable"),
+                (widget_state::Value::JsonValue("[7]".into()), "strptime() argument 1 must be str, not int"),
+                (widget_state::Value::JsonValue("[1.5]".into()), "strptime() argument 1 must be str, not float"),
+                (widget_state::Value::JsonValue("[true]".into()), "strptime() argument 1 must be str, not bool"),
+                (widget_state::Value::JsonValue("[null]".into()), "strptime() argument 1 must be str, not None"),
+                (widget_state::Value::JsonValue("[[]]".into()), "strptime() argument 1 must be str, not list"),
+                (widget_state::Value::JsonValue("[{}]".into()), "strptime() argument 1 must be str, not dict"),
+                (widget_state::Value::JsonValue("[\"2025-04-10\",7]".into()), "strptime() argument 1 must be str, not int"),
+                (widget_state::Value::JsonValue("[\"2025-04-10\",true]".into()), "strptime() argument 1 must be str, not bool"),
+            ] {
+                for range in [false, true] {
+                    for peer_first in [false, true] {
+                        let state = SessionState::default();
+                        let default = if range { serde_json::json!(["2025-03-15", "2025-03-20"]) } else { serde_json::json!("2025-03-15") };
+                        let (date_id, _, _) = state.register_widget(
+                            WidgetSpec {
+                                kind: "date_input",
+                                key: Some("day"),
+                                disabled,
+                                query: None,
+                                identity: "stable",
+                                default: default.clone(),
+                                codec: Codec::DateInput { range, min, max, reset_native: true, default },
+                                callback: Some(Arc::new(|_| {})),
+                            },
+                            |value| Ok(value.clone()),
+                        )?;
+                        let (peer_id, _, _) = state.register_widget(
+                            WidgetSpec {
+                                kind: "checkbox",
+                                key: Some("peer"),
+                                disabled: false,
+                                query: None,
+                                identity: "stable",
+                                default: Value::Bool(false),
+                                codec: Codec::Bool,
+                                callback: Some(Arc::new(|_| {})),
+                            },
+                            |value| Ok(value.clone()),
+                        )?;
+                        state.finish_widgets();
+                        let mut incoming = vec![
+                            WidgetState { id: date_id.clone(), value: Some(wire.clone()) },
+                            WidgetState {
+                                id: peer_id.clone(),
+                                value: Some(widget_state::Value::BoolValue(true)),
+                            },
+                        ];
+                        if peer_first {
+                            incoming.reverse();
+                        }
+
+                        // 1. 全部变化判断结束前不分派 callback，正常同伴值已接收。
+                        assert!(state.begin_widgets(incoming).is_empty());
+                        assert_eq!(state.widget_input_error().as_deref(), Some(expected_error));
+                        assert_eq!(state.get::<bool>("peer")?, Some(true));
+                        state.finish_widgets();
+
+                        // 2. 原错误持续，正确日期和新的同伴输入也不能恢复该会话。
+                        let dates = if range { vec!["2025-04-10".into(), "2025-04-20".into()] } else { vec!["2025-04-10".into()] };
+                        assert!(
+                            state
+                                .begin_widgets(vec![
+                                    WidgetState {
+                                        id: date_id,
+                                        value: Some(widget_state::Value::StringArrayValue(crate::proto::StringArray { data: dates }))
+                                    },
+                                    WidgetState {
+                                        id: peer_id,
+                                        value: Some(widget_state::Value::BoolValue(false))
+                                    }
+                                ])
+                                .is_empty()
+                        );
+                        assert_eq!(state.widget_input_error().as_deref(), Some(expected_error));
+                        assert_eq!(state.get::<bool>("peer")?, Some(true));
+                        state.finish_widgets();
                     }
-
-                    // 1. 全部变化判断结束前不分派 callback，正常同伴值已接收。
-                    assert!(state.begin_widgets(incoming).is_empty());
-                    assert_eq!(state.widget_input_error().as_deref(), Some(expected_error));
-                    assert_eq!(state.get::<bool>("peer")?, Some(true));
-                    state.finish_widgets();
-
-                    // 2. 原错误持续，正确日期和新的同伴输入也不能恢复该会话。
-                    let dates = if range { vec!["2025-04-10".into(), "2025-04-20".into()] } else { vec!["2025-04-10".into()] };
-                    assert!(
-                        state
-                            .begin_widgets(vec![
-                                WidgetState {
-                                    id: date_id,
-                                    value: Some(widget_state::Value::StringArrayValue(crate::proto::StringArray { data: dates }))
-                                },
-                                WidgetState {
-                                    id: peer_id,
-                                    value: Some(widget_state::Value::BoolValue(false))
-                                }
-                            ])
-                            .is_empty()
-                    );
-                    assert_eq!(state.widget_input_error().as_deref(), Some(expected_error));
-                    assert_eq!(state.get::<bool>("peer")?, Some(true));
-                    state.finish_widgets();
                 }
             }
         }

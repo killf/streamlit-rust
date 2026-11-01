@@ -2901,3 +2901,26 @@ SDK 原始异常栈非空，Rust 框架仍空栈；只在语义比较时排除 e
 矩阵仅追加 st.date_input 本批证据及边界，生成 inventory 仍 130 partial；指南追加实测正常 JSON 行为，保留原字节前缀。空/部分/多端点和原生 None 公开模型、启用 JSON、JSONDecodeError、任意精度/特殊数字、多个坏控件、绑定/表单/跨页与真实错误 UI 等继续开放，M3/M5/M7 与完整 Goal 保持开放。用户 colconfig 等现有修改保留，无 PR、合并、部署或发布。
 
 相关八个 Python 模块 1803 项通过（widget 参数模块 542 项、temporal 271 项）；文档/配置/矩阵三模块 55 项通过。提交前核对完整受保护用户文件 SHA、指南原始字节前缀和新捕获 producer/Rust 来源与暂存 blob 一致。
+
+
+## Current enabled date input admission validation (2026-11-01)
+
+按已选 Python 错误/callback/恢复完整兼容方案，本批生产仅 widgets.rs：将已有 DateInput 提前 TypeError 分类移为私有 codec 方法，在整批验证时允许这些已知错误进入输入处理；接收其他正常输入后保留 input_error，最后清空全部 callback。启用日期不再静默整批拒绝 bool/trigger、int/double、非空数字数组/bytes 与已测 JSON 类型错误，禁用分支复用同一机制；未知类型/其他 codec 仍沿用原规则，没有借此接受差异或扩大公共日期模型。
+
+正常 JSON 的私有解码接入既有 decode_state，启用日期更新 keyed/native 值，所有输入先应用，再按变化和提交顺序执行日期及 Peer callback；登记保留新值、不额外同步，观察轮不回旧值。禁用日期继续使用 before_input 暴露临时值、登记恢复旧值并同步目标。十二个 JSON payload 的 null/字符串/ISO/legacy 数组/非法前缀/越界/反向/有序及重复对象键规则沿用上批实现，没有新增依赖、字段、生产文件、公开 API 或队列规则。
+
+两条既有 Rust registry 序列扩为两种 prior-disabled 策略。提前错误共 21 payload×单值/范围×两种输入顺序×两种策略=168 组合；正常 JSON 共 12×2×2×2=96 组合。真实红分别为启用 bool 错包没有 input_error（target/date-enabled-errors-red.log）和 JSON 正常提交零 callback 而 SDK 有两个（target/date-enabled-normal-red.log）；修后 widgets 22 项通过。SDK 对应 264 个 AppTest 实测通过，提前错误 callback 从未进入、Peer=true 已接收、后续正确输入/Peer=false仍被原错误阻止；正常 JSON 的日期自身 callback 与 Peer 按提交顺序看到相同新值，登记/观察/后续编辑保留正确值，无额外 sync。
+
+三组首次补充原生采集：[raw SDK](../tests/reference/reference-browser/widget-params/date-enabled-errors/trace.json)/[Rust](../tests/browser/rust-widget-params/date-enabled-errors/trace.json) 为 36 会话、144 轮、1044 帧、360 Element、72 TypeError；[JSON 错误 SDK](../tests/reference/reference-browser/widget-params/date-enabled-json-errors/trace.json)/[Rust](../tests/browser/rust-widget-params/date-enabled-json-errors/trace.json) 为 48 会话、192 轮、1392 帧、480 Element、96 TypeError；[正常 JSON SDK](../tests/reference/reference-browser/widget-params/date-enabled-json-normal/trace.json)/[Rust](../tests/browser/rust-widget-params/date-enabled-json-normal/trace.json) 为 48 会话、288 轮、2544 帧、1152 Element。每端合计 132 独立会话、624 轮、4980 帧、1992 Element、168 个预期异常。
+
+采集器在现有错误/正常 JSON 模式增加 date-enabled 变体，每例初始运行后插入 enable-idle 无输入阶段，实际呈现两个 disabled=false 日期，再执行原提交/观察/恢复等阶段；不把“当前轮才启用”误当“上轮已经启用”。复用现有示例与 Python fixture，无应用源码改动。提前错误两轮只有 TypeError；正常 JSON 阶段保留完整四元素报告，总 callback 七条，含输入顺序相反时 Peer 先于日期的两条初次 callback；禁用原例仍五条。所有 finish=0。
+
+严格校验器增加 enabled 分支但保留原禁用 cohort 的精确 case/数量/输入/错误/恢复约束。新增 33 项门，原有与新门共 65 项定向检查通过；校验 raw base64/长度/MessageToDict/元素投影、全部 running/消息顺序、query/attempt/case/history、同例 session/跨例隔离、run 唯一、实际 enable-idle 无输入及 enabled 控件字段、稳定 ID、oneof/原始 JSON/输入顺序/default/bounds/format/布局/策略/sync、所有返回/native/有序 callback 和错误 TypeError/文字/[0,0]/标志/持续性。两类既有 coherent 负例分别扩展到启用 cohort，拒绝错误文案/保存值、错误恢复、错误 callback、路径、过期 ID、oneof、session 泄漏和 false/初始同步破坏。正常 JSON 完整 Element 仅规范化不透明 ID/JSON 文本后匹配，semantic_match=true；错误仍保留 SDK 非空栈、Rust 空栈，只单列 stack_trace 做语义比较，error_semantics_match=true、semantic_match=false，不宣称完整错误 Element/字节或真实 UI 兼容。
+
+同一当前二进制重放禁用 raw 提前错误、JSON 提前错误、正常 JSON、普通字符串错误恢复和正常禁用日期五组，分别 108/144/240/60/12 轮；全部匹配旧冻结 SDK 的完整正常 Element 或除栈外错误语义。新捕获三个 producer、widgets/widget_api 实际 SHA 与示例二进制 SHA 核对通过；source_commit=a4170a0 为启动基线，未提交工作区由 SHA 标识。SDK 51116/61880/60751 和 Rust 8599 服务均 terminate/wait，确认无监听。本批无浏览器操作，旧真实部分范围失败证据和截图保持。
+
+Rust 编辑文件按语义留空、逐段 diff，格式、全工作区/all-target Clippy、widgets 22 项、真实 pickers 两项、示例构建通过，既有 MSVC linker stdout warning 保留。完整工作区仍 347 项通过（340 库、1 ledger、2 宏、4 rustdoc；扩展已有两项测试，不通过拆分参数提高计数），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整全绿。日志 target/date-enabled-{errors-red,normal-red,sdk,widgets,clippy,pickers,build,server,gate,workspace,python,docs}.log。
+
+矩阵仅补 st.date_input 本批证据与边界，生成 inventory 仍 130 partial；指南追加启用策略，不改原字节前缀。启用普通 string_value/string_trigger_value 的登记错误、JSONDecodeError 类型/文案、任意精度/特殊数字、None/空/部分/多端点返回模型、多坏控件混合、绑定/表单/跨页、真实错误 UI 及其他组合继续开放。用户 colconfig 等现有修改保持；M3/M5/M7 与完整 Goal 不关闭，无 PR、合并、部署或发布。
+
+相关八个 Python 模块共 1968 项通过（widget 参数模块 575 项、temporal 403 项），文档/配置/矩阵三模块 55 项通过。提交前再次核对全部受保护用户文件 SHA、指南原始字节前缀及六份新捕获来源与暂存 blob 一致。

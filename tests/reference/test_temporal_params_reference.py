@@ -69,7 +69,8 @@ def test_sdk_disabled_date_strings_run_peer_then_fail_registration_and_recover(t
     ('json_value', '["2025-04-10",true]', 'strptime() argument 1 must be str, not bool')))
 @pytest.mark.parametrize("range_mode", (False,True))
 @pytest.mark.parametrize("peer_first", (False,True))
-def test_sdk_disabled_date_type_errors_precede_callbacks_and_block_recovery(kind,value,error,range_mode,peer_first):
+@pytest.mark.parametrize("disabled",(False,True))
+def test_sdk_date_type_errors_precede_callbacks_and_block_recovery(kind,value,error,range_mode,peer_first,disabled):
     from streamlit.testing.v1 import AppTest
     from streamlit.proto.WidgetStates_pb2 import WidgetStates
 
@@ -78,7 +79,7 @@ import streamlit as st
 from datetime import date
 if 'calls' not in st.session_state:st.session_state.calls=[]
 def changed(source):st.session_state.calls.append(source)
-st.date_input('Day',value='''+('(date(2025,3,15),date(2025,3,20))' if range_mode else 'date(2025,3,15)')+''',key='day',disabled=True,on_change=changed,args=('day',))
+st.date_input('Day',value='''+('(date(2025,3,15),date(2025,3,20))' if range_mode else 'date(2025,3,15)')+''',key='day',disabled='''+repr(disabled)+''',on_change=changed,args=('day',))
 st.checkbox('Peer',key='peer',on_change=changed,args=('peer',))
 ''').run()
     assert not app.exception
@@ -1054,7 +1055,8 @@ DATE_JSON_NORMAL = {
 @pytest.mark.parametrize('text,decoded',DATE_JSON_NORMAL.items())
 @pytest.mark.parametrize('target',('Single','Range'))
 @pytest.mark.parametrize('peer_first',(False,True))
-def test_sdk_disabled_date_json_exposes_normalized_value_then_restores_old_native(text,decoded,target,peer_first):
+@pytest.mark.parametrize("disabled",(False,True))
+def test_sdk_date_json_normalized_values_follow_registered_policy(text,decoded,target,peer_first,disabled):
     from streamlit.testing.v1 import AppTest
     from streamlit.proto.WidgetStates_pb2 import WidgetStates
 
@@ -1063,18 +1065,21 @@ def test_sdk_disabled_date_json_exposes_normalized_value_then_restores_old_nativ
     ids={w.label:w.id for w in (*app.date_input,*app.checkbox)}
     old=['2025-10-01',['2025-10-10','2025-10-20'],True]
     exposed=list(old);exposed[0 if target=='Single' else 1]=(decoded[0] if target=='Single' else decoded) if decoded is not None else ('2025-03-15' if target=='Single' else ['2025-03-15','2025-03-20'])
-    calls=[['peer',*exposed]]
+    if not disabled:
+        app.query_params['phase']='enabled-joint';app._run(WidgetStates());assert not app.exception
+    calls=[[source,*exposed] for source in (('peer',) if disabled else (('peer',target.lower()) if peer_first else (target.lower(),'peer')))]
+    if not disabled:old=exposed
     incoming=WidgetStates()
     for label in (('Peer',target) if peer_first else (target,'Peer')):
         widget=incoming.widgets.add(id=ids[label])
         if label=='Peer':widget.bool_value=True
         else:widget.json_value=text
-    app.query_params['phase']='disabled-load';app._run(incoming)
+    app.query_params['phase']='disabled-load' if disabled else 'enabled-joint';app._run(incoming)
     assert not app.exception
-    assert json.loads(app.json[0].value)=={'phase':'disabled-load','values':old,'native':old,'calls':calls}
+    assert json.loads(app.json[0].value)=={'phase':'disabled-load' if disabled else 'enabled-joint','values':old,'native':old,'calls':calls}
     for widget in app.date_input:
-        assert widget.proto.set_value is (widget.label==target)
-        assert list(widget.proto.value)==((['2025-10-01'] if target=='Single' else ['2025-10-10','2025-10-20']) if widget.label==target else [])
+        assert widget.proto.set_value is (disabled and widget.label==target)
+        assert list(widget.proto.value)==((['2025-10-01'] if target=='Single' else ['2025-10-10','2025-10-20']) if disabled and widget.label==target else [])
     for attempt in ('observe','enable','edit'):
         incoming=WidgetStates();peer=attempt=='enable'
         if attempt!='observe':
@@ -1083,9 +1088,9 @@ def test_sdk_disabled_date_json_exposes_normalized_value_then_restores_old_nativ
             old[0 if target=='Single' else 1]=dates[0] if target=='Single' else dates
             app.query_params['phase']='enabled-joint'
         old[2]=peer;incoming.widgets.add(id=ids['Peer']).bool_value=peer
-        calls += [[source,*old] for source in ((target.lower(),'peer') if attempt=='edit' else ('peer',))]
+        calls += [[source,*old] for source in ((target.lower(),'peer') if attempt=='edit' or not disabled and attempt=='enable' else ('peer',))]
         app._run(incoming)
         assert not app.exception
-        assert json.loads(app.json[0].value)=={'phase':'disabled-load' if attempt=='observe' else 'enabled-joint','values':old,'native':old,'calls':calls}
+        assert json.loads(app.json[0].value)=={'phase':'disabled-load' if disabled and attempt=='observe' else 'enabled-joint','values':old,'native':old,'calls':calls}
         assert all(not w.proto.set_value for w in app.date_input)
         assert {w.label:w.id for w in (*app.date_input,*app.checkbox)}==ids
