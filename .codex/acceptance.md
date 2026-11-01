@@ -3261,3 +3261,24 @@ SDK 新增 176 项重放通过，共 1408 轮公开 AppTest（target/bool-disabl
 最终工作区 369 项通过（362 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿（target/json-input-errors-workspace.log）。相关 SDK/文档共 446 项：293 语法+96 生命周期+2 优先级+55 文档/配置/矩阵（target/json-input-errors-python.log、target/json-input-errors-priority-python.log、target/json-input-errors-docs.log）。
 
 原参考十八字段逐值未变，九个受保护用户文件 SHA 不变；仅 checkbox/toggle/text_input 矩阵及生成清单补证，仍 130 partial。逐文件 diff/git diff --check 和三份 Rust 最终格式检查通过，最后只补字段/阶段说明与语义空行，不无故重复无行为变化的 Cargo。只暂存本批十个既有代码/测试/参考/计划/矩阵文件，不纳入用户 Cargo、colconfig、指南/README 修改。无 PR、合并、发布或部署，完整目标继续开放。
+
+
+## Current repeated widget ID validation 2026-11-01
+
+用户已选择完整兼容错误方案 1：保留 Python 的错误、已执行 callback 和后续恢复；未将坏输入静默忽略或整批拒绝。本批接续已注册 JSON 通道，核查同一请求中重复 WidgetState ID，未更改跨请求队列合并或 trigger OR 策略。
+
+SDK 1.66.1 / Python 3.14.7 的公开 AppTest 接收原始重复 WidgetStates：最后一个完整包（包括缺少 value oneof）覆盖同 ID 的旧包，首次出现位置决定 callback 和首轮错误顺序。四个 checkbox/toggle 默认 × 十二种覆盖对 × 四种 peer/目标布局共 192 案，另有八案覆盖 peer 的坏 JSON、八案双最终 JSON 错误、四案未知普通 ID，共 212 案/848 轮（初始、提交、空重跑、修复）。168 案初次提交正常，40 案 JSONDecodeError，四案 KeyError；全部保留在既有 widget-params/trace.json 的 widget_duplicates_reference，未删除失败类别。
+
+临时 SDK 采集器曾直接保留可变 callback 列表，导致四个未知 ID 案的早期日志被修复轮次回写；改为逐阶段深拷贝后重新完整采集。初始未修正日志 target/widget-duplicates-sdk.log 与修正日志 target/widget-duplicates-sdk-corrected.log 均保留，不使用旧列表作验收。第二独立进程重跑十二个错误案（target/widget-duplicates-probe-second.log），证实八个双最终 JSON 错误案的首轮顺序稳定，后续 _compact_state 遍历 Python set 可选择任一未解码 JSON 错误。参考保留两进程的八组错误序列；重放仅在这些案的后续两轮允许两个实际消息，首轮仍精确核对，不宣称跨进程确定性或与某一 Python hash seed 一致。
+
+Rust begin_widgets 先按首次槽位合并重复 ID，后执行既有校验、输入应用和 callback 判断。修前单元在已被合法 bool 覆盖的坏 JSON 处失败（target/widget-duplicates-red.log）；修后保留两次 callback 的原顺序，并验证 ID-only 覆盖回既有默认。新增单元曾漏掉主函数重新登记，导致 finish_widgets 正常清理记录；纠正测试生命周期后 30 项控件单元通过（target/widget-duplicates-unit-final.log），此前失败日志 target/widget-duplicates-unit.log 保留。
+
+未知非 $$ID/内部前缀的普通 ID 无 metadata，SDK 文本控件 filtered_state 读取会抛 KeyError。四案中 callback 已执行，四个 Bool 元素已输出，文本和最终报告未输出；空重跑及合法修复仍报该错，修复轮新增 callback 继续保留。私有 registry 保留这些未知 key，文本登记复用已有 RegistrationError 通道并携带 kind/message；既有日期/禁用选择错误仍为 TypeError，没有新增公共 API、依赖或项目文件。实际 WS 对照四项异常字段、存储中的 callback 日志、稳定 session ID、正常完整控件 ID 及报错时部分控件，212 个 socket/848 轮通过；同批旧 JSON/布尔/禁用生命周期在内的十项控件集成通过（target/widget-duplicates-runtime.log）。
+
+代码检查 cargo check --offline --locked -p streamlit --lib --tests 通过（target/widget-duplicates-check-final.log）；SDK 新增 212 项重放通过（target/widget-duplicates-python.log），不称整个 widget-params 模块全量重跑。独立观察守卫另行执行；后续工作区/文档检查记录见下。
+
+局限：实际按钮触发器（本批 trigger oneof 仅提交给 Bool）、迟到登记、其他 codec/禁用/查询/表单/跨页组合、多个未知 key 的错误顺序、任意别名及外部状态恢复、完整异常堆栈/完整 Element protobuf 和浏览器 UI 均未完成。未知 ID 生命周期只覆盖此 AppTest/原生 WS 场景；不据此宣布通用 SessionState 映射完成。矩阵仅补 checkbox/toggle/text_input 与生成清单，仍 130 partial；M3/M5/M7 和完整 Goal 保持开放。受保护 colconfig_params/Cargo/指南/README 用户修改不纳入本批提交，无 PR、合并、部署或发布。
+
+最终工作区 371 项通过（364 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿（target/widget-duplicates-workspace.log）。本批相关 SDK/文档共 268 项：212 SDK 重放、1 独立进程观察守卫、55 文档/配置/矩阵（target/widget-duplicates-python.log、target/widget-duplicates-observations-python.log、target/widget-duplicates-docs.log）。原参考十九字段逐值未变，九个受保护用户文件 SHA 与启动快照一致；三份 Rust 格式检查和逐文件 diff/git diff --check 通过。仅暂存本批十个既有文件，完整 Goal 继续开放。
+
+最终本包 lib/tests Clippy -D warnings 通过（target/widget-duplicates-clippy.log），仍有既有 MSVC linker_messages 输出，其 lint 明示不受 -D warnings 控制；不称零告警。未因纯验证记录追加重复 Cargo/SDK 测试。

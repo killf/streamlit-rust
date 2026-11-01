@@ -296,6 +296,109 @@ async fn boolean_wire_coercion_callbacks_and_recovery_match_sdk_over_ws() -> Tes
 }
 
 #[actix_web::test]
+async fn repeated_widget_ids_callbacks_errors_and_recovery_match_sdk_over_ws() -> TestResult {
+    let reference: Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/widget-params/trace.json"))?;
+    let cases = reference["widget_duplicates_reference"]["cases"].as_array().ok_or("duplicate cases")?;
+    assert_eq!(cases.len(), 212);
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let configuration = StreamlitServer::new(bool_coercion_entry, "127.0.0.1".into(), 0);
+    let store = configuration.sessions.clone();
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(configuration.clone())).configure(configure_routes)).workers(1).listen(listener)?.run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+
+    // 1. 真实 socket 执行原始重复包、空重跑及修复；结束后再断言，确保清理服务器。
+    let captured = tokio::time::timeout(Duration::from_secs(60), async {
+        let mut runs = Vec::new();
+        for case in cases {
+            let mut socket = sessions::connect(address, None).await;
+            let initial = rerun(&mut socket, vec![]).await?;
+            let state = store.state_for_upload(&initial.id).ok_or("session state")?;
+            let mut reports = Vec::new();
+            for phase in ["submit", "repeat", "repair"] {
+                let incoming = if phase == "submit" {
+                    case["packet"]
+                        .as_array()
+                        .ok_or("packet")?
+                        .iter()
+                        .map(|entry| {
+                            let bytes = serde_json::from_value::<Vec<u8>>(entry["bytes"].clone())?;
+                            let mut widget = WidgetState::decode(bytes.as_slice())?;
+                            let key = entry["key"].as_str().ok_or("key")?;
+                            widget.id = initial.inputs.get(key).cloned().unwrap_or_else(|| key.into());
+                            Ok::<_, Box<dyn std::error::Error>>(widget)
+                        })
+                        .collect::<Result<Vec<_>, _>>()?
+                } else if phase == "repair" {
+                    let key = case["key"].as_str().ok_or("key")?;
+                    vec![
+                        WidgetState {
+                            id: initial.inputs[key].clone(),
+                            value: Some(widget_state::Value::BoolValue(key.ends_with('0'))),
+                        },
+                        WidgetState {
+                            id: initial.inputs["peer"].clone(),
+                            value: Some(widget_state::Value::StringValue("repair".into())),
+                        },
+                    ]
+                } else {
+                    vec![]
+                };
+                let report = rerun(&mut socket, incoming).await?;
+                let calls = state.get::<Value>("bool_calls")?.unwrap_or_else(|| json!([]));
+                reports.push((report, calls));
+            }
+            sessions::disconnect(socket).await;
+            runs.push((initial, reports));
+        }
+        Ok::<_, Box<dyn std::error::Error>>(runs)
+    })
+    .await;
+    handle.stop(false).await;
+    task.await??;
+    let runs = captured??;
+
+    // 2. 同时核对正常返回、首错/后续集合顺序允许项、实际 callback 日志和部分输出。
+    assert_eq!(runs.len(), cases.len());
+    for ((initial, reports), case) in runs.into_iter().zip(cases) {
+        assert_eq!(initial.inputs.len(), 5);
+        let expected = case["expected"].as_array().ok_or("expected")?;
+        assert_eq!(reports.len(), expected.len());
+        for (index, ((report, calls), expected)) in reports.into_iter().zip(expected).enumerate() {
+            assert_eq!(report.id, initial.id);
+            if expected["accepted"] == true {
+                assert_eq!(report.inputs, initial.inputs);
+                assert_eq!(report.values, expected["report"], "{} phase {index}", case["name"]);
+                assert_eq!(calls, expected["report"]["calls"]);
+            } else {
+                assert!(report.values.is_null());
+                assert_eq!(report.exceptions.len(), 1, "{} phase {index}", case["name"]);
+                let error = &report.exceptions[0];
+                assert_eq!(error.r#type, expected["error_type"], "{} phase {index}", case["name"]);
+                if index > 0
+                    && let Some(permitted) = case["later_error_messages"].as_array()
+                {
+                    assert!(permitted.iter().any(|message| message == &error.message), "{} phase {index}: {}", case["name"], error.message);
+                } else {
+                    assert_eq!(error.message, expected["error"], "{} phase {index}", case["name"]);
+                }
+                assert_eq!(error.message_is_markdown, expected["message_is_markdown"]);
+                assert_eq!(error.is_streamlit_exception, expected["is_streamlit_exception"]);
+                assert_eq!(calls, expected["calls"], "{} phase {index}", case["name"]);
+                let controls = expected["rendered_controls"].as_array().ok_or("rendered controls")?;
+                assert_eq!(report.inputs.len(), controls.len());
+                for key in controls {
+                    let key = key.as_str().ok_or("control key")?;
+                    assert_eq!(report.inputs.get(key), initial.inputs.get(key));
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+#[actix_web::test]
 async fn disabled_boolean_callbacks_and_lifecycle_match_sdk_over_ws() -> TestResult {
     assert_boolean_reference("bool_disabled_reference", true).await
 }

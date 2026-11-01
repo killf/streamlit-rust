@@ -19,6 +19,61 @@ BOOL_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-si
 BOOL_DISABLED_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['bool_disabled_reference']
 BOOL_JSON_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['bool_json_reference']
 JSON_ERRORS_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['json_input_errors_reference']
+WIDGET_DUPLICATES_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['widget_duplicates_reference']
+
+
+def test_sdk_repeated_id_compaction_order_has_independent_observations():
+    cases = {case['name']: case for case in WIDGET_DUPLICATES_REFERENCE['cases'] if 'later_error_messages' in case}
+    observations = WIDGET_DUPLICATES_REFERENCE['compaction_order_observations']
+    assert len(cases) == len(observations) == 8
+    changed = False
+    for item in observations:
+        case = cases[item['name']]
+        first, second = item['independent_process_error_messages']
+        assert len(first) == len(second) == 3
+        assert first[0] == second[0] == case['expected'][0]['error']
+        assert set(first[1:] + second[1:]) <= set(case['later_error_messages'])
+        changed |= first != second
+    assert changed
+
+
+@pytest.mark.parametrize('case', WIDGET_DUPLICATES_REFERENCE['cases'], ids=lambda case: case['name'])
+def test_sdk_repeated_widget_ids_last_payload_first_position_and_errors(case):
+    import copy
+    import importlib.metadata
+    from streamlit.proto.WidgetStates_pb2 import WidgetState, WidgetStates
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version('streamlit') == WIDGET_DUPLICATES_REFERENCE['reference_version'] == '1.66.1'
+    assert len(WIDGET_DUPLICATES_REFERENCE['cases']) == 212
+    app = AppTest.from_string(WIDGET_DUPLICATES_REFERENCE['source']).run()
+    assert not app.exception
+    identities = {item.label: item.id for kind in ('checkbox', 'toggle', 'text_input') for item in app.get(kind)}
+    assert len(identities) == 5
+    for index, (phase, expected) in enumerate(zip(('submit', 'repeat', 'repair'), case['expected'], strict=True)):
+        raw = WidgetStates()
+        if phase == 'submit':
+            for entry in case['packet']:
+                widget = WidgetState.FromString(bytes(entry['bytes']))
+                assert not widget.id
+                widget.id = identities.get(entry['key'], entry['key'])
+                raw.widgets.add().CopyFrom(widget)
+        elif phase == 'repair':
+            raw.widgets.add(id=identities[case['key']], bool_value=case['key'].endswith('0'))
+            raw.widgets.add(id=identities['peer'], string_value='repair')
+        app._run(raw)
+        if expected['accepted']:
+            assert not app.exception and json.loads(app.json[0].value) == expected['report']
+            assert {item.label: item.id for kind in ('checkbox', 'toggle', 'text_input') for item in app.get(kind)} == identities
+        else:
+            assert len(app.exception) == 1 and not app.json
+            error = app.exception[0].proto
+            assert (error.type, error.message_is_markdown, error.is_streamlit_exception) == (
+                expected['error_type'], expected['message_is_markdown'], expected['is_streamlit_exception'])
+            permitted = case['later_error_messages'] if index and 'later_error_messages' in case else [expected['error']]
+            assert error.message in permitted
+            assert copy.deepcopy(app.session_state['calls']) == expected['calls']
+            assert [item.label for kind in ('checkbox', 'toggle', 'text_input') for item in app.get(kind)] == expected['rendered_controls']
 
 
 @pytest.mark.parametrize('case', JSON_ERRORS_REFERENCE['priority_cases'])

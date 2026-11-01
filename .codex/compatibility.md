@@ -4,6 +4,8 @@ Streamlit runtime compatibility is pinned to 1.66.1. The historical API matrix c
 
 ## Long-term documentation scope
 
+2026-11-01 重复输入 ID：最后完整 WidgetState 在首次 ID 位置生效，覆盖 ID-only/坏 JSON 后再判断 callback 和错误。SDK/原生 WS 各 212 案/848 轮保留返回值、有序日志、原会话异常与部分输出；未知普通 ID 在文本登记报 KeyError，不能清空已执行 callback。两个最终 JSON 错误的后续 compaction 遍历允许独立进程已观察到的任一错误，仅首轮顺序确定。见[验收](acceptance.md#current-repeated-widget-id-validation-2026-11-01)，没有完整 codec/别名/队列/UI 兼容结论。
+
 2026-11-01 已注册 JSON 输入语法错误：JSONDecodeError 按 SDK 字符位置和文案渲染，错误前不分派本轮 callback，正常 Peer 输入保留；已测空/合法修复包仍重复原错，新会话恢复。293 语法与 96 公开场景、原生 WS 768 轮保留；迟到/未知控件和语义/资源/UI 等继续开放，见[验收](acceptance.md#current-registered-json-input-error-validation-2026-11-01)。
 
 2026-11-01 Bool 的 JSON 输入：NaN/Infinity、超大和下溢数字、嵌套值和转义代理字符串按已测 SDK 真值处理；172 案/688 轮公开 AppTest 与原生 WS 报告对照，32 项非法语法保持拒绝。专用路径只计算 Bool，不改通用 JSON 模型；框架错误流程、任意限制和浏览器仍开放，见[验收](acceptance.md#current-boolean-json-truthiness-validation-2026-11-01)。

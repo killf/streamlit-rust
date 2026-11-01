@@ -1061,6 +1061,10 @@ pub(crate) struct WidgetRegistry {
     /// Submitted IDs determine frontend/URL priority independently of decoding.
     received: HashSet<String>,
 
+    /// 无 metadata 的普通 ID 在 SDK filtered_state 中仍作为用户 key 读取。
+    /// 保留跨请求错误；生成控件 ID 和内部 key 不进入该视图。
+    unknown_keys: Vec<String>,
+
     /// Registration failure stops rendering without pruning unseen widgets.
     registration_error: Option<RegistrationError>,
 
@@ -1086,7 +1090,8 @@ impl WidgetInputError {
 
 #[derive(Clone)]
 struct RegistrationError {
-    message: String,
+    error: WidgetInputError,
+
     rendered: bool,
 }
 
@@ -1177,6 +1182,19 @@ impl SessionState {
         registry.pending.clear();
         registry.received.clear();
 
+        // 2. 同批重复 ID 使用最后一个完整包，保留首次位置决定 callback/首错顺序。
+        let mut positions = HashMap::new();
+        let mut merged = Vec::with_capacity(incoming.len());
+        for widget in incoming {
+            if let Some(&position) = positions.get(&widget.id) {
+                merged[position] = widget;
+            } else {
+                positions.insert(widget.id.clone(), merged.len());
+                merged.push(widget);
+            }
+        }
+        let incoming = merged;
+
         let mut values = self.values.lock();
         for record in registry.records.values_mut() {
             record.before_input = None;
@@ -1190,7 +1208,7 @@ impl SessionState {
             }
         }
         let mut callbacks = Vec::new();
-        // 2. 已知解析错误交由有序应用阶段锁存；其他非法输入沿用原校验。
+        // 3. 已知解析错误交由有序应用阶段锁存；其他非法输入沿用原校验。
         let errors: Vec<_> = incoming.iter().map(|widget| registry.records.get(&widget.id).and_then(|record| record.codec.input_error(widget.value.as_ref()))).collect();
         if incoming.iter().zip(&errors).any(|(widget, error)| {
             registry
@@ -1201,11 +1219,9 @@ impl SessionState {
             return callbacks;
         }
 
-        // 3. 应用输入并收集 callback，完成全部变化判断后再交给调用方执行。
+        // 4. 应用输入并收集 callback，完成全部变化判断后再交给调用方执行。
         for (widget, error) in incoming.into_iter().zip(errors) {
-            if !registry.received.insert(widget.id.clone()) {
-                continue;
-            }
+            registry.received.insert(widget.id.clone());
             // 已知解析错误按输入顺序锁存；仍接收正常同批值，统一阻止 callback。
             if let Some(error) = error {
                 registry.input_error.get_or_insert(error);
@@ -1229,6 +1245,10 @@ impl SessionState {
             }
 
             if registry.records.get(&widget.id).is_none_or(|record| record.disabled) {
+                if !registry.records.contains_key(&widget.id) && !widget.id.starts_with("$$ID") && !widget.id.starts_with("$$STREAMLIT_INTERNAL_KEY") && !registry.unknown_keys.contains(&widget.id) {
+                    registry.unknown_keys.push(widget.id.clone());
+                }
+
                 if registry.records.get(&widget.id).is_some_and(|record| record.disabled && matches!(record.codec, Codec::Select(_))) {
                     let unhashable_type = match widget.value.as_ref() {
                         Some(widget_state::Value::StringArrayValue(_) | widget_state::Value::IntArrayValue(_) | widget_state::Value::DoubleArrayValue(_)) => Some("google._upb._message.RepeatedScalarContainer"),
@@ -1273,7 +1293,7 @@ impl SessionState {
         }
 
         if registry.input_error.is_some() {
-            // 4. 解码失败使变化判断中止，本轮 callback 尚未分派。
+            // 5. 解码失败使变化判断中止，本轮 callback 尚未分派。
             callbacks.clear();
         }
 
@@ -1326,6 +1346,20 @@ impl SessionState {
             return Ok((String::new(), resolve(&default)?, false));
         }
 
+        // 文本控件读取 filtered_state 时，未知普通 ID 缺 metadata，callback 已执行。
+        if matches!(kind, "text_input" | "text_area")
+            && let Some(key) = registry.unknown_keys.iter().find(|key| !registry.records.contains_key(*key) && !self.values.lock().contains_key(*key))
+        {
+            let message = crate::utils::python_error_value(&format!(
+                "st.session_state has no key \"{key}\". Did you forget to initialize it? More info: https://docs.streamlit.io/develop/concepts/architecture/session-state#initialization"
+            ));
+            registry.registration_error = Some(RegistrationError {
+                error: WidgetInputError { kind: "KeyError", message: message.clone() },
+                rendered: false,
+            });
+            return Err(WidgetError::InvalidValue(message));
+        }
+
         // 禁用选择控件的错误包和日期字符串包在 URL 初始化前重新序列化；不同 wire 类型
         // 产生各自的 Python TypeError，此时其他控件 callback 已执行。
         let scalar_error = if registry.records.get(&id).is_some_and(|record| record.disabled || matches!(codec, Codec::DateInput { .. })) {
@@ -1341,7 +1375,10 @@ impl SessionState {
         };
         if let Some(message) = scalar_error {
             let message = message.to_owned();
-            registry.registration_error = Some(RegistrationError { message: message.clone(), rendered: false });
+            registry.registration_error = Some(RegistrationError {
+                error: WidgetInputError::type_error(message.clone()),
+                rendered: false,
+            });
             return Err(WidgetError::InvalidValue(message));
         }
 
@@ -1564,14 +1601,14 @@ impl SessionState {
         Ok((id, resolved, set_value))
     }
 
-    pub(crate) fn take_registration_error(&self) -> Option<String> {
+    pub(crate) fn take_registration_error(&self) -> Option<WidgetInputError> {
         let mut registry = self.widgets.lock();
         let error = registry.registration_error.as_mut()?;
         if error.rendered {
             return None;
         }
         error.rendered = true;
-        Some(error.message.clone())
+        Some(error.error.clone())
     }
 
     pub(crate) fn set_query_binding(&self, id: &str, bound: bool) {
@@ -1644,6 +1681,67 @@ impl SessionState {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn repeated_widget_ids_use_last_payload_before_validation() -> anyhow::Result<()> {
+        let state = SessionState::default();
+        let callback: WidgetCallback = Arc::new(|_| {});
+        let register = |key: &'static str, callback: WidgetCallback| {
+            state.register_widget(
+                WidgetSpec {
+                    kind: "checkbox",
+                    key: Some(key),
+                    disabled: false,
+                    query: None,
+                    identity: "stable",
+                    default: Value::Bool(false),
+                    codec: Codec::Bool,
+                    callback: Some(callback),
+                },
+                |value| Ok(value.clone()),
+            )
+        };
+        let first = register("first", callback.clone())?.0;
+        let peer_callback: WidgetCallback = Arc::new(|_| {});
+        let peer = register("peer", peer_callback.clone())?.0;
+        state.finish_widgets();
+
+        // 首次 ID 位置决定顺序；最终完整包覆盖此前坏 JSON。
+        let callbacks = state.begin_widgets(vec![
+            WidgetState {
+                id: first.clone(),
+                value: Some(widget_state::Value::JsonValue("{".into())),
+            },
+            WidgetState {
+                id: peer,
+                value: Some(widget_state::Value::BoolValue(true)),
+            },
+            WidgetState {
+                id: first.clone(),
+                value: Some(widget_state::Value::BoolValue(true)),
+            },
+        ]);
+        assert!(state.widget_input_error().is_none());
+        assert_eq!(state.get::<bool>("first")?, Some(true));
+        assert_eq!(callbacks.len(), 2);
+        assert!(Arc::ptr_eq(&callbacks[0], &callback));
+        assert!(Arc::ptr_eq(&callbacks[1], &peer_callback));
+        register("first", callback)?;
+        register("peer", peer_callback)?;
+        state.finish_widgets();
+
+        // ID-only 也覆盖整个包，按已有缺省解码回默认值。
+        let callbacks = state.begin_widgets(vec![
+            WidgetState {
+                id: first.clone(),
+                value: Some(widget_state::Value::BoolValue(true)),
+            },
+            WidgetState { id: first, value: None },
+        ]);
+        assert_eq!(state.get::<bool>("first")?, Some(false));
+        assert_eq!(callbacks.len(), 1);
+        Ok(())
+    }
+
     #[test]
     fn first_json_or_select_error_matches_sdk_input_order() -> anyhow::Result<()> {
         let reference: Value = serde_json::from_str(include_str!("../../tests/reference/reference-browser/widget-params/trace.json"))?;
@@ -2010,7 +2108,7 @@ mod tests {
                         assert!(state.widget_input_error().is_none());
                         assert_eq!(state.get::<Value>("day")?, Some(default.clone()));
                         assert!(register_date(disabled).is_err());
-                        assert_eq!(state.take_registration_error().as_deref(), Some("bad argument type for built-in operation"));
+                        assert_eq!(state.take_registration_error().as_ref().map(|error| error.message.as_str()), Some("bad argument type for built-in operation"));
                         state.finish_widgets();
 
                         // 2. 登记错误可恢复，临时默认成为保存值，不复活旧 October 值。
@@ -2657,7 +2755,7 @@ mod tests {
             ]);
             assert_eq!(callbacks.len(), 1);
             assert!(select().is_err());
-            assert_eq!(state.take_registration_error().as_deref(), Some(expected_error));
+            assert_eq!(state.take_registration_error().as_ref().map(|error| error.message.as_str()), Some(expected_error));
             assert!(state.take_registration_error().is_none());
             state.finish_widgets();
 

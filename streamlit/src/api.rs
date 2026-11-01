@@ -71,8 +71,8 @@ pub(crate) trait AppendChild {
                 Ok((String::new(), value, false))
             }
             Err(other) => {
-                if let Some(message) = state.take_registration_error() {
-                    self.push(Rc::new(RefCell::new(crate::elements::exception::AppException::new("TypeError".into(), message, Vec::new()))));
+                if let Some(error) = state.take_registration_error() {
+                    self.push(Rc::new(RefCell::new(crate::elements::exception::AppException::new(error.kind.into(), error.message, Vec::new()))));
                     state.set_run_control(crate::session::RunControl::Stop);
                     return Ok((String::new(), resolve(&default)?, false));
                 }
@@ -96,8 +96,8 @@ pub(crate) trait AppendChild {
                 Ok((String::new(), value, false))
             }
             Err(other) => {
-                if let Some(message) = state.take_registration_error() {
-                    self.push(Rc::new(RefCell::new(crate::elements::exception::AppException::new("TypeError".into(), message, Vec::new()))));
+                if let Some(error) = state.take_registration_error() {
+                    self.push(Rc::new(RefCell::new(crate::elements::exception::AppException::new(error.kind.into(), error.message, Vec::new()))));
                     state.set_run_control(crate::session::RunControl::Stop);
                     return Ok((String::new(), resolve(&default)?, false));
                 }
