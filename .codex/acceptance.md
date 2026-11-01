@@ -2752,3 +2752,5 @@ widgets.rs 删除单值/范围重复解析，共用现有单日期 ISO/legacy �
 
 矩阵只更新 st.date_input 的本批证据和 limitation，生成 inventory 仍 130 partial；指南追加显式边界模式切换语义并保留原 CRLF 字节前缀。本批无新浏览器采集；隐式边界跨模式、None/部分/多端点公开模型、前端错 oneof、禁用/ignore、query binding、表单/跨页及其他组合继续开放。用户 colconfig 及其他已有修改保留，无 PR、合并、发布或部署；M3/M5/M7 和完整 Goal 保持开放。
 本批相关八模块 1561 项通过（widget 参数 465、temporal 参数 106），文档/配置/矩阵三模块 55 项通过；命令范围与上一批 1541 项一致，新增十一项原生门和九项 SDK 验证。
+
+推送后来源审计补充：采集器工作区为 CRLF，Git 文本规范化提交为 LF，因此原始 producer_sources_sha256 与对应提交 blob 的 SHA 不同。保留全部原始文件字节 SHA 与原始帧，另在两端 date-mode metadata 增加 source_git_blob_commit=1d2f5c2、producer_git_blob_sha256，Rust 同时记录 rust_git_blob_sha256；逐文件验证仅 CRLF→LF 存在差异。生产源文件和二进制实际 SHA 仍与首次采集相符，不将规范化后的 SHA 冒称当时文件字节，不重采或覆盖帧。

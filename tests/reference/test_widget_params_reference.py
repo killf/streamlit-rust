@@ -3918,6 +3918,7 @@ def test_date_mode_explicit_bounds_reset_and_callback_recovery(root):
 def test_date_mode_complete_elements_match_reference():
     captures = [read(root / "date-mode/trace.json") for root in (PYTHON,RUST)]
     assert captures[0]["producer_sources_sha256"] == captures[1]["producer_sources_sha256"] and captures[1]["semantic_match"] is True
+    assert captures[0]["producer_git_blob_sha256"] == captures[1]["producer_git_blob_sha256"] and captures[0]["source_git_blob_commit"] == captures[1]["source_git_blob_commit"]
     assert check_date_mode(captures[0]) == check_date_mode(captures[1])
 
 
