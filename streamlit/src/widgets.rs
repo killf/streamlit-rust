@@ -435,8 +435,8 @@ impl Codec {
             None => empty_input.cloned(),
         }?;
 
-        // 时间的空/无效/越界输入不是强制清空，而是恢复上轮 serde 的有效默认。
-        if matches!(self, Self::TimeInput { .. } | Self::DateTimeInput { .. }) && value.is_null() {
+        // 布尔 null 和时间空/无效/越界输入恢复上轮 serde 默认，不强制清空。
+        if matches!(self, Self::Bool | Self::TimeInput { .. } | Self::DateTimeInput { .. }) && value.is_null() {
             return empty_input.cloned();
         }
 
@@ -455,7 +455,34 @@ impl Codec {
     pub(crate) fn decode(&self, wire: &widget_state::Value) -> Option<Value> {
         match (self, wire) {
             (Self::Trigger, widget_state::Value::TriggerValue(value)) => Some((*value).into()),
-            (Self::Bool, widget_state::Value::BoolValue(value)) => Some((*value).into()),
+            (Self::Bool, wire) => {
+                // 1. SDK 先解包状态，再按 Python bool 转换；None 回声明默认。
+                let value = match wire {
+                    widget_state::Value::BoolValue(value) | widget_state::Value::TriggerValue(value) => *value,
+                    widget_state::Value::IntValue(value) => *value != 0,
+                    widget_state::Value::DoubleValue(value) => *value != 0.0,
+                    widget_state::Value::StringValue(value) | widget_state::Value::JsonTriggerValue(value) => !value.is_empty(),
+
+                    widget_state::Value::StringArrayValue(value) => !value.data.is_empty(),
+                    widget_state::Value::IntArrayValue(value) => !value.data.is_empty(),
+                    widget_state::Value::DoubleArrayValue(value) => !value.data.is_empty(),
+                    widget_state::Value::BytesValue(value) => !value.is_empty(),
+                    widget_state::Value::StringTriggerValue(value) => value.data.as_ref().is_some_and(|value| !value.is_empty()),
+
+                    // 2. 普通 JSON 先解码；消息对象自身始终为真，不能看其 data 是否为空。
+                    widget_state::Value::JsonValue(text) => match serde_json::from_str::<Value>(text).ok()? {
+                        Value::Null => return Some(Value::Null),
+                        Value::Bool(value) => value,
+                        Value::Number(value) => value.as_f64().is_some_and(|value| value != 0.0),
+                        Value::String(value) => !value.is_empty(),
+                        Value::Array(value) => !value.is_empty(),
+                        Value::Object(value) => !value.is_empty(),
+                    },
+                    widget_state::Value::ArrowValue(_) | widget_state::Value::FileUploaderStateValue(_) | widget_state::Value::ChatInputValue(_) => true,
+                };
+
+                Some(Value::Bool(value))
+            }
             (Self::Text { max_chars }, widget_state::Value::StringValue(value)) => Some(Value::String(max_chars.map_or_else(|| value.clone(), |limit| value.chars().take(limit).collect()))),
 
             (Self::Color { default }, widget_state::Value::StringValue(value)) => {
@@ -1062,7 +1089,7 @@ impl SessionState {
         // Text codec 也供 data_editor 使用；文本缺省解码仅限这两类输入控件。
         let empty_input = (matches!(
             codec,
-            Codec::Select(_) | Codec::SelectCreation(_) | Codec::Radio(_) | Codec::Feedback { .. } | Codec::NumberInput { .. } | Codec::TimeInput { .. } | Codec::DateTimeInput { .. } | Codec::DateInput { .. }
+            Codec::Bool | Codec::Select(_) | Codec::SelectCreation(_) | Codec::Radio(_) | Codec::Feedback { .. } | Codec::NumberInput { .. } | Codec::TimeInput { .. } | Codec::DateTimeInput { .. } | Codec::DateInput { .. }
         ) || (matches!(kind, "text_input" | "text_area") && matches!(codec, Codec::Text { .. })))
         .then(|| default.clone());
         let mut registry = self.widgets.lock();
@@ -1388,6 +1415,25 @@ impl SessionState {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn checkbox_and_toggle_coercion_matches_frozen_sdk() -> anyhow::Result<()> {
+        use prost::Message;
+        let reference: Value = serde_json::from_str(include_str!("../../tests/reference/reference-browser/widget-params/trace.json"))?;
+        let cases = reference["bool_coercion_reference"]["cases"].as_array().ok_or_else(|| anyhow::anyhow!("missing bool cases"))?;
+        assert_eq!(cases.len(), 176);
+
+        for case in cases {
+            let key = case["key"].as_str().ok_or_else(|| anyhow::anyhow!("key"))?;
+            let index = ["cb0", "cb1", "tg0", "tg1"].iter().position(|candidate| *candidate == key).ok_or_else(|| anyhow::anyhow!("target"))?;
+            let bytes = serde_json::from_value::<Vec<u8>>(case["input_bytes"].clone())?;
+            let wire = WidgetState::decode(bytes.as_slice())?;
+            let expected = &case["expected"][0]["values"][index];
+            assert_eq!(Codec::Bool.decode_state(&wire, Some(&Value::Bool(key.ends_with('1')))).as_ref(), Some(expected), "{}", case["name"]);
+        }
+
+        Ok(())
+    }
+
     #[test]
     fn temporal_lexical_inputs_match_frozen_sdk_defaults() -> anyhow::Result<()> {
         let reference: Value = serde_json::from_str(include_str!("../../tests/reference/reference-browser/temporal-params/trace.json"))?;

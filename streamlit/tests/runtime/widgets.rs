@@ -87,7 +87,11 @@ async fn rerun(stream: &mut TcpStream, widgets: Vec<WidgetState>) -> TestResult<
                         run.inputs.insert(key.into(), value.id);
                     }
                     Some(element::Type::Checkbox(value)) => {
-                        run.inputs.insert("include".into(), value.id);
+                        let key = if matches!(value.label.as_str(), "cb0" | "cb1" | "tg0" | "tg1") { value.label } else { "include".into() };
+                        run.inputs.insert(key, value.id);
+                    }
+                    Some(element::Type::TextInput(value)) if value.label == "peer" => {
+                        run.inputs.insert("peer".into(), value.id);
                     }
                     Some(element::Type::Button(value)) => {
                         run.inputs.insert("pulse".into(), value.id);
@@ -225,6 +229,100 @@ async fn temporal_lexical_values_and_callbacks_match_sdk_over_real_ws() -> TestR
         assert_eq!(changed.values["calls"], calls, "{}", case["name"]);
         for peer in ["date", "datetime", "minute", "second"].into_iter().filter(|peer| *peer != kind) {
             assert_eq!(changed.values[peer], initial.values[peer], "{}: peer {peer}", case["name"]);
+        }
+    }
+    Ok(())
+}
+
+fn bool_coercion_entry(st: &Streamlit) -> Pin<Box<dyn Future<Output = ()> + '_>> {
+    Box::pin(async move {
+        let result: TestResult = async {
+            let changed = |source: &'static str| {
+                move |st: &Streamlit| {
+                    let state = st.session_state();
+                    let mut calls = state.get::<Vec<Value>>("bool_calls").expect("callback log").unwrap_or_default();
+                    let mut snapshot = vec![Value::from(source)];
+                    for key in ["cb0", "cb1", "tg0", "tg1", "peer"] {
+                        snapshot.push(state.get::<Value>(key).expect("callback value").expect("registered peer"));
+                    }
+                    calls.push(Value::Array(snapshot));
+                    state.set("bool_calls", calls).expect("save callbacks");
+                }
+            };
+            let mut values = Vec::new();
+            for (key, default, toggle) in [("cb0", false, false), ("cb1", true, false), ("tg0", false, true), ("tg1", true, true)] {
+                let value = if toggle {
+                    st.toggle(crate::ToggleOptions::new(key).value(default).key(key).on_change(changed(key)))?
+                } else {
+                    st.checkbox(CheckboxOptions::new(key).value(default).key(key).on_change(changed(key)))?
+                };
+                values.push(Value::Bool(value));
+            }
+            values.push(Value::String(
+                st.text_input(crate::TextInputOptions::new("peer").value("base").key("peer").on_change(changed("peer")))?.ok_or("peer must have a text value")?,
+            ));
+            st.write(format!("values={}", json!({"values":values,"calls":st.session_state().get::<Vec<Value>>("bool_calls")?.unwrap_or_default()})));
+            Ok(())
+        }
+        .await;
+        assert!(result.is_ok(), "bool fixture failed: {result:?}");
+    })
+}
+
+#[actix_web::test]
+async fn boolean_wire_coercion_callbacks_and_recovery_match_sdk_over_ws() -> TestResult {
+    let reference: Value = serde_json::from_str(include_str!("../../../tests/reference/reference-browser/widget-params/trace.json"))?;
+    let cases = reference["bool_coercion_reference"]["cases"].as_array().ok_or("bool cases")?;
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
+    let server = HttpServer::new(move || App::new().app_data(web::Data::new(StreamlitServer::new(bool_coercion_entry, "127.0.0.1".into(), 0))).configure(configure_routes))
+        .workers(1)
+        .listen(listener)?
+        .run();
+    let handle = server.handle();
+    let task = actix_web::rt::spawn(server);
+    let captured = tokio::time::timeout(Duration::from_secs(45), async {
+        let mut runs = Vec::new();
+        for case in cases {
+            let mut socket = sessions::connect(address, None).await;
+            let initial = rerun(&mut socket, vec![]).await?;
+            let key = case["key"].as_str().ok_or("key")?;
+            let mut reports = Vec::new();
+            for phase in ["submit", "missing", "recover"] {
+                let mut target = WidgetState { id: initial.inputs[key].clone(), value: None };
+                if phase == "submit" {
+                    let bytes = serde_json::from_value::<Vec<u8>>(case["input_bytes"].clone())?;
+                    target = WidgetState::decode(bytes.as_slice())?;
+                    target.id = initial.inputs[key].clone();
+                } else if phase == "recover" {
+                    target.value = Some(widget_state::Value::BoolValue(key.ends_with('0')));
+                }
+                let peer = WidgetState {
+                    id: initial.inputs["peer"].clone(),
+                    value: Some(widget_state::Value::StringValue(phase.into())),
+                };
+                let incoming = if phase == "missing" { vec![peer, target] } else { vec![target, peer] };
+                reports.push(rerun(&mut socket, incoming).await?);
+            }
+            sessions::disconnect(socket).await;
+            runs.push((initial, reports));
+        }
+        Ok::<_, Box<dyn std::error::Error>>(runs)
+    })
+    .await;
+    handle.stop(false).await;
+    task.await??;
+    let runs = captured??;
+    assert_eq!(cases.len(), 176);
+    assert_eq!(runs.len(), cases.len());
+    for ((initial, reports), case) in runs.into_iter().zip(cases) {
+        assert_eq!(initial.inputs.len(), 5);
+        let expected = case["expected"].as_array().ok_or("expected phases")?;
+        assert_eq!(reports.len(), expected.len());
+        for (report, expected) in reports.into_iter().zip(expected) {
+            assert_eq!(report.inputs, initial.inputs);
+            assert_eq!(report.id, initial.id);
+            assert_eq!(&report.values, expected, "{}", case["name"]);
         }
     }
     Ok(())

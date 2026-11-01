@@ -7,8 +7,8 @@
     "by_bucket": {
       "needs-external-source-or-environment": 13,
       "rust-extension-or-headless-bound": 2,
-      "unmeasured-parameters": 97,
-      "no-explicit-gap-stated": 30
+      "unmeasured-parameters": 98,
+      "no-explicit-gap-stated": 29
     }
   },
   "entries": [
@@ -264,7 +264,8 @@
         "2026-10-30 sixteen-case follow-up: complete native Rust WS differential covers 48 runs/230 widget-URL-exception-state events, matching 33 snapshots and 15 TypeErrors across 16 fresh sessions. JSON list/dict and all three repeated-array wire types fail before callbacks/entry and remain failed; measured JSON null/string input is ignored. Empty bytes and trigger instead fail at registration after prior Live callbacks and recover next run. Older eight-case and poisoned-session captures/regressions retained. Unit coverage includes five container kinds in both input orders plus bytes/trigger scalar errors. Uses existing serde_json only; no new public API/dependency. The replay explicitly supports only empty bytes in this fixture. JSON syntax error mapping, nonempty bytes protocol validation, enabled/creation widgets, further combinations and real error UI remain open.",
         "2026-10-30 nonempty bytes follow-up removes the empty-only test limitation: existing production behavior is unchanged; private test replay decodes frozen standard Base64 without dependencies. Complete native WS differential covers 19 cases/57 runs/272 events, including x, quote/NUL/backslash/CR/LF and every octet 0..255. New bytes calls preserve Live callbacks, raise the same registration TypeError after Plain and recover on the same socket. Exact payload unit and coherent reverse-byte mutation reject content corruption despite unchanged error text. Older captures retained. This expands measured protocol evidence only; JSON syntax errors, other oneofs/parameter combinations, enabled/creation controls and real error UI remain open.",
         "2026-10-31 JSON syntax reference only: 24 Python WS sessions/72 runs, 34 snapshots, 38 exceptions and 252 projected events. Seventeen syntax cases each fail twice as json.decoder.JSONDecodeError before callbacks/entry; five special scalar inputs are accepted/ignored, and two nonfinite-containing containers decode then fail as list/dict TypeErrors. Exact Python 3.14 wording and Unicode char offsets are frozen; runtime.json is post-capture interpreter readback. Direct decoder probes show seven Python-accepted inputs rejected by serde_json 1.0.145 Value decoding; IgnoredAny accepts two of those seven but still needs lexical/error adaptation. These are not Rust service WS parity results. Current Rust JSONDecodeError handling is not implemented; private scanner/IgnoredAny-adaptation/defer options await the AGENTS.md decision in architecture.md. No production parser/dependency added, no scope or compatibility status upgrade.",
-        "Width/state identity is measured on one native WS (2026-11-01, bool-width): seven normal-completion runs per runtime, 69 raw frames and 35 complete Elements, covering unkeyed reset on width changes, cleanup before restoring the original width, and keyed state retention. This is not real browser interaction or full parameter/error/form/callback compatibility."
+        "Width/state identity is measured on one native WS (2026-11-01, bool-width): seven normal-completion runs per runtime, 69 raw frames and 35 complete Elements, covering unkeyed reset on width changes, cleanup before restoring the original width, and keyed state retention. This is not real browser interaction or full parameter/error/form/callback compatibility.",
+        "2026-11-01 enabled bool wire coercion: 44 serialized WidgetState inputs cover every oneof field plus missing value, across checkbox/toggle and false/true defaults (176 cases). Public SDK AppTest and native public API WS tests run load, submit with peer, ID-only with reversed input order, and valid recovery (704 rounds per runtime). Frozen reports compare all four booleans, peer text, callback order/source/snapshots and stable IDs: zero numeric/empty scalar or container is false; nonempty data and protobuf message objects are true; JSON null/ID-only restore the declaration default. Includes floating NaN/infinity, empty/nonempty bytes/arrays/JSON and string-trigger/message cases. Bool codec conversion and default cache only; no public API/dependency. Standard valid JSON only: malformed/nonfinite JSON error control, disabled/ignore, query/form/page combinations and browser behavior remain open. No SDK socket/full protobuf claim; row/full goal stay partial."
       ]
     },
     {
@@ -1707,13 +1708,14 @@
       "feature_id": "st.toggle",
       "category": "PAGE ELEMENTS/Input widgets",
       "buckets": [
-        "no-explicit-gap-stated"
+        "unmeasured-parameters"
       ],
       "limitations": [
         "Coverage is the journey-buttons-v1 chain: the pinned fixture's widget set (two toggles, stars+thumbs feedback, single/multi pills, one segmented control, a 10-page pagination, one menu button, one text download, one keyed link button, one external page link) across the load and five committed interactions (toggle flip, single pill pick, page-2 click, third star, CSV menu pick).",
         "help/label_visibility/on_change/disabled and form scoping follow the shared checkbox semantics but were not separately measured; icon-prefixed labels were not observed.",
         "fixture SHA256 301325fef04f99504bd2577edbeed14991e0b2335170cae7a0d4d99807f1530d; example SHA256 79817da724ca2b6d57f9615b955d9acc6219d30ce7a357026b605c426a705f4d.",
-        "Width/state identity is measured on one native WS (2026-11-01, bool-width): seven normal-completion runs per runtime, 69 raw frames and 35 complete Elements, covering unkeyed reset on width changes, cleanup before restoring the original width, and keyed state retention. This is not real browser interaction or full parameter/error/form/callback compatibility."
+        "Width/state identity is measured on one native WS (2026-11-01, bool-width): seven normal-completion runs per runtime, 69 raw frames and 35 complete Elements, covering unkeyed reset on width changes, cleanup before restoring the original width, and keyed state retention. This is not real browser interaction or full parameter/error/form/callback compatibility.",
+        "2026-11-01 enabled bool wire coercion: 44 serialized WidgetState inputs cover every oneof field plus missing value, across checkbox/toggle and false/true defaults (176 cases). Public SDK AppTest and native public API WS tests run load, submit with peer, ID-only with reversed input order, and valid recovery (704 rounds per runtime). Frozen reports compare all four booleans, peer text, callback order/source/snapshots and stable IDs: zero numeric/empty scalar or container is false; nonempty data and protobuf message objects are true; JSON null/ID-only restore the declaration default. Includes floating NaN/infinity, empty/nonempty bytes/arrays/JSON and string-trigger/message cases. Bool codec conversion and default cache only; no public API/dependency. Standard valid JSON only: malformed/nonfinite JSON error control, disabled/ignore, query/form/page combinations and browser behavior remain open. No SDK socket/full protobuf claim; row/full goal stay partial."
       ]
     },
     {

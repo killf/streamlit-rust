@@ -14,6 +14,41 @@ from streamlit.proto.ForwardMsg_pb2 import ForwardMsg
 PYTHON = Path(__file__).parent / "reference-browser/widget-params"
 RUST = Path(__file__).parents[1] / "browser/rust-widget-params"
 
+
+BOOL_REFERENCE = json.loads((PYTHON / 'trace.json').read_text(encoding='utf-8-sig'))['bool_coercion_reference']
+
+
+@pytest.mark.parametrize('case', BOOL_REFERENCE['cases'], ids=lambda case: case['name'])
+def test_sdk_checkbox_toggle_wire_coercion_callbacks_and_recovery(case):
+    import importlib.metadata
+    from streamlit.proto.WidgetStates_pb2 import WidgetState, WidgetStates
+    from streamlit.testing.v1 import AppTest
+
+    assert importlib.metadata.version('streamlit') == BOOL_REFERENCE['reference_version'] == '1.66.1'
+    assert len(BOOL_REFERENCE['cases']) == 176 and len(case['expected']) == 3
+    wire = WidgetState()
+    wire.ParseFromString(bytes(case['input_bytes']))
+    assert not wire.id and wire.WhichOneof('value') == case['field']
+    app = AppTest.from_string(BOOL_REFERENCE['source']).run()
+    assert not app.exception
+    identities = {element.label: element.id for kind in ('checkbox', 'toggle', 'text_input') for element in app.get(kind)}
+    assert set(identities) == {'cb0', 'cb1', 'tg0', 'tg1', 'peer'}
+    for phase, expected in zip(('submit', 'missing', 'recover'), case['expected']):
+        target = WidgetState(id=identities[case['key']])
+        if phase == 'submit':
+            target.CopyFrom(wire)
+            target.id = identities[case['key']]
+        elif phase == 'recover':
+            target.bool_value = case['key'].endswith('0')
+        peer = WidgetState(id=identities['peer'], string_value=phase)
+        raw = WidgetStates()
+        for widget in ((peer, target) if phase == 'missing' else (target, peer)):
+            raw.widgets.add().CopyFrom(widget)
+        app._run(raw)
+        assert not app.exception
+        assert json.loads(app.json[0].value) == expected
+        assert {element.label: element.id for kind in ('checkbox', 'toggle', 'text_input') for element in app.get(kind)} == identities
+
 COLOR_DEFAULTS = (
     ("short-upper", "#ABC"), ("short-lower", "#abc"), ("long-mixed", "#aBcDeF"), ("black", "#000000"),
     ("missing-hash", "ABCDEF"), ("short-unprefixed", "abc"), ("alpha", "#12345678"), ("bad-digit", "#12G"),

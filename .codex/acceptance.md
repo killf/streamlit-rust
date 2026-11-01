@@ -3177,3 +3177,22 @@ Rust 用法仍为 `st.video(VideoOptions::from_url("https://youtu.be/Ab_cD-12345
 最终真实 WS 控件模块 5 项通过（target/temporal-lexical-runtime.log），新增一项完整执行 75 独立会话/150 轮；旧四项保留。工作区 359 项通过（352 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿（target/temporal-lexical-workspace.log）。SDK/文档四模块共 545 项通过：490 时间控件、55 文档/配置/矩阵（target/temporal-lexical-python.log、target/temporal-lexical-docs.log）。
 
 矩阵仅更新三项日期/时间控件及其生成清单，仍 130 partial；旧参考十五字段逐值未变，九个受保护用户文件 SHA 保持一致。逐文件 diff/git diff --check 通过，只暂存本批九个既有代码/测试/参考/计划/矩阵文件；用户 Cargo、colconfig、指南/README 修改不纳入。无 PR、合并、发布或部署，M3/M5/M7 和完整目标继续开放。
+
+
+## Current checkbox and toggle wire coercion validation (2026-11-01)
+
+继续完整目标。颜色控件的字符串归一化/验证实现与锁定源码相符，未重复修改；随后发现 CheckboxSerde（也供 toggle 使用）按 Python bool 转换实际前端类型，而原 Rust Bool 只接受 bool_value，错误类型包使同批正常 Peer 一并被整批拒绝。SDK 还把 JSON null/缺少 value 当作声明默认，并非保留上轮编辑值。先红单元在 cb0-trigger_value-3 返回 None，参考为 false（target/bool-coercion-red.log）。本次不是选择忽略错误类型，也未将错误分支整批拒绝当成最终兼容策略。
+
+既有 widget-params/trace.json 追加 bool_coercion_reference，SDK 1.66.1/Python 3.14.7 公开 AppTest 使用四个控件 cb0/cb1/tg0/tg1（checkbox/toggle × false/true 默认）与一个文本 Peer。44 个不同原始 WidgetState（所有 oneof 字段加缺省）× 四目标共 176 案，逐案保存原始 protobuf 字节和三次报告：submit（目标在前）、ID-only（Peer 在前）、正常 bool 恢复（目标在前），连同初始轮共 704 轮。冻结完整五个返回值、累计 callback 来源/顺序/全体状态快照，保存实际 fixture 源码；不是 SDK 原生 socket/WS 或浏览器采集。
+
+包括 bool/trigger、整数零/负值、double 正负零/有限/NaN/Infinity、空/非空字符串、三种数组、空/含 NUL 字节、标准 JSON 的 null/bool/数字/字符串/数组/对象、原样 json_trigger 字符串、string_trigger data 和三个消息对象。消息对象即使为空仍为真，字符串触发器先提取可选 data 后按空字符串判断；数字 NaN 为真。JSON null 与缺省 value 回声明默认，在此前提交把值改掉后也恢复默认，callback 看到全部已应用的同批值。正常 bool 轮可继续恢复，五个控件 ID 全程稳定。
+
+生产仅修改 widgets.rs Bool codec：按上述输入拆箱与真值转换，普通 JSON 使用现有解析器；Null 标记和 ID-only 通过既有 empty_input 缓存恢复本轮之前登记的声明默认。保持校验/输入应用/callback 流程，未新增公开接口、依赖、文件或改变禁用策略。初版编译暴露 string_trigger data 与 text_input 返回值均为 Option，已按协议空值语义与非空 Peer 约束修正；原日志 target/bool-coercion-clippy.log 保留，最终 workspace/all-targets Clippy -D warnings 通过（target/bool-coercion-clippy-final.log），既有 MSVC linker_messages 告警保留。
+
+SDK 新增 176 项回放全部 704 轮通过（target/bool-coercion-python.log）。原生新增真实 WS 集成沿用同一四布尔/Peer 公开接口，从冻结输入字节解码，逐案独立会话执行相同四轮，采集返回值与 callback 及会话/控件 ID；捕获返回后停止等待自有服务再比较报告，捕获限 45 秒。旧参考字段保留，未把原始错误记录改成成功材料。两份 Rust 按语义单元留空行并逐段复查 diff。
+
+本批仅启用态及标准有效 JSON。非法/非有限 JSON 的错误/中止/恢复、禁用/ignore、查询/表单/跨页、浏览器控件 UI 和完整 protobuf 仍开放；浮点 NaN oneof 的已测结果不等于非有限 JSON 已实现。MIME/Unicode/repr/非 Delta 队列等待各自选择，st.checkbox/st.toggle、M3/M5/M7 与完整目标继续开放。
+
+最终 24 项控件单元和 6 项真实 WS 控件集成通过（target/bool-coercion-unit.log、target/bool-coercion-runtime.log）；新增集成完整执行 176 独立会话/704 轮并核对三阶段累计 callback 报告。工作区 361 项通过（354 库、1 ledger、2 宏、4 rustdoc），仍仅排除 server::tests::navigation::navigation_pages_switch_and_session_state_match_the_measured_wire 与 server::tests::queryparams::rerun_queue_messages_match_frozen_reference，不称完整工作区全绿（target/bool-coercion-workspace.log）。相关 SDK/文档共 231 项通过：176 新场景、55 文档/配置/矩阵（target/bool-coercion-python.log、target/bool-coercion-docs.log）；不是整个 widget-params Python 模块的新全量重跑。
+
+原 widget-params 捕获十五字段逐值保留，九个用户文件 SHA 不变；矩阵只补 checkbox/toggle 和生成清单，仍 130 partial。新增明确边界使 toggle 从无显式缺口标记转入未测参数桶（98/29），不改变能力分母或兼容状态。其他 JSON 数值/解析边界不在这 44 例中，不从标准 JSON 的有限样本宣称整个 JSON 域完成。逐文件 diff/git diff --check 通过；只暂存本批九个既有代码/测试/参考/计划/矩阵文件，无 PR、合并、发布或部署，完整目标继续。
